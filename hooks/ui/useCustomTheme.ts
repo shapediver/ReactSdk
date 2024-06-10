@@ -1,4 +1,4 @@
-import { Accordion, Anchor, AppShellResponsiveSize, Button, CSSVariablesResolver, ColorInput, DEFAULT_THEME, Group, MantineSize, MantineSpacing, Paper, Stack, StyleProp, Switch, Tabs, createTheme, mergeThemeOverrides } from "@mantine/core";
+import { Accordion, Anchor, AppShellResponsiveSize, Button, CSSVariablesResolver, ColorInput, DEFAULT_THEME, Group, MantineSize, MantineSpacing, MantineThemeOverride, Paper, Stack, StyleProp, Switch, Tabs, createTheme, mergeThemeOverrides } from "@mantine/core";
 import { ViewportIconsThemeProps } from "../../components/shapediver/viewport/ViewportIcons";
 import { ViewportBrandingThemeProps, ViewportComponentThemeProps } from "../../components/shapediver/viewport/ViewportComponent";
 import { ViewportOverlayWrapperThemeProps } from "../../components/shapediver/viewport/ViewportOverlayWrapper";
@@ -50,12 +50,21 @@ const getAppShellSize = (size: AppShellResponsiveSize | AppShellSize, breakpoint
 	return ""+size;
 };
 
+interface Props {
+	/**
+	 * Global theme overrides to be applied to the theme (theme overrides specific to the application).
+	 */
+	globalThemeOverrides?: MantineThemeOverride;
+}
+
 /**
  * Hook for getting our custom theme. 
  * Theme overrides can be set in a global store using the hook useThemeOverrideStore.
  * @returns 
  */
-export const useCustomTheme = () => {
+export const useCustomTheme = (props: Props = {}) => {
+
+	const { globalThemeOverrides = {} } = props;
 
 	/** 
 	 * Padding value used in various places. 
@@ -443,7 +452,7 @@ export const useCustomTheme = () => {
 	});
 
 	const themeOverride = useThemeOverrideStore(state => state.themeOverride);
-	const theme = mergeThemeOverrides(defaultTheme, themeOverride);
+	const theme = mergeThemeOverrides(defaultTheme, globalThemeOverrides, themeOverride);
 	console.debug("Theme", theme);
 	
 	/** 
