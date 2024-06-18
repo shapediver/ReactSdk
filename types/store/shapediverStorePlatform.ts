@@ -25,7 +25,7 @@ export interface IShapeDiverStorePlatform {
      * In case the application is not running on the platform, this function returns undefined.
      * @returns The authenticated platform client.
      */
-    authenticate: () => Promise<IPlatformClientRef | undefined>
+    authenticate: (forceReAuthenticate?: boolean) => Promise<IPlatformClientRef | undefined>
 
     /**
      * Information about the current user.
@@ -35,6 +35,6 @@ export interface IShapeDiverStorePlatform {
     /**
      * Load information about the current user.
      */
-    getUser: () => Promise<SdPlatformResponseUserSelf | undefined>
+    getUser: (forceRefresh?: boolean) => Promise<SdPlatformResponseUserSelf | undefined>
 }
 
