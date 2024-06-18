@@ -98,7 +98,7 @@ export default function ParameterSliderComponent(props: PropsParameter & Partial
 				step={step}
 				decimalScale={definition.decimalplaces}
 				fixedDecimalScale={true}
-				clampBehavior="strict"
+				clampBehavior="blur"
 				onChange={v => handleChange(round(definition, +v))}
 				disabled={disabled}
 			/></Tooltip> }
