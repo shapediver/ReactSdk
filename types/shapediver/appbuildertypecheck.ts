@@ -86,11 +86,64 @@ const IAppBuilderWidgetPropsImageSchema = z.object({
 	target: z.string().default("_blank"),
 }).extend(IAppBuilderWidgetPropsCommonSchema.shape);
 
+// Zod type definition for IAppBuilderWidgetPropsRoundChart
+const IAppBuilderWidgetPropsRoundChartSchema = z.object({
+	name: z.string().optional(),
+	style: z.enum(["pie", "donut"]),
+	labels: z.boolean().optional(),
+	legend: z.boolean().optional(),
+	data: z.array(z.object({name: z.string(), value: z.number(), color: z.string()})),
+}).extend(IAppBuilderWidgetPropsCommonSchema.shape);
+
+// Zod type definition for IAppBuilderWidgetPropsChartPlotSettings
+const IAppBuilderWidgetPropsChartPlotSettingsSchema = z.object({
+	xaxis: z.boolean().optional(),
+	xlabel: z.string().optional(),
+	yaxis: z.boolean().optional(),
+	ylabel: z.string().optional(),
+	grid: z.enum(["none", "x", "y", "xy"]).optional(),
+	dots: z.boolean().optional(),
+	legend: z.boolean().optional(),
+});
+
+// Zod type definition for IAppBuilderWidgetPropsChartDataSet
+const IAppBuilderWidgetPropsChartDataSetSchema = z.object({
+	keys: z.array(z.string()),
+	series: z.array(z.object({name: z.string(), color: z.string(), values: z.array(z.number())})),
+});
+
+// Zod type definition for IAppBuilderWidgetPropsChartCommon
+const IAppBuilderWidgetPropsChartCommonSchema = z.object({
+	name: z.string().optional(),
+	plotSettings: IAppBuilderWidgetPropsChartPlotSettingsSchema,
+	data: IAppBuilderWidgetPropsChartDataSetSchema,
+}).extend(IAppBuilderWidgetPropsCommonSchema.shape);
+
+// Zod type definition for IAppBuilderWidgetPropsLineChart
+const IAppBuilderWidgetPropsLineChartSchema = z.object({
+	style: z.enum([ "bump", "linear", "natural", "monotone", "step", "stepBefore", "stepAfter"]).optional(),
+}).extend(IAppBuilderWidgetPropsChartCommonSchema.shape);
+
+// Zod type definition for IAppBuilderWidgetPropsAreaChart
+const IAppBuilderWidgetPropsAreaChartSchema = z.object({
+	style: z.enum([ "bump", "linear", "natural", "monotone", "step", "stepBefore", "stepAfter"]).optional(),
+	type: z.enum([ "default", "stacked", "percent", "split"]).optional(),
+}).extend(IAppBuilderWidgetPropsChartCommonSchema.shape);
+
+// Zod type definition for IAppBuilderWidgetPropsBarChart
+const IAppBuilderWidgetPropsBarChartSchema = z.object({
+	style: z.enum([ "default", "stacked", "percent", "waterfall"]).optional(),
+}).extend(IAppBuilderWidgetPropsChartCommonSchema.shape);
+
 // Zod type definition for IAppBuilderWidget
 const IAppBuilderWidgetSchema = z.discriminatedUnion("type", [
 	z.object({type: z.literal("accordion"), props: IAppBuilderWidgetPropsAccordionSchema}),
 	z.object({type: z.literal("text"), props: IAppBuilderWidgetPropsTextSchema}),
 	z.object({type: z.literal("image"), props: IAppBuilderWidgetPropsImageSchema}),
+	z.object({type: z.literal("roundChart"), props: IAppBuilderWidgetPropsRoundChartSchema}),
+	z.object({type: z.literal("lineChart"), props: IAppBuilderWidgetPropsLineChartSchema}),
+	z.object({type: z.literal("areaChart"), props: IAppBuilderWidgetPropsAreaChartSchema}),
+	z.object({type: z.literal("barChart"), props: IAppBuilderWidgetPropsBarChartSchema}),
 ]);
 
 // Zod type definition for IAppBuilderTab

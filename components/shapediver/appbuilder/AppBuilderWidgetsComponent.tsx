@@ -1,8 +1,21 @@
 import React from "react";
-import { IAppBuilderWidget, isAccordionWidget, isImageWidget, isTextWidget } from "../../../types/shapediver/appbuilder";
+import { 
+	IAppBuilderWidget, 
+	isAccordionWidget, 
+	isAreaChartWidget, 
+	isBarChartWidget, 
+	isImageWidget, 
+	isLineChartWidget, 
+	isRoundChartWidget, 
+	isTextWidget 
+} from "../../../types/shapediver/appbuilder";
 import AppBuilderTextWidgetComponent from "./AppBuilderTextWidgetComponent";
 import AppBuilderImageWidgetComponent from "./AppBuilderImageWidgetComponent";
 import AppBuilderAccordionWidgetComponent from "./AppBuilderAccordionWidgetComponent";
+import AppBuilderRoundChartWidgetComponent from "./AppBuilderRoundChartWidgetComponent";
+import AppBuilderLineChartWidgetComponent from "./AppBuilderLineChartWidgetComponent";
+import AppBuilderAreaChartWidgetComponent from "./AppBuilderAreaChartWidgetComponent";
+import AppBuilderBarChartWidgetComponent from "./AppBuilderBarChartWidgetComponent";
 
 interface Props {
 	/** 
@@ -28,6 +41,14 @@ export default function AppBuilderWidgetsComponent({ sessionId, widgets }: Props
 				return <AppBuilderImageWidgetComponent key={i} sessionId={sessionId} {...w.props} />;
 			else if (isAccordionWidget(w))
 				return <AppBuilderAccordionWidgetComponent key={i} sessionId={sessionId} {...w.props} />;
+			else if (isRoundChartWidget(w))
+				return <AppBuilderRoundChartWidgetComponent key={i} {...w.props} />;
+			else if (isLineChartWidget(w))
+				return <AppBuilderLineChartWidgetComponent key={i} {...w.props} />;
+			else if (isAreaChartWidget(w))
+				return <AppBuilderAreaChartWidgetComponent key={i} {...w.props} />;
+			else if (isBarChartWidget(w))
+				return <AppBuilderBarChartWidgetComponent key={i} {...w.props} />;
 			else
 				return null;
 		})}

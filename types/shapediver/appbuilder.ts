@@ -2,6 +2,12 @@ import { IShapeDiverExportDefinition } from "./export";
 import { IShapeDiverParameterDefinition } from "./parameter";
 import { IconType } from "./icons";
 import { SessionCreateDto } from "../store/shapediverStoreViewer";
+import { 
+	IAppBuilderWidgetPropsAreaChart, 
+	IAppBuilderWidgetPropsBarChart, 
+	IAppBuilderWidgetPropsLineChart, 
+	IAppBuilderWidgetPropsRoundChart 
+} from "./appbuildercharts";
 
 /** Type used for parameter definitions */
 export type IAppBuilderParameterDefinition = IShapeDiverParameterDefinition;
@@ -34,7 +40,7 @@ export interface IAppBuilderExportRef {
 }
 
 /** Types of widgets */
-export type AppBuilderWidgetType = "accordion" | "text" | "image";
+export type AppBuilderWidgetType = "accordion" | "text" | "image" | "roundChart" | "lineChart" | "areaChart" | "barChart";
 
 /** 
  * Properties of a parameter and export accordion widget.
@@ -91,7 +97,13 @@ export interface IAppBuilderWidget {
 	/** Type of the widget. */
 	type: AppBuilderWidgetType
 	/** Properties of the widget. Add properties of  */
-	props: IAppBuilderWidgetPropsAccordion | IAppBuilderWidgetPropsText | IAppBuilderWidgetPropsImage
+	props: IAppBuilderWidgetPropsAccordion 
+		| IAppBuilderWidgetPropsText 
+		| IAppBuilderWidgetPropsImage
+		| IAppBuilderWidgetPropsRoundChart
+		| IAppBuilderWidgetPropsLineChart
+		| IAppBuilderWidgetPropsAreaChart
+		| IAppBuilderWidgetPropsBarChart
 }
 
 /** 
@@ -158,6 +170,26 @@ export function isTextWidget(widget: IAppBuilderWidget): widget is { type: "text
 /** assert widget type "image" */
 export function isImageWidget(widget: IAppBuilderWidget): widget is { type: "image", props: IAppBuilderWidgetPropsImage } {
 	return widget.type === "image";
+}
+
+/** assert widget type "roundChart" */
+export function isRoundChartWidget(widget: IAppBuilderWidget): widget is { type: "roundChart", props: IAppBuilderWidgetPropsRoundChart } {
+	return widget.type === "roundChart";
+}
+
+/** assert widget type "lineChart" */
+export function isLineChartWidget(widget: IAppBuilderWidget): widget is { type: "lineChart", props: IAppBuilderWidgetPropsLineChart } {
+	return widget.type === "lineChart";
+}
+
+/** assert widget type "areaChart" */
+export function isAreaChartWidget(widget: IAppBuilderWidget): widget is { type: "areaChart", props: IAppBuilderWidgetPropsAreaChart } {
+	return widget.type === "areaChart";
+}
+
+/** assert widget type "barChart" */
+export function isBarChartWidget(widget: IAppBuilderWidget): widget is { type: "barChart", props: IAppBuilderWidgetPropsBarChart } {
+	return widget.type === "barChart";
 }
 
 /**
