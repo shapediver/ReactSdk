@@ -15,9 +15,11 @@ import useDefaultSessionDto from "../../hooks/shapediver/useDefaultSessionDto";
 import LoaderPage from "../misc/LoaderPage";
 import MarkdownWidgetComponent from "../../components/shapediver/ui/MarkdownWidgetComponent";
 import AppBuilderTemplateSelector from "../templates/AppBuilderTemplateSelector";
-import { isRunningInPlatform } from "../../utils/shapediver";
+import { shouldUsePlatform } from "../../utils/shapediver";
 
 const VIEWPORT_ID = "viewport_1";
+
+const urlWithoutQueryParams = window.location.origin + window.location.pathname;
 
 const WelcomePlatformMarkdown = `
 ## Welcome to the ShapeDiver App Builder
@@ -35,7 +37,7 @@ Note: You do **not** need to enable iframe or direct embedding for this to work.
 
 Example: 
 
-[${window.location}?slug=react-ar-cube](${window.location}?slug=react-ar-cube)
+[${urlWithoutQueryParams}?slug=react-ar-cube](${urlWithoutQueryParams}?slug=react-ar-cube)
 `;
 
 const WelcomeIframeMarkdown = `
@@ -48,7 +50,7 @@ Use this page in one of the following ways to display your model:
 
 Example: 
 
-[${window.location}?slug=react-ar-cube](${window.location}?slug=react-ar-cube)
+[${urlWithoutQueryParams}?slug=react-ar-cube](${urlWithoutQueryParams}?slug=react-ar-cube)
 
 You need to allow [iframe embedding](https://help.shapediver.com/doc/iframe-settings) for this to work.
 
@@ -60,7 +62,7 @@ or individually for each model in the [Developer settings](https://help.shapediv
 
 Example:
 
-[${window.location}?ticket=TICKET&modelViewUrl=MODEL_VIEW_URL](${window.location}?ticket=YOUR_TICKET&modelViewUrl=MODEL_VIEW_URL)
+[${urlWithoutQueryParams}?ticket=TICKET&modelViewUrl=MODEL_VIEW_URL](${urlWithoutQueryParams}?ticket=YOUR_TICKET&modelViewUrl=MODEL_VIEW_URL)
 
 You need to allow [direct embedding](https://help.shapediver.com/doc/developers-settings) for this to work. 
 Copy the *Embedding ticket* and the *Model view URL* from the [Developer settings](https://help.shapediver.com/doc/developers-settings) of your model,
@@ -79,13 +81,21 @@ Use this page in one of the following ways to display your model:
 
 ### Provide the slug of your model
 
-Loading models based on their slug is **not** supported when developing locally.
+When developing locally, loading models based on their slug is only supported when using the development or staging platform.
+
+Example: 
+
+[${urlWithoutQueryParams}?slug=react-ar-cube&platformUrl=https://dev-wwwcdn.us-east-1.shapediver.com](${urlWithoutQueryParams}?slug=react-ar-cube&platformUrl=https://dev-wwwcdn.us-east-1.shapediver.com)
+
+If you want the application to behave like it is running in the ShapeDiver platform, you can use one of the query parameter \`useDevPlatform\`, or \`useStagingPlatform\`, or \`useSandboxPlatform\` instead of specifying \`platformUrl\`. Example:
+
+[${urlWithoutQueryParams}?slug=react-ar-cube&useDevPlatform=true](${urlWithoutQueryParams}?slug=react-ar-cube&useDevPlatform=true)
 
 ### Provide ticket and modelViewUrl
 
 Example:
 
-[${window.location}?ticket=TICKET&modelViewUrl=MODEL_VIEW_URL](${window.location}?ticket=YOUR_TICKET&modelViewUrl=MODEL_VIEW_URL)
+[${urlWithoutQueryParams}?ticket=TICKET&modelViewUrl=MODEL_VIEW_URL](${urlWithoutQueryParams}?ticket=YOUR_TICKET&modelViewUrl=MODEL_VIEW_URL)
 
 You need to allow [direct embedding](https://help.shapediver.com/doc/developers-settings) for this to work. 
 Copy the *Embedding ticket* and the *Model view URL* from the [Developer settings](https://help.shapediver.com/doc/developers-settings) of your model,
@@ -101,7 +111,7 @@ You can store the \`ticket\` and \`modelViewUrl\` in a json file in the \`public
 
 Example: 
 
-[${window.location}?g=example.json](${window.location}?g=example.json)
+[${urlWithoutQueryParams}?g=example.json](${urlWithoutQueryParams}?g=example.json)
 
 Using this method, you can also provide theme settings, as well as further settings useful for local development. 
 Check out the interface \`IAppBuilderSettingsJson\` in the code for all available settings.
@@ -167,7 +177,7 @@ export default function AppBuilderPage(props: Partial<Props>) {
 
 	const NoSettingsMarkdown = window.location.hostname === "localhost" ?
 		WelcomeLocalhostMarkdown : 
-		isRunningInPlatform() ? WelcomePlatformMarkdown : WelcomeIframeMarkdown;
+		shouldUsePlatform() ? WelcomePlatformMarkdown : WelcomeIframeMarkdown;
 
 	return (
 		showMarkdown ? <AlertPage>

@@ -190,16 +190,6 @@ export interface IAppBuilderSettingsSettings {
 }
 
 /**
- * Platform authorization.
- */
-export interface IAppBuilderSettingsAuthorization {
-	/** Access token for the ShapeDiver platform. */
-	jwtToken?: string
-	/** Platform base URL */
-	platformUrl: string
-}
-
-/**
  * Settings for initializing an AppBuilder application from a JSON file. This defines the sessions to create.
  */
 export interface IAppBuilderSettingsJson {
@@ -208,8 +198,6 @@ export interface IAppBuilderSettingsJson {
     sessions?: IAppBuilderSettingsSession[]
 	/** Settings */
 	settings?: IAppBuilderSettingsSettings
-	/** Authorization for the ShapeDiver platform */
-	auth?: IAppBuilderSettingsAuthorization,
 	/** 
 	 * Theme overrides
 	 * @see https://mantine.dev/theming/theme-object/
