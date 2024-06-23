@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect, useState } from "react";
-import { Stack, Tabs } from "@mantine/core";
+import { BoxProps, Stack, Tabs } from "@mantine/core";
 import Icon from "./Icon";
 import { IconType } from "../../types/shapediver/icons";
 import classes from "./TabsComponent.module.css";
@@ -13,7 +13,7 @@ interface PropsTab {
 	children: ReactElement[],
 }
 
-export interface ITabsComponentProps {
+export interface ITabsComponentProps extends BoxProps {
 	/** Value of default tab. */
 	defaultValue: string,
 	/** The tabs. */
@@ -21,7 +21,7 @@ export interface ITabsComponentProps {
 }
 
 
-export default function TabsComponent({defaultValue, tabs}: ITabsComponentProps) {
+export default function TabsComponent({defaultValue, tabs, ...rest}: ITabsComponentProps) {
 
 	const [activeTab, setActiveTab] = useState<string | null>(defaultValue);
 	const tabNames = tabs.map(tab => tab.name);
@@ -37,7 +37,7 @@ export default function TabsComponent({defaultValue, tabs}: ITabsComponentProps)
 		}
 	}, [tabNames.join(""), defaultValue]);
 
-	return tabs.length === 0 ? <></> : <Tabs value={activeTab} onChange={setActiveTab} className={classes.tabs}>
+	return tabs.length === 0 ? <></> : <Tabs value={activeTab} onChange={setActiveTab} className={classes.tabs} {...rest}>
 		<Tabs.List>
 			{
 				tabs.map((tab, index) => <Tabs.Tab

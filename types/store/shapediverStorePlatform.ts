@@ -1,4 +1,4 @@
-import { SdPlatformResponseUserSelf, SdPlatformSdk } from "@shapediver/sdk.platform-api-sdk-v1";
+import { SdPlatformModelQueryParameters, SdPlatformQueryResponse, SdPlatformResponseModelPublic, SdPlatformResponseUserSelf, SdPlatformSdk } from "@shapediver/sdk.platform-api-sdk-v1";
 
 /**
  * Reference to the authenticated platform client.
@@ -36,5 +36,10 @@ export interface IShapeDiverStorePlatform {
      * Load information about the current user.
      */
     getUser: (forceRefresh?: boolean) => Promise<SdPlatformResponseUserSelf | undefined>
+
+    /**
+     * Fetch models.
+     */
+    fetchModels: (Params?: SdPlatformModelQueryParameters, forceRefresh?: boolean) => Promise<SdPlatformQueryResponse<SdPlatformResponseModelPublic> | undefined>
 }
 
