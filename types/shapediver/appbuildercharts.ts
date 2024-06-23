@@ -4,11 +4,11 @@ import { AreaChartCurveType, AreaChartType, BarChartType, DonutChartCell, LineCh
 export interface IAppBuilderWidgetPropsRoundChart {
 	/** Name used as a title of the chart */
 	name?: string;
-	/** Use a PieChart or DonutChart */
+	/** Use a pie chart or donut chart, defaults to "donut" chart */
 	style: "pie" | "donut";
-	/** Whether or not to display labels */
+	/** Whether or not to display labels, true by default */
 	labels?: boolean;
-	/** Whether or not to display badges for the legend */
+	/** Whether or not to display badges for the legend, true by default */
 	legend?: boolean;
 	/** Data set used for the chart */
 	data: DonutChartCell[]

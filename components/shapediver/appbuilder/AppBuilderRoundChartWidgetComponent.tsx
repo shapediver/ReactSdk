@@ -17,7 +17,7 @@ export default function AppBuilderRoundChartWidgetComponent(props: IAppBuilderWi
 			{
 				style=="pie" ?
 					<PieChart 
-						{...(labels ? { withLabels: true } : {})}
+						{...((labels ?? true) ? { withLabels: true } : {})}
 						labelsPosition="inside"
 						labelsType="value"
 						style={{height: "250px",}} // TODO make this a style prop
@@ -25,14 +25,14 @@ export default function AppBuilderRoundChartWidgetComponent(props: IAppBuilderWi
 					/>
 					:
 					<DonutChart 
-						{...(labels ? { withLabels: true } : {})}
+						{...((labels ?? true) ? { withLabels: true } : {})}
 						style={{height: "250px",}} // TODO make this a style prop
 						withTooltip={false}
 						data={data} 
 					/>			
 			}
 			{
-				legend ?
+				(legend ?? true) ?
 					data.map((item, index) => (
 						<Badge 
 							key={index} 
