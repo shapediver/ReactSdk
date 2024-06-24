@@ -16,8 +16,8 @@ interface Props {
 
 export default function AppBuilderImageExportWidgetComponent(props: Props) {
 
-	const { sessionId, ...rest } = props;
-	const { definition, actions } = useExport(props);
+	const { sessionId, exportId, ...rest } = props;
+	const { definition, actions } = useExport({sessionId, exportId});
 
 	const promiseChain = useRef(Promise.resolve());
 	const objectUrl = useRef<string | undefined>(undefined);

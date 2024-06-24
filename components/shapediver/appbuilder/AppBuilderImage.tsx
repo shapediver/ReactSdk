@@ -4,17 +4,19 @@ import { IAppBuilderWidgetPropsAnchor } from "../../../types/shapediver/appbuild
 import { AppBuilderContainerContext } from "../../../context/AppBuilderContext";
 import { usePropsAppBuilder } from "../../../hooks/ui/usePropsAppBuilder";
 
-interface Props extends IAppBuilderWidgetPropsAnchor{
+interface Props extends IAppBuilderWidgetPropsAnchor {
 }
 
-type SomeImageProps = Pick<ImageProps, "src" | "radius" | "fit">;
+type ImageStyleProps = Pick<ImageProps, "radius" | "fit">;
 
-const defaultStyleProps : Partial<SomeImageProps> = {
+type ImageNonStyleProps = Pick<ImageProps, "src"> & { alt?: string};
+
+const defaultStyleProps : Partial<ImageStyleProps> = {
 	radius: "md",
 	fit: "contain",
 };
 
-type AppBuilderImageThemePropsType = Partial<SomeImageProps>;
+type AppBuilderImageThemePropsType = Partial<ImageStyleProps>;
 
 export function AppBuilderImageThemeProps(props: AppBuilderImageThemePropsType): MantineThemeComponent {
 	return {
@@ -22,7 +24,7 @@ export function AppBuilderImageThemeProps(props: AppBuilderImageThemePropsType):
 	};
 }
 
-export default function AppBuilderImage(props: SomeImageProps & Props ) {
+export default function AppBuilderImage(props: ImageNonStyleProps & ImageStyleProps & Props ) {
 	
 	const { anchor, target, ...rest } = props;
 	const { radius, fit } = usePropsAppBuilder("AppBuilderImage", defaultStyleProps, rest);
