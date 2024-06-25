@@ -1,6 +1,6 @@
-import useAsync from "../../misc/useAsync";
 import { useShapeDiverStorePlatform } from "shared/store/useShapeDiverStorePlatform";
-import { SdPlatformModelQueryParameters } from "@shapediver/sdk.platform-api-sdk-v1";
+import { SdPlatformModelQueryParameters, SdPlatformResponseModelPublic } from "@shapediver/sdk.platform-api-sdk-v1";
+import { useCallback, useState } from "react";
 
 export interface IUseModelQueryProps {
 	queryParams?: SdPlatformModelQueryParameters,
@@ -12,28 +12,54 @@ export default function useModelQuery(props: IUseModelQueryProps) {
 
 	const { queryParams = {}, filterByUser, filterByOrganization } = props;
 	const { fetchModels, getUser } = useShapeDiverStorePlatform();
+	const [ nextOffset, setNextOffset ] = useState<string | "unset" | "done">("unset");
+	const [ items, setItems ] = useState<SdPlatformResponseModelPublic[]>([]);
+	const [ loading, setLoading ] = useState<boolean>(false);
+	const [ error, setError ] = useState<Error | undefined>(undefined);
 
-	const { loading, error, value } = useAsync(async () => {
-		if (filterByUser) {
-			queryParams.filters = {
-				...queryParams.filters,
-				"user_id[=]": typeof filterByUser === "string" ? filterByUser : ((await getUser())?.id ?? "%")
-			};
-		}
-		if (filterByOrganization) {
-			queryParams.filters = {
-				...queryParams.filters,
-				"organization_id[=]": typeof filterByOrganization === "string" ? filterByOrganization : ((await getUser())?.organization?.id ?? "%")
-			};
-		}
+	const loadMore = useCallback(async () => {
 
-		return fetchModels(queryParams);
-	}, [queryParams]);
+		const userFilter = filterByUser ? 
+			{"user_id[=]": typeof filterByUser === "string" ? filterByUser : ((await getUser())?.id ?? "%")} 
+			: undefined;
+		const orgFilter = filterByOrganization ? 
+			{"organization_id[=]": typeof filterByOrganization === "string" ? filterByOrganization : ((await getUser())?.organization?.id ?? "%")} 
+			: undefined;
+		
+		const params: SdPlatformModelQueryParameters = {
+			...queryParams,
+			offset: nextOffset !== "unset" && nextOffset !== "done" ? nextOffset : undefined,
+			filters: {
+				...queryParams.filters,
+				...(userFilter ?? {}),
+				...(orgFilter ?? {})
+			}
+		};
+
+		setLoading(true);
+		try {
+			const result = await fetchModels(params);
+			if (result?.data.result)
+				setItems([...items, ...result.data.result]);
+			if (result?.data.pagination.next_offset)
+				setNextOffset(result.data.pagination.next_offset);
+			else
+				setNextOffset("done");
+		}
+		catch (error) {
+			setError(error as Error);
+		}
+		finally {
+			setLoading(false);
+		}
+	
+	}, [queryParams, filterByUser, filterByOrganization, nextOffset, items]);
 
 	return {
 		loading,
 		error,
-		items: value?.data.result,
-		hasNextPage: !!value?.data.pagination.next_offset
+		items,
+		hasNextPage: nextOffset !== "done",
+		loadMore,
 	};
 }

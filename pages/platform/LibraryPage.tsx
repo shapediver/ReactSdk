@@ -1,7 +1,8 @@
 import React, { useMemo } from "react";
 import TabsComponent, { ITabsComponentProps } from "shared/components/ui/TabsComponent";
 import ModelLibrary, { IModelLibraryProps } from "../../components/shapediver/platform/ModelLibrary";
-import { BoxProps, Center } from "@mantine/core";
+import { BoxProps } from "@mantine/core";
+import classes from "./LibraryPage.module.css";
 
 export interface IModelLibraryTabProps extends IModelLibraryProps {
 	name: string,
@@ -30,7 +31,8 @@ export default function LibraryPage(props: Props) {
 
 				return {
 					name: tab.name,
-					children: [<ModelLibrary key={name} {...rest} />]
+					children: [<ModelLibrary key={name} {...rest} />],
+					className: classes.tabsPanels
 				};
 			})
 		};
@@ -38,8 +40,6 @@ export default function LibraryPage(props: Props) {
 	}, [tabs]);
 
 	return (
-		<Center>
-			<TabsComponent {...tabDefinitions} {...rest}/>
-		</Center>
+		<TabsComponent className={classes.tabsRoot} {...tabDefinitions} {...rest}/>
 	);
 }
