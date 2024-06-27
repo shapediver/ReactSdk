@@ -1,17 +1,28 @@
 import React from "react";
 import { Alert, Loader, SimpleGrid } from "@mantine/core";
-import ModelCard from "./ModelCard";
+import ModelCard, { IModelCardProps } from "./ModelCard";
 import useModelQuery, { IUseModelQueryProps } from "shared/hooks/shapediver/platform/useModelQuery";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 
 export interface IModelLibraryProps extends IUseModelQueryProps {
-	
+	/** 
+	 * Base URL for model view pages
+	 */
+	modelViewBaseUrl: string,
+	/**
+	 * Properties of the model cards
+	 */
+	modelCardProps?: IModelCardProps,
 }
 
 export default function ModelLibrary(props: IModelLibraryProps) {
 
-	const { loading, error, items, hasNextPage, loadMore } = useModelQuery(props);
+	const { modelViewBaseUrl, modelCardProps, ...rest } = props;
+	const { loading, error, items, hasNextPage, loadMore } = useModelQuery(rest);
 	
+	/**
+	 * see https://www.npmjs.com/package/react-infinite-scroll-hook
+	 */
 	const [sentryRef] = useInfiniteScroll({
 		loading,
 		hasNextPage,
@@ -30,7 +41,13 @@ export default function ModelLibrary(props: IModelLibraryProps) {
 			items.length === 0 && !hasNextPage ? <Alert>No models found.</Alert> :
 				<SimpleGrid cols={3}>
 					{items.map((model, index) => (
-						<ModelCard key={index} model={model} href={`${window.location.origin}${window.location.pathname}?slug=${model.slug}`} />
+						<ModelCard 
+							key={index} 
+							model={model} 
+							href={`${modelViewBaseUrl}?slug=${model.slug}`}
+							target="_blank"
+							{...modelCardProps}
+						/>
 					))}
 					{(loading || hasNextPage) && <Loader ref={sentryRef}/>}
 				</SimpleGrid>

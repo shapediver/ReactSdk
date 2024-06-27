@@ -102,7 +102,7 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 		if (!clientRef) return;
 
 		const requestParams = {
-			filters: { deleted_at: null },
+			filters: { deleted_at: null, status: "done" },
 			sorters: { created_at: SdPlatformSortingOrder.Desc },
 			embed: [
 				SdPlatformModelQueryEmbeddableFields.Bookmark,

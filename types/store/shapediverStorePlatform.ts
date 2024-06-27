@@ -40,6 +40,6 @@ export interface IShapeDiverStorePlatform {
     /**
      * Fetch models.
      */
-    fetchModels: (Params?: SdPlatformModelQueryParameters, forceRefresh?: boolean) => Promise<SdPlatformQueryResponse<SdPlatformResponseModelPublic> | undefined>
+    fetchModels: (params?: SdPlatformModelQueryParameters, forceRefresh?: boolean) => Promise<SdPlatformQueryResponse<SdPlatformResponseModelPublic> | undefined>
 }
 

@@ -3,8 +3,19 @@ import { SdPlatformModelQueryParameters, SdPlatformResponseModelPublic } from "@
 import { useCallback, useState } from "react";
 
 export interface IUseModelQueryProps {
+	/** Parameter for the model query */
 	queryParams?: SdPlatformModelQueryParameters,
+	/** 
+	 * Whether to add a further filter to the model query.
+	 * If true, filtery by the current user.
+	 * If a string, filter by the given user ID.
+	 */
 	filterByUser?: boolean | string,
+	/** 
+	 * Whether to add a further filter to the model query.
+	 * If true, filter by the current organization.
+	 * If a string, filter by the given organization ID.
+	 */
 	filterByOrganization?: boolean | string,
 }
 
