@@ -18,7 +18,17 @@ export const roleUserOrAbove = (role?: SdPlatformOrganizationMemberRole): boolea
  */
 export const roleManagerOrAbove = (role?: SdPlatformOrganizationMemberRole): boolean => {
 	return role === SdPlatformOrganizationMemberRole.Manager
-		|| role === SdPlatformOrganizationMemberRole.Admin
+		|| roleAdminOrAbove(role)
+	;
+};
+
+/**
+ * Check whether the given user role is "Admin" or above, i.e. "Admin", "Owner
+ * @param role 
+ * @returns 
+ */
+export const roleAdminOrAbove = (role?: SdPlatformOrganizationMemberRole): boolean => {
+	return role === SdPlatformOrganizationMemberRole.Admin
 		|| role === SdPlatformOrganizationMemberRole.Owner
 	;
 };
