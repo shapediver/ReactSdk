@@ -1,5 +1,5 @@
 import { IShapeDiverStorePlatform } from "shared/types/store/shapediverStorePlatform";
-import { create as createSdk, isPBInvalidRequestOAuthResponseError, SdPlatformResponseUserSelf, SdPlatformUserGetEmbeddableFields } from "@shapediver/sdk.platform-api-sdk-v1";
+import { create as createSdk, isPBInvalidGrantOAuthResponseError, isPBInvalidRequestOAuthResponseError, SdPlatformModelQueryEmbeddableFields, SdPlatformModelQueryParameters, SdPlatformResponseUserSelf, SdPlatformSortingOrder, SdPlatformUserGetEmbeddableFields } from "@shapediver/sdk.platform-api-sdk-v1";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { devtoolsSettings } from "../store/storeSettings";
@@ -49,7 +49,10 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 				return sdkRef;
 				
 			} catch (error) {
-				if (isPBInvalidRequestOAuthResponseError(error)) {
+				if (
+					isPBInvalidRequestOAuthResponseError(error) // <-- thrown if the refresh token is not valid anymore or there is none
+					|| isPBInvalidGrantOAuthResponseError(error) // <-- thrown if the refresh token is generally invalid
+				) {
 					if (window.location.origin === "https://shapediver.com") {
 						// redirect to www.shapediver.com, because 3rd party auth requires it
 						window.location.href = `https://www.shapediver.com${window.location.pathname}${window.location.search}`;
@@ -90,7 +93,37 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 			
 			return user;
 		});
-	}
+	},
+
+	fetchModels: async (params?: SdPlatformModelQueryParameters, forceRefresh?: boolean) => {
+		if (!shouldUsePlatform()) return;
+
+		const clientRef = await get().authenticate();
+		if (!clientRef) return;
+
+		const requestParams = {
+			filters: { deleted_at: null, status: "done" },
+			sorters: { created_at: SdPlatformSortingOrder.Desc },
+			embed: [
+				SdPlatformModelQueryEmbeddableFields.Bookmark,
+				SdPlatformModelQueryEmbeddableFields.Decoration,
+				SdPlatformModelQueryEmbeddableFields.Tags,
+				SdPlatformModelQueryEmbeddableFields.User,
+			],
+			strict_limit: true,
+			limit: 12,
+			...params,
+		};
+
+		const cacheKey = `fetchModels-${JSON.stringify(requestParams)}`;
+
+		return getCachedPromise(cacheKey, forceRefresh ?? false, async () => {
+			const clientRef = await get().authenticate();
+			if (!clientRef) return;
+
+			return clientRef.client.models.query(requestParams);
+		});
+	},
 
 
 }), { ...devtoolsSettings, name: "ShapeDiver | Platform" }));

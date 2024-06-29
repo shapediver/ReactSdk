@@ -171,9 +171,11 @@ export default function ParametersAndExportsAccordionComponent(props: Props) {
 	}
 
 	return <>
-		{ topSection }
 		<Stack>
-			{ elements }
+			{ topSection }
+			<Stack>
+				{ elements }
+			</Stack>
 		</Stack>
 	</>;
 }
