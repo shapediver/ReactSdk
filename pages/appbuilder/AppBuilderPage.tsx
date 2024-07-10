@@ -15,7 +15,7 @@ import useDefaultSessionDto from "../../hooks/shapediver/useDefaultSessionDto";
 import LoaderPage from "../misc/LoaderPage";
 import MarkdownWidgetComponent from "../../components/shapediver/ui/MarkdownWidgetComponent";
 import AppBuilderTemplateSelector from "../templates/AppBuilderTemplateSelector";
-import { shouldUsePlatform } from "../../utils/shapediver";
+import { shouldUsePlatform } from "../../utils/platform/environment";
 
 const VIEWPORT_ID = "viewport_1";
 

@@ -1,7 +1,7 @@
 import useAsync from "../../misc/useAsync";
 import { IAppBuilderSettings } from "../../../types/shapediver/appbuilder";
 import { SdPlatformModelGetEmbeddableFields, create } from "@shapediver/sdk.platform-api-sdk-v1";
-import { getPlatformClientId, shouldUsePlatform } from "../../../utils/shapediver";
+import { getPlatformClientId, shouldUsePlatform } from "../../../utils/platform/environment";
 import { useShapeDiverStorePlatform } from "shared/store/useShapeDiverStorePlatform";
 
 /**

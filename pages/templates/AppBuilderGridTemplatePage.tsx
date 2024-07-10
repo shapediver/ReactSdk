@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import classes from "./AppBuilderGridTemplatePage.module.css";
 import { MantineThemeComponent, useProps } from "@mantine/core";
 import AppBuilderContainerWrapper from "./AppBuilderContainerWrapper";
-import { createGridLayout } from "../../utils/layout";
+import { createGridLayout } from "../../utils/misc/layout";
 
 interface Props {
 	top?: React.ReactNode;

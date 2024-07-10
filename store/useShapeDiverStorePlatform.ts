@@ -3,7 +3,7 @@ import { create as createSdk, isPBInvalidGrantOAuthResponseError, isPBInvalidReq
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { devtoolsSettings } from "../store/storeSettings";
-import { getDefaultPlatformUrl, getPlatformClientId, shouldUsePlatform } from "../utils/shapediver";
+import { getDefaultPlatformUrl, getPlatformClientId, shouldUsePlatform } from "../utils/platform/environment";
 
 const PROMISE_CACHE: { [key: string]: Promise<any> } = {};
 

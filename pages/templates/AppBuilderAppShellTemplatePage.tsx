@@ -5,7 +5,7 @@ import classes from "./AppBuilderAppShellTemplatePage.module.css";
 import { useIsLandscape } from "../../hooks/ui/useIsLandscape";
 import { AppShellSize } from "@mantine/core/lib/components/AppShell/AppShell.types";
 import AppBuilderContainerWrapper from "./AppBuilderContainerWrapper";
-import { createGridLayout } from "../../utils/layout";
+import { createGridLayout } from "../../utils/misc/layout";
 
 interface Props {
 	top?: React.ReactNode;

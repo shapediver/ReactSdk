@@ -4,7 +4,7 @@ import { IAppBuilderSettings, IAppBuilderSettingsJson, IAppBuilderSettingsSessio
 import useResolveAppBuilderSettings from "./useResolveAppBuilderSettings";
 import { validateAppBuilderSettingsJson } from "../../../types/shapediver/appbuildertypecheck";
 import { useThemeOverrideStore } from "../../../store/useThemeOverrideStore";
-import { getDefaultPlatformUrl } from "../../../utils/shapediver";
+import { getDefaultPlatformUrl } from "../../../utils/platform/environment";
 
 /**
  * Test a string value for being "true" or "1".
