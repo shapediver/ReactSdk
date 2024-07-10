@@ -8,20 +8,21 @@ interface Props {
 
 const defaultStyleProps: OverlayStyleProps = {
 	position: OverlayPosition.TOP_RIGHT,
+	offset: "1rem",
 };
 
-type ViewportOverlayWrapperThemePropsType = Partial<OverlayStyleProps>;
+type ModelCardOverlayWrapperThemePropsType = Partial<OverlayStyleProps>;
 
-export function ViewportOverlayWrapperThemeProps(props: ViewportOverlayWrapperThemePropsType): MantineThemeComponent {
+export function ModelCardOverlayWrapperThemeProps(props: ModelCardOverlayWrapperThemePropsType): MantineThemeComponent {
 	return {
 		defaultProps: props
 	};
 }
 
-export default function ViewportOverlayWrapper(props: Props & Partial<OverlayStyleProps>) {
+export default function ModelCardOverlayWrapper(props: Props & Partial<OverlayStyleProps>) {
 
 	const { children = <></>, ...rest } = props;
-	const _props = useProps("ViewportOverlayWrapper", defaultStyleProps, rest);
+	const _props = useProps("ModelCardOverlayWrapper", defaultStyleProps, rest);
 
 	return <OverlayWrapper {..._props}>
 		{ children }

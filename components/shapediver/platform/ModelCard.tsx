@@ -1,8 +1,9 @@
-import { Anchor, Card, Group, Image, Pill, px, Text } from "@mantine/core";
+import { Anchor, Card, Group, Image, Pill, px, Text, Tooltip } from "@mantine/core";
 import { SdPlatformModelVisibility, SdPlatformResponseModelPublic } from "@shapediver/sdk.platform-api-sdk-v1";
-import { IconLockSquare, IconUserCheck, IconUserQuestion, IconUsersGroup, IconWorld } from "@tabler/icons-react";
+import { Icon, IconLockSquare, IconProps, IconUserCheck, IconUserQuestion, IconUsersGroup, IconWorld } from "@tabler/icons-react";
 import classes from "./ModelCard.module.css";
 import React, { useMemo } from "react";
+import ModelCardOverlay from "./ModelCardOverlay";
 
 export interface IModelCardProps {
 	/** If true, show information about the owner of the model. Defaults to true. */
@@ -11,6 +12,8 @@ export interface IModelCardProps {
 	showConfirmationStatus?: boolean
 	/** If true, show the model's tags. Defaults to true. */
 	showTags?: boolean
+	/** If true, show the model's bookmark status. Defaults to false. */
+	showBookmark?: boolean
 }
 
 interface Props extends IModelCardProps {
@@ -22,28 +25,30 @@ interface Props extends IModelCardProps {
 	target?: string
 }
 
-const StatusToIcon = {
-	"private": IconLockSquare,
-	"organization": IconUsersGroup,
-	"organization_pending": IconUserQuestion,
-	"organization_confirmed": IconUserCheck,
-	"public": IconWorld,
+const createStatusDescription = (icon: React.ForwardRefExoticComponent<IconProps & React.RefAttributes<Icon>>, description: string) => ({ icon, description });
+
+const StatusDescriptionMap = {
+	"private": createStatusDescription(IconLockSquare, "Private"),
+	"organization": createStatusDescription(IconUsersGroup, "Visible to organization"),
+	"organization_pending": createStatusDescription(IconUserQuestion, "Pending confirmation"),
+	"organization_confirmed": createStatusDescription(IconUserCheck, "Visible to organization"),
+	"public": createStatusDescription(IconWorld, "Public"),
 };
 
-const getStatusIcon = (model: SdPlatformResponseModelPublic, showConfirmationStatus?: boolean) => {
+const getStatusDescription = (model: SdPlatformResponseModelPublic, showConfirmationStatus?: boolean) => {
 	if (model.visibility === SdPlatformModelVisibility.Private) 
-		return StatusToIcon["private"];
+		return StatusDescriptionMap["private"];
 	else if (model.visibility === SdPlatformModelVisibility.Public) 
-		return StatusToIcon["public"];
+		return StatusDescriptionMap["public"];
 	else if (model.visibility === SdPlatformModelVisibility.Organization) {
 		if (showConfirmationStatus) {
 			if (model.organization_settings?.confirmed) 
-				return StatusToIcon["organization_confirmed"];
+				return StatusDescriptionMap["organization_confirmed"];
 			else
-				return StatusToIcon["organization_pending"];
+				return StatusDescriptionMap["organization_pending"];
 		}
 		
-		return StatusToIcon["organization"];
+		return StatusDescriptionMap["organization"];
 	}
 };
 
@@ -56,7 +61,8 @@ export default function ModelCard(props: Props) {
 		target,
 		showUser = true,
 		showConfirmationStatus = false,
-		showTags = true, 
+		showTags = true,
+		showBookmark,
 	}	= props;
 
 	const username = useMemo(() => {
@@ -70,7 +76,7 @@ export default function ModelCard(props: Props) {
 		return user.username;
 	}, [model.user]);
 
-	const StatusIcon = getStatusIcon(model, showConfirmationStatus);
+	const statusDescription = useMemo(() => getStatusDescription(model, showConfirmationStatus), [model, showConfirmationStatus]);
 
 	return <Card w="18em">
 		<Card.Section>
@@ -81,13 +87,16 @@ export default function ModelCard(props: Props) {
 					alt={model.title}
 					fallbackSrc="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDIwIDIwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjREREREREIi8+PHBhdGggZmlsbD0iIzk5OTk5OSIgZD0ibTEwLjgzIDkuODY1IDEuNzUgMi43aC0xLjE5cS0uMTMgMC0uMjItLjA3LS4wOC0uMDctLjEzLS4xNmwtMS4wOS0xLjc5cS0uMDIuMDktLjA2LjE3LS4wMy4wNy0uMDcuMTNsLS45NiAxLjQ5cS0uMDUuMDktLjEzLjE2dC0uMi4wN0g3LjQybDEuNzYtMi42NS0xLjY5LTIuNDhoMS4xOXEuMTQgMCAuMi4wNC4wNy4wNC4xMi4xMmwxLjA3IDEuNzFxLjA2LS4xNy4xNi0uMzRsLjg2LTEuMzVxLjExLS4xOC4yOS0uMThoMS4xM2wtMS42OCAyLjQzWiIvPjwvc3ZnPg=="
 				/>
+				<ModelCardOverlay model={model} showBookmark={showBookmark} showUser={showUser} />
 			</Anchor>
 		</Card.Section>
 		<Group justify="space-between" pt="sm" wrap="nowrap">
 			<Anchor href={href} target={target} underline="never">
 				<Text size="md" fw={500} lineClamp={1} className={classes.title}>{model.title}</Text>
 			</Anchor>
-			{ StatusIcon ? <StatusIcon size="1.5rem" stroke={1} className={classes.icon} /> : undefined }
+			{ statusDescription ? <Tooltip label={statusDescription.description} position="left">
+				<statusDescription.icon size="1.5rem" stroke={1} className={classes.icon} /> 
+			</Tooltip> : undefined }
 		</Group>
 		{ showUser ?	
 			<Group justify="space-between" wrap="nowrap">
