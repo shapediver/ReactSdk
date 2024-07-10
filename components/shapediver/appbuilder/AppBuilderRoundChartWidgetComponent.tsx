@@ -1,6 +1,6 @@
 import React, { } from "react";
 import { Badge, Paper, Title } from "@mantine/core";
-import { IAppBuilderWidgetPropsRoundChart } from "shared/types/shapediver/appbuildercharts";
+import { IAppBuilderWidgetPropsRoundChart } from "../../../types/shapediver/appbuildercharts";
 import { DonutChart, PieChart } from "@mantine/charts";
 
 /**

@@ -1,4 +1,4 @@
-import { useShapeDiverStorePlatform } from "shared/store/useShapeDiverStorePlatform";
+import { useShapeDiverStorePlatform } from "../../../store/useShapeDiverStorePlatform";
 import { SdPlatformModelQueryParameters, SdPlatformResponseModelPublic } from "@shapediver/sdk.platform-api-sdk-v1";
 import { useCallback, useState } from "react";
 

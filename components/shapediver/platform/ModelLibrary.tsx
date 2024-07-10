@@ -1,7 +1,7 @@
 import React from "react";
 import { Alert, Loader, SimpleGrid } from "@mantine/core";
 import ModelCard, { IModelCardProps } from "./ModelCard";
-import useModelQuery, { IUseModelQueryProps } from "shared/hooks/shapediver/platform/useModelQuery";
+import useModelQuery, { IUseModelQueryProps } from "../../../hooks/shapediver/platform/useModelQuery";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 
 export interface IModelLibraryProps extends IUseModelQueryProps {

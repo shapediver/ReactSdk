@@ -1,4 +1,4 @@
-import { IShapeDiverStorePlatform } from "shared/types/store/shapediverStorePlatform";
+import { IShapeDiverStorePlatform } from "../types/store/shapediverStorePlatform";
 import { create as createSdk, isPBInvalidGrantOAuthResponseError, isPBInvalidRequestOAuthResponseError, SdPlatformModelQueryEmbeddableFields, SdPlatformModelQueryParameters, SdPlatformResponseUserSelf, SdPlatformSortingOrder, SdPlatformUserGetEmbeddableFields } from "@shapediver/sdk.platform-api-sdk-v1";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
