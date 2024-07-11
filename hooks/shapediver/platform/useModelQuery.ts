@@ -18,11 +18,15 @@ export interface IUseModelQueryProps {
 	 * If a string, filter by the given organization ID.
 	 */
 	filterByOrganization?: boolean | string,
+	/**
+	 * Key used to store the query in the cache.
+	 */
+	cacheKey?: string,
 }
 
 export default function useModelQuery(props: IUseModelQueryProps) {
 
-	const { queryParams = {}, filterByUser, filterByOrganization } = props;
+	const { queryParams = {}, filterByUser, filterByOrganization, cacheKey } = props;
 	const { fetchModels, getUser } = useShapeDiverStorePlatform();
 	const [ nextOffset, setNextOffset ] = useState<string | "unset" | "done">("unset");
 	const [ items, setItems ] = useState<IPlatformQueryResponseItemModel[]>([]);
@@ -50,7 +54,7 @@ export default function useModelQuery(props: IUseModelQueryProps) {
 
 		setLoading(true);
 		try {
-			const result = await fetchModels(params);
+			const result = await fetchModels(params, cacheKey);
 			if (result?.items)
 				setItems([...items, ...result.items]);
 			if (result?.pagination.next_offset)
@@ -65,7 +69,7 @@ export default function useModelQuery(props: IUseModelQueryProps) {
 			setLoading(false);
 		}
 	
-	}, [queryParams, filterByUser, filterByOrganization, nextOffset, items]);
+	}, [queryParams, filterByUser, filterByOrganization, cacheKey, nextOffset, items]);
 
 	return {
 		loading,

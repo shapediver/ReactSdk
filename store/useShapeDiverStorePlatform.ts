@@ -2,6 +2,8 @@ import {
 	IPlatformItemDataModel,
 	IPlatformQueryResponseItemModel,
 	IShapeDiverStorePlatform,
+	PlatformCacheKeyEnum,
+	PlatformCacheTypeEnum,
 } from "../types/store/shapediverStorePlatform";
 import {
 	create as createSdk,
@@ -19,23 +21,6 @@ import { getDefaultPlatformUrl, getPlatformClientId, shouldUsePlatform } from ".
 import { create } from "zustand";
 import { produce } from "immer";
 
-const PROMISE_CACHE: { [key: string]: Promise<any> } = {};
-
-/**
- * Cache the results of a promise.
- * @param key cache key
- * @param flush whether the cache shall be flushed
- * @param initializer initializer function that returns the promise whose results shall be cached
- * @returns 
- */
-function getCachedPromise<T>(key: string, flush: boolean, initializer: () => Promise<T>): Promise<T> {
-	if (!PROMISE_CACHE[key] || flush) {
-		PROMISE_CACHE[key] = initializer();
-	}
-	
-	return PROMISE_CACHE[key];
-}
-
 /**
  * Store data related to the ShapeDiver Platform.
  * @see {@link IShapeDiverStorePlatform}
@@ -45,14 +30,17 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 	clientRef: undefined,
 	user: undefined,
 	modelStore: {},
+	promiseCache: {},
 	
 	authenticate: async (forceReAuthenticate?: boolean) => {
 		if (!shouldUsePlatform()) return;
 
-		if (!forceReAuthenticate && get().clientRef) 
-			return get().clientRef;
+		const { clientRef, cachePromise } = get();
 
-		return getCachedPromise("authenticate", forceReAuthenticate ?? false, async () => {
+		if (!forceReAuthenticate && clientRef) 
+			return clientRef;
+
+		return cachePromise(PlatformCacheTypeEnum.Authenticate, "", forceReAuthenticate ?? false, async () => {
 			const platformUrl = getDefaultPlatformUrl();
 			const client = createSdk({ clientId: getPlatformClientId(), baseUrl: platformUrl });
 			try {
@@ -93,10 +81,12 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 	getUser: async (forceRefresh?: boolean) => {
 		if (!shouldUsePlatform()) return;
 
-		if (!forceRefresh && get().user)
-			return get().user;
+		const { user, cachePromise } = get();
 
-		return getCachedPromise("getUser", forceRefresh ?? false, async () => {
+		if (!forceRefresh && user)
+			return user;
+
+		return cachePromise(PlatformCacheTypeEnum.GetUser, "", forceRefresh ?? false, async () => {
 			const clientRef = await get().authenticate();
 			if (!clientRef) return;
 
@@ -118,17 +108,19 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 	},
 
 	async addModel(item: IPlatformItemDataModel) {
-		const clientRef = get().clientRef;
+		const { clientRef, pruneCachedPromise } = get();
 		if (!clientRef) return;
 
 		const actions = {
 			bookmark: async () => {
 				await clientRef.client.bookmarks.create({model_id: item.id});
-				set(state => produce(state, draft => { draft.modelStore[item.id].data.bookmark = { bookmarked: true }; }));
+				set(state => produce(state, draft => { draft.modelStore[item.id].data.bookmark = { bookmarked: true }; }), false, `bookmark ${item.id}`);
+				pruneCachedPromise(PlatformCacheTypeEnum.FetchModels, PlatformCacheKeyEnum.BookmarkedModels);
 			},
 			unbookmark: async () => {
 				await clientRef.client.bookmarks.delete(item.id);
-				set(state => produce(state, draft => { draft.modelStore[item.id].data.bookmark = { bookmarked: false }; }));
+				set(state => produce(state, draft => { draft.modelStore[item.id].data.bookmark = { bookmarked: false }; }), false, `unbookmark ${item.id}`);
+				pruneCachedPromise(PlatformCacheTypeEnum.FetchModels, PlatformCacheKeyEnum.BookmarkedModels);
 			}
 		};
 		
@@ -140,13 +132,13 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 					actions
 				}
 			}
-		}));
+		}), false, `addModel ${item.id}`);
 	},
 
-	fetchModels: async (params?: SdPlatformModelQueryParameters, forceRefresh?: boolean) => {
+	fetchModels: async (params?: SdPlatformModelQueryParameters, cacheKey?: string, forceRefresh?: boolean) => {
 		if (!shouldUsePlatform()) return;
 		
-		const { addModel, authenticate } = get();
+		const { addModel, authenticate, cachePromise } = get();
 		const clientRef = await authenticate();
 		if (!clientRef) return;
 
@@ -164,9 +156,9 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 			...params,
 		};
 
-		const cacheKey = `fetchModels-${JSON.stringify(requestParams)}`;
+		const _cacheKey = `${cacheKey}-${JSON.stringify(requestParams)}`;
 
-		return getCachedPromise(cacheKey, forceRefresh ?? false, async () => {
+		return cachePromise(PlatformCacheTypeEnum.FetchModels, _cacheKey, forceRefresh ?? false, async () => {
 			const clientRef = await get().authenticate();
 			if (!clientRef) return;
 
@@ -185,5 +177,32 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 		});
 	},
 
+	cachePromise: async <T>(cacheType: PlatformCacheTypeEnum, cacheKey: string, flush: boolean, initializer: () => Promise<T>): Promise<T> => {
+		const key = `${cacheType}-${cacheKey}`;
+		const { promiseCache } = get();
+		const promise = promiseCache[key];
+
+		if (!promise || flush) {
+			const _promise = initializer();
+			set(() => ({ promiseCache: { ...promiseCache, ...({[key]: _promise}) }}), false, `cachePromise ${key}`);
+			
+			return _promise;
+		}
+		
+		return promise;
+	},
+
+	pruneCachedPromise: (cacheType: PlatformCacheTypeEnum, cacheKey: string) => {
+		const key = `${cacheType}-${cacheKey}`;
+		const { promiseCache } = get();
+		const _promiseCache = { ...promiseCache };
+		for (const _key in promiseCache) {
+			if (_key.startsWith(key)) {
+				delete _promiseCache[_key];
+			}	
+		}
+		if (Object.keys(_promiseCache).length !== Object.keys(promiseCache).length)
+			set(() => ({ promiseCache: _promiseCache }), false, `pruneCachedPromise ${key}`);
+	},
 
 }), { ...devtoolsSettings, name: "ShapeDiver | Platform" }));

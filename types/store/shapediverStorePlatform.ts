@@ -69,6 +69,23 @@ export type IPlatformQueryResponseModel = IPlatformQueryResponse<IPlatformQueryR
 /** The model store type. */
 export type IPlatformModelStore = { [modelId: string]: IPlatformItemModel }
 
+/** Type of cache. */
+export enum PlatformCacheTypeEnum {
+    Authenticate = "authenticate",
+    FetchModels = "fetchModels",
+    GetUser = "getUser",
+}
+
+/** Typically used cache keys. */
+export enum PlatformCacheKeyEnum {
+    AllModels = "allModels",
+    OrganizationModels = "organizationModels",
+    MyModels = "myModels",
+    TeamModels = "teamModels",
+    BookmarkedModels = "bookmarkedModels",
+    QualityGateModels = "qualityGateModels",
+}
+
 /**
  * Interface of the store for platform-related data.
  */
@@ -79,6 +96,9 @@ export interface IShapeDiverStorePlatform {
 
     /** The model store. */
     modelStore: IPlatformModelStore
+
+    /** Cache for diverse promises */
+    promiseCache: { [key: string]: Promise<any> }
 
     /**
      * Authenticate the platform client.
@@ -106,7 +126,24 @@ export interface IShapeDiverStorePlatform {
      * Fetch models. 
      * This queries models from the platform, adds the models to the store, 
      * and returns the ids of the resulting models. 
+     * The query result is stored in the promise cache.
      */
-    fetchModels: (params?: SdPlatformModelQueryParameters, forceRefresh?: boolean) => Promise<IPlatformQueryResponseModel | undefined>
-}
+    fetchModels: (params?: SdPlatformModelQueryParameters, cacheKey?: string, forceRefresh?: boolean) => Promise<IPlatformQueryResponseModel | undefined>
 
+    /**
+     * Cache a promise in the store.
+     * @param cacheType type of cache
+     * @param cacheKey key of the cache  
+     * @param flush force flushing of the cache
+     * @param initializer 
+     * @returns 
+     */
+    cachePromise: <T>(cacheType: PlatformCacheTypeEnum, cacheKey: string, flush: boolean, initializer: () => Promise<T>) => Promise<T>
+
+    /**
+     * Prune cached promise from the store by type and key.
+     * @param cacheType type of cache
+     * @param cacheKey key of the cache  
+     */
+    pruneCachedPromise: (cacheType: PlatformCacheTypeEnum, cacheKey: string) => void
+}
