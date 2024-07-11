@@ -17,6 +17,7 @@ import { devtools } from "zustand/middleware";
 import { devtoolsSettings } from "../store/storeSettings";
 import { getDefaultPlatformUrl, getPlatformClientId, shouldUsePlatform } from "../utils/platform/environment";
 import { create } from "zustand";
+import { produce } from "immer";
 
 const PROMISE_CACHE: { [key: string]: Promise<any> } = {};
 
@@ -123,35 +124,11 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 		const actions = {
 			bookmark: async () => {
 				await clientRef.client.bookmarks.create({model_id: item.id});
-				const _item = get().modelStore[item.id];
-				set(state => ({
-					modelStore: {
-						...state.modelStore,
-						[item.id]: {
-							..._item,
-							data: {
-								..._item.data,
-								bookmark: { bookmarked: true }
-							}
-						}
-					}
-				}));
+				set(state => produce(state, draft => { draft.modelStore[item.id].data.bookmark = { bookmarked: true }; }));
 			},
 			unbookmark: async () => {
 				await clientRef.client.bookmarks.delete(item.id);
-				const _item = get().modelStore[item.id];
-				set(state => ({
-					modelStore: {
-						...state.modelStore,
-						[item.id]: {
-							..._item,
-							data: {
-								..._item.data,
-								bookmark: { bookmarked: false }
-							}
-						}
-					}
-				}));
+				set(state => produce(state, draft => { draft.modelStore[item.id].data.bookmark = { bookmarked: false }; }));
 			}
 		};
 		
