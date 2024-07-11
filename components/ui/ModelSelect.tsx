@@ -1,7 +1,6 @@
 import { MultiSelect, Notification } from "@mantine/core";
 import { ISelectedModel, useModelSelectStore } from "../../store/useModelSelectStore";
 import React, { useMemo } from "react";
-import { IconAlertCircle } from "@tabler/icons-react";
 import { useSessionPropsParameter } from "../../hooks/shapediver/parameters/useSessionPropsParameter";
 import ParametersAndExportsAccordionComponent from "../../components/shapediver/ui/ParametersAndExportsAccordionComponent";
 import { useSessionPropsExport } from "../../hooks/shapediver/parameters/useSessionPropsExport";
@@ -9,6 +8,8 @@ import { useSessions } from "../../hooks/shapediver/useSessions";
 import AcceptRejectButtons from "../shapediver/ui/AcceptRejectButtons";
 import TabsComponent, { ITabsComponentProps } from "./TabsComponent";
 import { IShapeDiverExampleModels } from "../../types/shapediver/examplemodel";
+import Icon from "./Icon";
+import { IconTypeEnum } from "../../types/shapediver/icons";
 
 interface Props {
 	exampleModels: IShapeDiverExampleModels
@@ -42,7 +43,7 @@ export default function ModelSelect({ exampleModels }: Props) {
 	};
 
 	// show a notification in case no models are selected
-	const noModelsNotification = <Notification icon={<IconAlertCircle size={18} />} mt="xs" title="Model Select" withCloseButton={false}>
+	const noModelsNotification = <Notification icon={<Icon type={IconTypeEnum.AlertCircle} />} mt="xs" title="Model Select" withCloseButton={false}>
 		Select a model to see it in the viewport!
 	</Notification>;
 

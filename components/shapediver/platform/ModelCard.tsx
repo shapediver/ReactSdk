@@ -1,10 +1,11 @@
 import { Anchor, Card, Group, Image, Pill, px, Text, Tooltip } from "@mantine/core";
 import { SdPlatformModelVisibility, SdPlatformResponseModelPublic } from "@shapediver/sdk.platform-api-sdk-v1";
-import { Icon, IconLockSquare, IconProps, IconUserCheck, IconUserQuestion, IconUsersGroup, IconWorld } from "@tabler/icons-react";
 import classes from "./ModelCard.module.css";
 import React, { useMemo } from "react";
 import ModelCardOverlay from "./ModelCardOverlay";
 import { IPlatformItemModel } from "../../../types/store/shapediverStorePlatform";
+import { IconTypeEnum } from "../../../types/shapediver/icons";
+import Icon from "../../ui/Icon";
 
 export interface IModelCardProps {
 	/** If true, show information about the owner of the model. Defaults to true. */
@@ -26,14 +27,14 @@ interface Props extends IModelCardProps {
 	target?: string
 }
 
-const createStatusDescription = (icon: React.ForwardRefExoticComponent<IconProps & React.RefAttributes<Icon>>, description: string) => ({ icon, description });
+const createStatusDescription = (icon: IconTypeEnum, description: string) => ({ icon, description });
 
 const StatusDescriptionMap = {
-	"private": createStatusDescription(IconLockSquare, "Private"),
-	"organization": createStatusDescription(IconUsersGroup, "Visible to organization"),
-	"organization_pending": createStatusDescription(IconUserQuestion, "Pending confirmation"),
-	"organization_confirmed": createStatusDescription(IconUserCheck, "Visible to organization"),
-	"public": createStatusDescription(IconWorld, "Public"),
+	"private": createStatusDescription(IconTypeEnum.LockSquare, "Private"),
+	"organization": createStatusDescription(IconTypeEnum.UsersGroup, "Visible to organization"),
+	"organization_pending": createStatusDescription(IconTypeEnum.UserQuestion, "Pending confirmation"),
+	"organization_confirmed": createStatusDescription(IconTypeEnum.UserCheck, "Visible to organization"),
+	"public": createStatusDescription(IconTypeEnum.World, "Public"),
 };
 
 const getStatusDescription = (model: SdPlatformResponseModelPublic, showConfirmationStatus?: boolean) => {
@@ -98,7 +99,7 @@ export default function ModelCard(props: Props) {
 				<Text size="md" fw={500} lineClamp={1} className={classes.title}>{model.title}</Text>
 			</Anchor>
 			{ statusDescription ? <Tooltip label={statusDescription.description} position="left">
-				<statusDescription.icon size="1.5rem" stroke={1} className={classes.icon} /> 
+				<Icon type={statusDescription.icon} className={classes.icon} /> 
 			</Tooltip> : undefined }
 		</Group>
 		{ showUser ?	

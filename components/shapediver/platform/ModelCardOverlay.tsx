@@ -1,9 +1,10 @@
-import { IconBookmark, IconBookmarkOff } from "@tabler/icons-react";
 import React, { useMemo } from "react";
 import ModelCardOverlayWrapper from "./ModelCardOverlayWrapper";
 import { Avatar, Tooltip } from "@mantine/core";
 import { IPlatformItemModel } from "../../../types/store/shapediverStorePlatform";
 import { preventDefault } from "../../../utils/misc/events";
+import Icon from "../../ui/Icon";
+import { IconTypeEnum } from "../../../types/shapediver/icons";
 
 export interface IModelCardOverlayProps {
 	/** If true, show the model's bookmark status. Defaults to false. */
@@ -57,8 +58,8 @@ export default function ModelCardOverlay(props: Props) {
 		{ displayBookmark ? 
 			<ModelCardOverlayWrapper position="top-left">
 				{ model.bookmark?.bookmarked ? 
-					<IconBookmark onClick={preventDefault(actions.unbookmark)}/> : 
-					<IconBookmarkOff onClick={preventDefault(actions.bookmark)}/> }
+					<Icon type={IconTypeEnum.Bookmark} onClick={preventDefault(actions.unbookmark)}/> : 
+					<Icon type={IconTypeEnum.BookmarkOff} onClick={preventDefault(actions.bookmark)}/> }
 			</ModelCardOverlayWrapper> : undefined }
 		{ displayUser ? 
 			<ModelCardOverlayWrapper position="top-right">

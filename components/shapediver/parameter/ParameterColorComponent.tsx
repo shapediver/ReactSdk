@@ -1,9 +1,10 @@
 import { ActionIcon, ColorInput } from "@mantine/core";
-import { IconRefresh } from "@tabler/icons-react";
 import React, { useCallback, useEffect, useState } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
+import Icon from "../../ui/Icon";
+import { IconTypeEnum } from "../../../types/shapediver/icons";
 
 function convertFromSdColor(val: string) {
 	return val.replace("0x", "#").substring(0, 7);
@@ -44,7 +45,7 @@ export default function ParameterColorComponent(props: PropsParameter) {
 			value={value}
 			rightSection={
 				<ActionIcon onClick={() => handleChange(definition.defval)}>
-					<IconRefresh size={16} />
+					<Icon type={IconTypeEnum.Refresh} />
 				</ActionIcon>
 			}
 			onChange={setValue}

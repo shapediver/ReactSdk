@@ -1,8 +1,9 @@
 import { Image, ActionIcon, useMantineColorScheme, useComputedColorScheme } from "@mantine/core";
-import { IconSun, IconMoonStars } from "@tabler/icons-react";
 import { useLinkClickHandler } from "react-router-dom";
 import React from "react";
 import classes from "./HeaderBar.module.css";
+import Icon from "./Icon";
+import { IconTypeEnum } from "../../types/shapediver/icons";
 
 /**
  * Functional component that creates an image and a icon for the header bar.
@@ -60,7 +61,7 @@ export default function HeaderBar() {
 				onClick={() => toggleColorScheme()}
 				title="Toggle color scheme"
 			>
-				{colorScheme === "dark" ? <IconSun size={18} /> : <IconMoonStars size={18} />}
+				{colorScheme === "dark" ? <Icon type={IconTypeEnum.Sun} /> : <Icon type={IconTypeEnum.MoonStars} />}
 			</ActionIcon>
 		</>
 	);

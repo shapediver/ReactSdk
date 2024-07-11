@@ -1,11 +1,12 @@
 import { Button, Loader } from "@mantine/core";
 import { EXPORT_TYPE } from "@shapediver/viewer";
-import { IconDownload, IconMailForward } from "@tabler/icons-react";
 import React, { useState } from "react";
 import ExportLabelComponent from "./ExportLabelComponent";
 import { fetchFileWithToken } from "../../../utils/file";
 import { PropsExport } from "../../../types/components/shapediver/propsExport";
 import { useExport } from "../../../hooks/shapediver/parameters/useExport";
+import Icon from "../../ui/Icon";
+import { IconTypeEnum } from "../../../types/shapediver/icons";
 
 /**
  * Functional component that creates a button that triggers an export.
@@ -53,7 +54,7 @@ export default function ExportButtonComponent(props: PropsExport) {
 			{ definition && <>
 				<Button
 					fullWidth={true}
-					leftSection={definition.type === EXPORT_TYPE.DOWNLOAD ? <IconDownload /> : <IconMailForward />}
+					leftSection={definition.type === EXPORT_TYPE.DOWNLOAD ? <Icon type={IconTypeEnum.Download} /> : <Icon type={IconTypeEnum.MailFoward} />}
 					onClick={onClick}
 				>
 					{definition.type === EXPORT_TYPE.DOWNLOAD ? "Download File" : "Send Email"}

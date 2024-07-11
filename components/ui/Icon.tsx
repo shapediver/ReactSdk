@@ -1,7 +1,9 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import { 
+	Icon as _TablerIconType,
 	IconAdjustments, 
 	IconAdjustmentsHorizontal, 
+	IconAlertCircle, 
 	IconArrowBack, 
 	IconArrowDown, 
 	IconArrowForward, 
@@ -18,6 +20,7 @@ import {
 	IconBooksOff,
 	IconCamera,
 	IconCameraOff,
+	IconCheck,
 	IconCopy,
 	IconDots,
 	IconDotsVertical,
@@ -30,12 +33,16 @@ import {
 	IconKeyOff,
 	IconLink,
 	IconLinkOff,
+	IconLockSquare,
+	IconMailForward,
 	IconMaximize,
 	IconMaximizeOff,
+	IconMoonStars,
 	IconNetwork,
 	IconNetworkOff,
 	IconPhoto,
 	IconPhotoOff,
+	IconProps,
 	IconRefresh,
 	IconRefreshOff,
 	IconReload,
@@ -45,34 +52,35 @@ import {
 	IconShare2,
 	IconShare3,
 	IconShareOff,
+	IconSun,
 	IconUpload,
 	IconUser,
+	IconUserCheck,
 	IconUserOff,
+	IconUserQuestion,
 	IconUsers,
+	IconUsersGroup,
 	IconVideo,
 	IconVideoOff,
 	IconWorld,
 	IconWorldOff,
-	IconZoomScan
+	IconX,
+	IconZoomIn,
+	IconZoomScan,
 } from "@tabler/icons-react";
 import { IconTypeEnum } from "../../types/shapediver/icons";
 import { MantineThemeComponent, useProps } from "@mantine/core";
 
-interface Props {
-	type: IconTypeEnum | undefined
+interface Props extends IconProps {
+	type: IconTypeEnum,
 }
 
-interface StyleProps {
-	size: number,
-	stroke: number,
-}
-
-const defaultStyleProps: Partial<StyleProps> = {
-	size: 14,
+const defaultStyleProps: Partial<IconProps> = {
+	size: "1.5rem",
 	stroke: 1,
 };
 
-type IconThemePropsType = Partial<StyleProps>;
+type IconThemePropsType = Partial<IconProps>;
 
 export function IconThemeProps(props: IconThemePropsType): MantineThemeComponent {
 	return {
@@ -80,15 +88,18 @@ export function IconThemeProps(props: IconThemePropsType): MantineThemeComponent
 	};
 }
 
-export default function Icon({type, ...rest} : Props) {
+const Icon = forwardRef<_TablerIconType, Props>( function Icon({type, size, stroke, ...rest} : Props, ref ) {
 	
-	const iconProps = useProps("Icon", defaultStyleProps, rest);
+	const iconPropsStyle = useProps("Icon", defaultStyleProps, {size, stroke});
+	const iconProps = {...iconPropsStyle, ref, ...rest};
 	
 	switch (type) {
 	case IconTypeEnum.Adjustments:
 		return <IconAdjustments {...iconProps} />;
 	case IconTypeEnum.AdjustmentsHorizontal:
 		return <IconAdjustmentsHorizontal {...iconProps} />;
+	case IconTypeEnum.AlertCircle:
+		return <IconAlertCircle {...iconProps} />;
 	case IconTypeEnum.ArrowBack:
 		return <IconArrowBack {...iconProps} />;
 	case IconTypeEnum.ArrowDown:
@@ -121,6 +132,8 @@ export default function Icon({type, ...rest} : Props) {
 		return <IconCamera {...iconProps} />;
 	case IconTypeEnum.CameraOff:
 		return <IconCameraOff {...iconProps} />;
+	case IconTypeEnum.Check:
+		return <IconCheck {...iconProps} />;
 	case IconTypeEnum.Copy:
 		return <IconCopy {...iconProps} />;
 	case IconTypeEnum.Dots:
@@ -145,10 +158,16 @@ export default function Icon({type, ...rest} : Props) {
 		return <IconLink {...iconProps} />;
 	case IconTypeEnum.LinkOff:
 		return <IconLinkOff {...iconProps} />;
+	case IconTypeEnum.LockSquare:
+		return <IconLockSquare {...iconProps} />;
+	case IconTypeEnum.MailFoward:
+		return <IconMailForward {...iconProps} />;
 	case IconTypeEnum.Maximize:
 		return <IconMaximize {...iconProps} />;
 	case IconTypeEnum.MaximizeOff:
 		return <IconMaximizeOff {...iconProps} />;
+	case IconTypeEnum.MoonStars:
+		return <IconMoonStars {...iconProps} />;
 	case IconTypeEnum.Network:
 		return <IconNetwork {...iconProps} />;
 	case IconTypeEnum.NetworkOff:
@@ -175,14 +194,22 @@ export default function Icon({type, ...rest} : Props) {
 		return <IconShare3 {...iconProps} />;
 	case IconTypeEnum.ShareOff:
 		return <IconShareOff {...iconProps} />;
+	case IconTypeEnum.Sun:
+		return <IconSun {...iconProps} />;
 	case IconTypeEnum.Upload:
 		return <IconUpload {...iconProps} />;
 	case IconTypeEnum.User:
 		return <IconUser {...iconProps} />;
+	case IconTypeEnum.UserCheck:
+		return <IconUserCheck {...iconProps} />;
 	case IconTypeEnum.UserOff:
 		return <IconUserOff {...iconProps} />;
+	case IconTypeEnum.UserQuestion:
+		return <IconUserQuestion {...iconProps} />;
 	case IconTypeEnum.Users:
 		return <IconUsers {...iconProps} />;
+	case IconTypeEnum.UsersGroup:
+		return <IconUsersGroup {...iconProps} />;
 	case IconTypeEnum.Video:
 		return <IconVideo {...iconProps} />;
 	case IconTypeEnum.VideoOff:
@@ -191,9 +218,15 @@ export default function Icon({type, ...rest} : Props) {
 		return <IconWorld {...iconProps} />;
 	case IconTypeEnum.WorldOff:
 		return <IconWorldOff {...iconProps} />;
+	case IconTypeEnum.X:
+		return <IconX {...iconProps} />;
+	case IconTypeEnum.ZoomIn:
+		return <IconZoomIn {...iconProps} />;
 	case IconTypeEnum.ZoomScan:
 		return <IconZoomScan {...iconProps} />;
 	default:
 		return null;
 	}
-}
+});
+
+export default Icon;
