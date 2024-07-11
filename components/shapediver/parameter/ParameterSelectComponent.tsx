@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
-import { ShapeDiverResponseParameterVisualization } from "@shapediver/api.geometry-api-dto-v2";
+import { PARAMETER_VISUALIZATION } from "@shapediver/viewer";
 
 /**
  * Functional component that creates a dropdown select component for a string list parameter.
@@ -38,7 +38,7 @@ export default function ParameterSelectComponent(props: PropsParameter) {
 		return uniqueChoices;
 	}, [definition.choices]);
 	
-	const inputComponent = definition.visualization === ShapeDiverResponseParameterVisualization.CHECKLIST
+	const inputComponent = definition.visualization === PARAMETER_VISUALIZATION.CHECKLIST
 		? <MultiSelect
 			value={value ? value.split(",").map((v) => uniqueChoices[parseInt(v)]) : []}
 			onChange={(v) => {

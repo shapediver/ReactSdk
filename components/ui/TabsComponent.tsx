@@ -46,7 +46,7 @@ export default function TabsComponent({defaultValue, tabs, ...rest}: ITabsCompon
 				tabs.map((tab, index) => <Tabs.Tab
 					key={index}
 					value={tab.name}
-					leftSection={<Icon type={tab.icon} />}
+					leftSection={tab.icon ? <Icon type={tab.icon} /> : undefined}
 				>
 					{tab.name}
 				</Tabs.Tab>)

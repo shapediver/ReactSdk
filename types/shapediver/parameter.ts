@@ -1,4 +1,4 @@
-import { ShapeDiverResponseParameter } from "@shapediver/api.geometry-api-dto-v2";
+import { ShapeDiverResponseParameter } from "@shapediver/viewer";
 import { IShapeDiverParamOrExport } from "./common";
 
 /**

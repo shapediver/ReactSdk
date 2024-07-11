@@ -1,6 +1,7 @@
-import { ShapeDiverResponseParameterStructure, ShapeDiverResponseParameterType, ShapeDiverResponseParameterVisualization } from "@shapediver/api.geometry-api-dto-v2";
 import { z } from "zod";
 import { IconTypeEnum } from "./icons";
+import { PARAMETER_TYPE, PARAMETER_VISUALIZATION } from "@shapediver/viewer";
+import { ShapeDiverResponseParameterStructure } from "@shapediver/api.geometry-api-dto-v2";
 
 // Zod type definition for IAppBuilderParameterDefinition
 const IAppBuilderParameterDefinitionSchema = z.object({
@@ -18,8 +19,8 @@ const IAppBuilderParameterDefinitionSchema = z.object({
 	vmax: z.number().optional(),
 	interval: z.number().optional(),
 	name: z.string(),
-	type: z.nativeEnum(ShapeDiverResponseParameterType),
-	visualization: z.nativeEnum(ShapeDiverResponseParameterVisualization).optional(),
+	type: z.nativeEnum(PARAMETER_TYPE),
+	visualization: z.nativeEnum(PARAMETER_VISUALIZATION).optional(),
 	structure: z.nativeEnum(ShapeDiverResponseParameterStructure).optional(),
 	group: z.object({
 		id: z.string(),
