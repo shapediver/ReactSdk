@@ -1,12 +1,32 @@
-import { IShapeDiverStorePlatform } from "../types/store/shapediverStorePlatform";
-import { create as createSdk, isPBInvalidGrantOAuthResponseError, isPBInvalidRequestOAuthResponseError, SdPlatformModelQueryEmbeddableFields, SdPlatformModelQueryParameters, SdPlatformResponseUserSelf, SdPlatformSortingOrder, SdPlatformUserGetEmbeddableFields } from "@shapediver/sdk.platform-api-sdk-v1";
-import { create } from "zustand";
+import {
+	IPlatformItemDataModel,
+	IPlatformQueryResponseItemModel,
+	IShapeDiverStorePlatform,
+} from "../types/store/shapediverStorePlatform";
+import {
+	create as createSdk,
+	isPBInvalidGrantOAuthResponseError,
+	isPBInvalidRequestOAuthResponseError,
+	SdPlatformModelQueryEmbeddableFields,
+	SdPlatformModelQueryParameters,
+	SdPlatformResponseUserSelf,
+	SdPlatformSortingOrder,
+	SdPlatformUserGetEmbeddableFields,
+} from "@shapediver/sdk.platform-api-sdk-v1";
 import { devtools } from "zustand/middleware";
 import { devtoolsSettings } from "../store/storeSettings";
 import { getDefaultPlatformUrl, getPlatformClientId, shouldUsePlatform } from "../utils/platform/environment";
+import { create } from "zustand";
 
 const PROMISE_CACHE: { [key: string]: Promise<any> } = {};
 
+/**
+ * Cache the results of a promise.
+ * @param key cache key
+ * @param flush whether the cache shall be flushed
+ * @param initializer initializer function that returns the promise whose results shall be cached
+ * @returns 
+ */
 function getCachedPromise<T>(key: string, flush: boolean, initializer: () => Promise<T>): Promise<T> {
 	if (!PROMISE_CACHE[key] || flush) {
 		PROMISE_CACHE[key] = initializer();
@@ -23,6 +43,7 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 
 	clientRef: undefined,
 	user: undefined,
+	modelStore: {},
 	
 	authenticate: async (forceReAuthenticate?: boolean) => {
 		if (!shouldUsePlatform()) return;
@@ -95,10 +116,61 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 		});
 	},
 
+	async addModel(item: IPlatformItemDataModel) {
+		const clientRef = get().clientRef;
+		if (!clientRef) return;
+
+		const actions = {
+			bookmark: async () => {
+				await clientRef.client.bookmarks.create({model_id: item.id});
+				const _item = get().modelStore[item.id];
+				set(state => ({
+					modelStore: {
+						...state.modelStore,
+						[item.id]: {
+							..._item,
+							data: {
+								..._item.data,
+								bookmark: { bookmarked: true }
+							}
+						}
+					}
+				}));
+			},
+			unbookmark: async () => {
+				await clientRef.client.bookmarks.delete(item.id);
+				const _item = get().modelStore[item.id];
+				set(state => ({
+					modelStore: {
+						...state.modelStore,
+						[item.id]: {
+							..._item,
+							data: {
+								..._item.data,
+								bookmark: { bookmarked: false }
+							}
+						}
+					}
+				}));
+			}
+		};
+		
+		set(state => ({
+			modelStore: {
+				...state.modelStore,
+				[item.id]: {
+					data: item,
+					actions
+				}
+			}
+		}));
+	},
+
 	fetchModels: async (params?: SdPlatformModelQueryParameters, forceRefresh?: boolean) => {
 		if (!shouldUsePlatform()) return;
-
-		const clientRef = await get().authenticate();
+		
+		const { addModel, authenticate } = get();
+		const clientRef = await authenticate();
 		if (!clientRef) return;
 
 		const requestParams = {
@@ -121,7 +193,18 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 			const clientRef = await get().authenticate();
 			if (!clientRef) return;
 
-			return clientRef.client.models.query(requestParams);
+			const response = await clientRef.client.models.query(requestParams);
+			const pagination = response.data.pagination;
+			const items: IPlatformQueryResponseItemModel[] = response.data.result.map(item => {
+				addModel(item);
+
+				return item.id;
+			});
+
+			return {
+				items,
+				pagination
+			};
 		});
 	},
 

@@ -1,6 +1,7 @@
 import { useShapeDiverStorePlatform } from "../../../store/useShapeDiverStorePlatform";
-import { SdPlatformModelQueryParameters, SdPlatformResponseModelPublic } from "@shapediver/sdk.platform-api-sdk-v1";
+import { SdPlatformModelQueryParameters } from "@shapediver/sdk.platform-api-sdk-v1";
 import { useCallback, useState } from "react";
+import { IPlatformQueryResponseItemModel } from "../../../types/store/shapediverStorePlatform";
 
 export interface IUseModelQueryProps {
 	/** Parameter for the model query */
@@ -24,7 +25,7 @@ export default function useModelQuery(props: IUseModelQueryProps) {
 	const { queryParams = {}, filterByUser, filterByOrganization } = props;
 	const { fetchModels, getUser } = useShapeDiverStorePlatform();
 	const [ nextOffset, setNextOffset ] = useState<string | "unset" | "done">("unset");
-	const [ items, setItems ] = useState<SdPlatformResponseModelPublic[]>([]);
+	const [ items, setItems ] = useState<IPlatformQueryResponseItemModel[]>([]);
 	const [ loading, setLoading ] = useState<boolean>(false);
 	const [ error, setError ] = useState<Error | undefined>(undefined);
 
@@ -50,10 +51,10 @@ export default function useModelQuery(props: IUseModelQueryProps) {
 		setLoading(true);
 		try {
 			const result = await fetchModels(params);
-			if (result?.data.result)
-				setItems([...items, ...result.data.result]);
-			if (result?.data.pagination.next_offset)
-				setNextOffset(result.data.pagination.next_offset);
+			if (result?.items)
+				setItems([...items, ...result.items]);
+			if (result?.pagination.next_offset)
+				setNextOffset(result.pagination.next_offset);
 			else
 				setNextOffset("done");
 		}

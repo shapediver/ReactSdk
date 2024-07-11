@@ -3,6 +3,7 @@ import { Alert, Loader, SimpleGrid } from "@mantine/core";
 import ModelCard, { IModelCardProps } from "./ModelCard";
 import useModelQuery, { IUseModelQueryProps } from "../../../hooks/shapediver/platform/useModelQuery";
 import useInfiniteScroll from "react-infinite-scroll-hook";
+import { useShapeDiverStorePlatform } from "../../../store/useShapeDiverStorePlatform";
 
 export interface IModelLibraryProps extends IUseModelQueryProps {
 	/** 
@@ -19,6 +20,7 @@ export default function ModelLibrary(props: IModelLibraryProps) {
 
 	const { modelViewBaseUrl, modelCardProps, ...rest } = props;
 	const { loading, error, items, hasNextPage, loadMore } = useModelQuery(rest);
+	const { modelStore } = useShapeDiverStorePlatform();
 	
 	/**
 	 * see https://www.npmjs.com/package/react-infinite-scroll-hook
@@ -35,16 +37,18 @@ export default function ModelLibrary(props: IModelLibraryProps) {
 		// visible, instead of becoming fully visible on the screen.
 		rootMargin: "0px 0px 400px 0px",
 	});
+
+	const modelItems = items.map(id => modelStore[id]).filter(item => item !== undefined);
 	
 	return (
 		error ? <Alert title="Error">{error.message}</Alert> :
 			items.length === 0 && !hasNextPage ? <Alert>No models found.</Alert> :
 				<SimpleGrid cols={3}>
-					{items.map((model, index) => (
+					{modelItems.map((item, index) => (
 						<ModelCard 
 							key={index} 
-							model={model} 
-							href={`${modelViewBaseUrl}?slug=${model.slug}`}
+							item={item} 
+							href={`${modelViewBaseUrl}?slug=${item.data.slug}`}
 							target="_blank"
 							{...modelCardProps}
 						/>

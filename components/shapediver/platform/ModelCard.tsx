@@ -4,6 +4,7 @@ import { Icon, IconLockSquare, IconProps, IconUserCheck, IconUserQuestion, IconU
 import classes from "./ModelCard.module.css";
 import React, { useMemo } from "react";
 import ModelCardOverlay from "./ModelCardOverlay";
+import { IPlatformItemModel } from "../../../types/store/shapediverStorePlatform";
 
 export interface IModelCardProps {
 	/** If true, show information about the owner of the model. Defaults to true. */
@@ -18,7 +19,7 @@ export interface IModelCardProps {
 
 interface Props extends IModelCardProps {
 	/** Model to be displayed */
-	model: SdPlatformResponseModelPublic,
+	item: IPlatformItemModel,
 	/** Optional link */
 	href?: string
 	/** Target for the link */
@@ -56,14 +57,16 @@ const getStatusDescription = (model: SdPlatformResponseModelPublic, showConfirma
 export default function ModelCard(props: Props) {
 	
 	const { 
-		model, 
+		item, 
 		href, 
 		target,
 		showUser = true,
 		showConfirmationStatus = false,
 		showTags = true,
 		showBookmark,
-	}	= props;
+	} = props;
+
+	const model = item.data;
 
 	const username = useMemo(() => {
 		const user = model.user;
