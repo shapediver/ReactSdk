@@ -1,8 +1,9 @@
-import { SdPlatformResponseModelPublic } from "@shapediver/sdk.platform-api-sdk-v1";
-import { IconBookmark } from "@tabler/icons-react";
+import { IconBookmark, IconBookmarkOff } from "@tabler/icons-react";
 import React, { useMemo } from "react";
 import ModelCardOverlayWrapper from "./ModelCardOverlayWrapper";
 import { Avatar, Tooltip } from "@mantine/core";
+import { IPlatformItemModel } from "../../../types/store/shapediverStorePlatform";
+import { preventDefault } from "../../../utils/misc/events";
 
 export interface IModelCardOverlayProps {
 	/** If true, show the model's bookmark status. Defaults to false. */
@@ -13,18 +14,18 @@ export interface IModelCardOverlayProps {
 
 interface Props extends IModelCardOverlayProps {
 	/** Model to be displayed */
-	model: SdPlatformResponseModelPublic
+	item: IPlatformItemModel
 }
 
 export default function ModelCardOverlay(props: Props) {
 	
 	const {
-		model,
+		item: { data: model, actions },
 		showBookmark = false, 
 		showUser = true,
 	}	= props;
 
-	const displayBookmark = showBookmark && model.bookmark?.bookmarked;
+	const displayBookmark = showBookmark;// && model.bookmark?.bookmarked;
 	const displayUser = showUser && model.user;
 
 	const username = useMemo(() => {
@@ -55,7 +56,9 @@ export default function ModelCardOverlay(props: Props) {
 	return <>
 		{ displayBookmark ? 
 			<ModelCardOverlayWrapper position="top-left">
-				<IconBookmark/>
+				{ model.bookmark?.bookmarked ? 
+					<IconBookmark onClick={preventDefault(actions.unbookmark)}/> : 
+					<IconBookmarkOff onClick={preventDefault(actions.bookmark)}/> }
 			</ModelCardOverlayWrapper> : undefined }
 		{ displayUser ? 
 			<ModelCardOverlayWrapper position="top-right">
