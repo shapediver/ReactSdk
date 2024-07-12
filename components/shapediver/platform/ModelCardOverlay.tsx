@@ -2,9 +2,8 @@ import React, { useMemo } from "react";
 import ModelCardOverlayWrapper from "./ModelCardOverlayWrapper";
 import { Avatar, Tooltip } from "@mantine/core";
 import { IPlatformItemModel } from "../../../types/store/shapediverStorePlatform";
-import { preventDefault } from "../../../utils/misc/events";
-import Icon from "../../ui/Icon";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
+import ToggleIcon from "../../ui/ToggleIcon";
 
 export interface IModelCardOverlayProps {
 	/** If true, show the model's bookmark status. Defaults to false. */
@@ -57,13 +56,18 @@ export default function ModelCardOverlay(props: Props) {
 	return <>
 		{ displayBookmark ? 
 			<ModelCardOverlayWrapper position="top-left">
-				{ model.bookmark?.bookmarked ? 
-					<Icon type={IconTypeEnum.Bookmark} onClick={preventDefault(actions.unbookmark)}/> : 
-					<Icon type={IconTypeEnum.BookmarkOff} onClick={preventDefault(actions.bookmark)}/> }
+				<ToggleIcon 
+					value={model.bookmark?.bookmarked ?? false} 
+					iconActive={IconTypeEnum.Bookmark} 
+					iconInactive={IconTypeEnum.BookmarkOff} 
+					onActivate={actions.bookmark} 
+					onDeactivate={actions.unbookmark}
+					hideInactive={true}
+				/>
 			</ModelCardOverlayWrapper> : undefined }
 		{ displayUser ? 
 			<ModelCardOverlayWrapper position="top-right">
-				<Tooltip label={username} position="left">
+				<Tooltip label={username} position="bottom">
 					{ model.user.avatar_url ? 
 						<Avatar src={model.user.avatar_url} alt={username}/> : 
 						<Avatar>{userInitials}</Avatar> }

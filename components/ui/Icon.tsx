@@ -88,9 +88,13 @@ export function IconThemeProps(props: IconThemePropsType): MantineThemeComponent
 	};
 }
 
+export function useIconProps(props: Partial<IconProps>): IconProps {
+	return useProps("Icon", defaultStyleProps, props);
+}
+
 const Icon = forwardRef<_TablerIconType, Props>( function Icon({type, size, stroke, ...rest} : Props, ref ) {
 	
-	const iconPropsStyle = useProps("Icon", defaultStyleProps, {size, stroke});
+	const iconPropsStyle = useIconProps({size, stroke});
 	const iconProps = {...iconPropsStyle, ref, ...rest};
 	
 	switch (type) {
