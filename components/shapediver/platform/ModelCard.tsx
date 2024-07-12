@@ -1,17 +1,17 @@
-import { Anchor, Card, Group, Image, Pill, px, Text, Tooltip } from "@mantine/core";
-import { SdPlatformModelVisibility, SdPlatformResponseModelPublic } from "@shapediver/sdk.platform-api-sdk-v1";
+import { Anchor, Card, Group, Image, Pill, px, Text } from "@mantine/core";
 import classes from "./ModelCard.module.css";
 import React, { useMemo } from "react";
 import ModelCardOverlay from "./ModelCardOverlay";
 import { IPlatformItemModel } from "../../../types/store/shapediverStorePlatform";
-import { IconTypeEnum } from "../../../types/shapediver/icons";
-import Icon from "../../ui/Icon";
+import ModelStatusIcon from "./ModelStatusIcon";
 
 export interface IModelCardProps {
 	/** If true, show information about the owner of the model. Defaults to true. */
 	showUser?: boolean
-	/** If true, show the model's confirmation status. Defaults to false. */
+	/** If true, show the model's organization confirmation status. Defaults to false. */
 	showConfirmationStatus?: boolean
+	/** If true, allow updating the model's organization confirmation status. Defaults to false. */
+	enableConfirmationStatusUpdate?: boolean,
 	/** If true, show the model's tags. Defaults to true. */
 	showTags?: boolean
 	/** If true, show the model's bookmark status. Defaults to false. */
@@ -27,34 +27,6 @@ interface Props extends IModelCardProps {
 	target?: string
 }
 
-const createStatusDescription = (icon: IconTypeEnum, description: string) => ({ icon, description });
-
-const StatusDescriptionMap = {
-	"private": createStatusDescription(IconTypeEnum.LockSquare, "Private"),
-	"organization": createStatusDescription(IconTypeEnum.UsersGroup, "Visible to organization"),
-	"organization_pending": createStatusDescription(IconTypeEnum.UserQuestion, "Pending confirmation"),
-	"organization_confirmed": createStatusDescription(IconTypeEnum.UserCheck, "Visible to organization"),
-	"public": createStatusDescription(IconTypeEnum.World, "Public"),
-};
-
-const getStatusDescription = (model: SdPlatformResponseModelPublic, showConfirmationStatus?: boolean) => {
-	if (model.visibility === SdPlatformModelVisibility.Private) 
-		return StatusDescriptionMap["private"];
-	else if (model.visibility === SdPlatformModelVisibility.Public) 
-		return StatusDescriptionMap["public"];
-	else if (model.visibility === SdPlatformModelVisibility.Organization) {
-		if (showConfirmationStatus) {
-			if (model.organization_settings?.confirmed) 
-				return StatusDescriptionMap["organization_confirmed"];
-			else
-				return StatusDescriptionMap["organization_pending"];
-		}
-		
-		return StatusDescriptionMap["organization"];
-	}
-};
-
-
 export default function ModelCard(props: Props) {
 	
 	const { 
@@ -62,7 +34,8 @@ export default function ModelCard(props: Props) {
 		href, 
 		target,
 		showUser = true,
-		showConfirmationStatus = false,
+		showConfirmationStatus,
+		enableConfirmationStatusUpdate,
 		showTags = true,
 		showBookmark,
 	} = props;
@@ -80,8 +53,6 @@ export default function ModelCard(props: Props) {
 		return user.username;
 	}, [model.user]);
 
-	const statusDescription = useMemo(() => getStatusDescription(model, showConfirmationStatus), [model, showConfirmationStatus]);
-
 	return <Card w="18em">
 		<Card.Section>
 			<Anchor href={href} target={target}>
@@ -98,9 +69,10 @@ export default function ModelCard(props: Props) {
 			<Anchor href={href} target={target} underline="never">
 				<Text size="md" fw={500} lineClamp={1} className={classes.title}>{model.title}</Text>
 			</Anchor>
-			{ statusDescription ? <Tooltip label={statusDescription.description} >
-				<Icon type={statusDescription.icon} className={classes.icon} /> 
-			</Tooltip> : undefined }
+			<ModelStatusIcon item={item} 
+				showConfirmationStatus={showConfirmationStatus} 
+				enableConfirmationStatusUpdate={enableConfirmationStatusUpdate}
+				className={classes.icon} />
 		</Group>
 		{ showUser ?	
 			<Group justify="space-between" wrap="nowrap">

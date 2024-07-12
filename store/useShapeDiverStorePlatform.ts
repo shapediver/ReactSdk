@@ -121,7 +121,17 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 				await clientRef.client.bookmarks.delete(item.id);
 				set(state => produce(state, draft => { draft.modelStore[item.id].data.bookmark = { bookmarked: false }; }), false, `unbookmark ${item.id}`);
 				pruneCachedPromise(PlatformCacheTypeEnum.FetchModels, PlatformCacheKeyEnum.BookmarkedModels);
-			}
+			},
+			confirmForOrganization: async () => {
+				await clientRef.client.models.patch(item.id, { organization_settings: { confirmed: true } });
+				set(state => produce(state, draft => { draft.modelStore[item.id].data.organization_settings = { confirmed: true }; }), false, `confirmForOrganization ${item.id}`);
+				// TODO prune cache
+			},
+			revokeForOrganization: async () => {
+				await clientRef.client.models.patch(item.id, { organization_settings: { confirmed: false } });
+				set(state => produce(state, draft => { draft.modelStore[item.id].data.organization_settings = { confirmed: false }; }), false, `revokeForOrganization ${item.id}`);
+				// TODO prune cache
+			},
 		};
 		
 		set(state => ({

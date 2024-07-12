@@ -51,7 +51,11 @@ export interface IPlatformItemActionsModel {
     /** Bookmark the model. */
     bookmark: () => Promise<unknown>
     /** Un-bookmark the model. */
-    unbookmark: () => Promise<unknown>
+    unbookmark: () => Promise<unknown>,
+    /** Confirm the model (organization). */
+    confirmForOrganization: () => Promise<unknown>,
+    /** Revoke the model (organization). */
+    revokeForOrganization: () => Promise<unknown>,
 }
 
 /** The data type for model items. */
