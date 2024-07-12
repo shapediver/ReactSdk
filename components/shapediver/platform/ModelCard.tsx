@@ -98,7 +98,7 @@ export default function ModelCard(props: Props) {
 			<Anchor href={href} target={target} underline="never">
 				<Text size="md" fw={500} lineClamp={1} className={classes.title}>{model.title}</Text>
 			</Anchor>
-			{ statusDescription ? <Tooltip label={statusDescription.description} position="bottom">
+			{ statusDescription ? <Tooltip label={statusDescription.description} >
 				<Icon type={statusDescription.icon} className={classes.icon} /> 
 			</Tooltip> : undefined }
 		</Group>

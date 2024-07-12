@@ -62,12 +62,14 @@ export default function ModelCardOverlay(props: Props) {
 					iconInactive={IconTypeEnum.BookmarkOff} 
 					onActivate={actions.bookmark} 
 					onDeactivate={actions.unbookmark}
+					tooltipActive="Remove bookmark"
+					tooltipInactive="Add bookmark"
 					hideInactive={true}
 				/>
 			</ModelCardOverlayWrapper> : undefined }
 		{ displayUser ? 
 			<ModelCardOverlayWrapper position="top-right">
-				<Tooltip label={username} position="bottom">
+				<Tooltip label={username} >
 					{ model.user.avatar_url ? 
 						<Avatar src={model.user.avatar_url} alt={username}/> : 
 						<Avatar>{userInitials}</Avatar> }

@@ -1,4 +1,4 @@
-import { Loader, MantineThemeComponent, useProps } from "@mantine/core";
+import { Loader, MantineThemeComponent, Tooltip, useProps } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
 import { IconType } from "../../types/shapediver/icons";
 import Icon, { useIconProps } from "./Icon";
@@ -16,6 +16,10 @@ interface Props {
 	onActivate?: () => Promise<unknown>,
 	/** Callback to be awaited to set the value to false */
 	onDeactivate?: () => Promise<unknown>,
+	/** Tooltip to show if the value is true and onDeactivate is defined */
+	tooltipActive?: string,
+	/** Tooltip to show if the value is false and onActivate is defined */
+	tooltipInactive?: string,
 	/** Hide the icon of the value is false, defaults to false */
 	hideInactive?: boolean,
 	/** Show a loader while the value is being toggled, defaults to true */
@@ -53,6 +57,8 @@ export default function ToggleIcon(_props : Props & Partial<StyleProps> ) {
 		iconInactive, 
 		onActivate, 
 		onDeactivate, 
+		tooltipActive,
+		tooltipInactive,
 		hideInactive,
 		showLoader = true,
 		...rest
@@ -86,7 +92,7 @@ export default function ToggleIcon(_props : Props & Partial<StyleProps> ) {
 		return hideInactive ? classes.hidden : undefined;
 	},[onActivate, hideInactive]);
 
-	return <> { loading ? <Loader size={_size} /> : value ?
+	const icon = value ?
 		<Icon 
 			type={hovered ? iconInactive : iconActive}
 			onClick={onDeactivate && preventDefault(() => update(onDeactivate))}
@@ -102,6 +108,11 @@ export default function ToggleIcon(_props : Props & Partial<StyleProps> ) {
 			onMouseLeave={onActivate && (() => setHovered(false))}
 			className={classInactive}
 			size={_size}
-		/> 
+		/>;
+
+	return <> { loading ? <Loader size={_size} /> :
+		value ? 
+			tooltipActive ? <Tooltip label={tooltipActive} >{icon}</Tooltip> : icon :
+			tooltipInactive ? <Tooltip label={tooltipInactive} >{icon}</Tooltip> : icon
 	} </>;
 }
