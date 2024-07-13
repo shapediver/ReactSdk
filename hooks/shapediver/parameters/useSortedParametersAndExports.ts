@@ -1,3 +1,4 @@
+import { useShallow } from "zustand/react/shallow";
 import { useShapeDiverStoreParameters } from "../../../store/useShapeDiverStoreParameters";
 import { PropsExport } from "../../../types/components/shapediver/propsExport";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
@@ -21,7 +22,9 @@ interface ParamOrExportDefinition {
  */
 export function useSortedParametersAndExports(parameters?: PropsParameter[], exports?: PropsExport[]) : ParamOrExportDefinition[] {
 	
-	const {parameterStores, exportStores} = useShapeDiverStoreParameters();
+	const {parameterStores, exportStores} = useShapeDiverStoreParameters(
+		useShallow(state => ({parameterStores: state.parameterStores, exportStores: state.exportStores}))
+	);
 
 	// collect definitions of parameters and exports for sorting and grouping
 	let sortedParamsAndExports : ParamOrExportDefinition[] = [];

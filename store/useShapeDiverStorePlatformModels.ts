@@ -1,6 +1,7 @@
 import { devtools } from "zustand/middleware";
 import { devtoolsSettings } from "./storeSettings";
 import { create } from "zustand";
+import { useShallow } from "zustand/react/shallow";
 import { produce } from "immer";
 import { IShapeDiverStorePlatformModelExtended, ModelCacheKeyEnum, TModelData, TModelEmbed, TModelQueryPropsExt } from "../types/store/shapediverStorePlatformModels";
 import { IPlatformPagedItemQueryProps } from "../types/store/shapediverStorePlatformGeneric";
@@ -58,7 +59,7 @@ export const useShapeDiverStorePlatformModels = create<IShapeDiverStorePlatformM
 	},
 
 	useQuery(params: IPlatformPagedItemQueryProps<TModelEmbed, TModelQueryPropsExt>) {
-		const { clientRef, getUser } = useShapeDiverStorePlatform();
+		const { clientRef, getUser } = useShapeDiverStorePlatform(useShallow(state => ({clientRef: state.clientRef, getUser: state.getUser})));
 		const { addItem, queryCache } = get();
 		
 		const { queryParams, filterByUser, filterByOrganization, cacheKey } = params;

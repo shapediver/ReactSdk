@@ -4,6 +4,7 @@ import ModelCard, { IModelCardProps } from "./ModelCard";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 import { useShapeDiverStorePlatformModels } from "../../../store/useShapeDiverStorePlatformModels";
 import { TModelQueryProps } from "shared/types/store/shapediverStorePlatformModels";
+import { useShallow } from "zustand/react/shallow";
 
 export interface IModelLibraryProps extends TModelQueryProps {
 	/** 
@@ -19,7 +20,9 @@ export interface IModelLibraryProps extends TModelQueryProps {
 export default function ModelLibrary(props: IModelLibraryProps) {
 
 	const { modelViewBaseUrl, modelCardProps, ...rest } = props;
-	const { useQuery, items: modelStore } = useShapeDiverStorePlatformModels();
+	const { useQuery, items: modelStore } = useShapeDiverStorePlatformModels(
+		useShallow(state => ({useQuery: state.useQuery, items: state.items}))
+	);
 	const { loading, error, items, hasMore: hasNextPage, loadMore } = useQuery(rest);
 	
 	/**
