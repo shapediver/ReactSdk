@@ -1,9 +1,9 @@
 import React, { useMemo } from "react";
 import ModelCardOverlayWrapper from "./ModelCardOverlayWrapper";
 import { Avatar, Tooltip } from "@mantine/core";
-import { IPlatformItemModel } from "../../../types/store/shapediverStorePlatform";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import ToggleIcon from "../../ui/ToggleIcon";
+import { TModelItem } from "../../../types/store/shapediverStorePlatformModels";
 
 export interface IModelCardOverlayProps {
 	/** If true, show the model's bookmark status. Defaults to false. */
@@ -14,7 +14,7 @@ export interface IModelCardOverlayProps {
 
 interface Props extends IModelCardOverlayProps {
 	/** Model to be displayed */
-	item: IPlatformItemModel
+	item: TModelItem
 }
 
 export default function ModelCardOverlay(props: Props) {

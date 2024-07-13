@@ -1,14 +1,14 @@
 import { Tooltip } from "@mantine/core";
 import { SdPlatformModelVisibility, SdPlatformResponseModelPublic } from "@shapediver/sdk.platform-api-sdk-v1";
 import React, { useMemo } from "react";
-import { IPlatformItemModel } from "../../../types/store/shapediverStorePlatform";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import Icon from "../../ui/Icon";
 import ToggleIcon from "shared/components/ui/ToggleIcon";
+import { TModelItem } from "../../../types/store/shapediverStorePlatformModels";
 
 interface Props {
 	/** Model to be displayed */
-	item: IPlatformItemModel,
+	item: TModelItem,
 	/** If true, show the model's organization confirmation status. Defaults to false. */
 	showConfirmationStatus?: boolean,
 	/** If true, allow updating the model's organization confirmation status. Defaults to false. */
@@ -83,5 +83,5 @@ export default function ModelStatusIcon(props: Props) {
 		statusDescription ? 
 			<Tooltip label={statusDescription.description} >
 				<Icon type={statusDescription.icon} className={className} /> 
-			</Tooltip> : undefined;
+			</Tooltip> : null;
 }

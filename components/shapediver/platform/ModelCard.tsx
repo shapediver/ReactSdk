@@ -2,8 +2,8 @@ import { Anchor, Card, Group, Image, Pill, px, Text } from "@mantine/core";
 import classes from "./ModelCard.module.css";
 import React, { useMemo } from "react";
 import ModelCardOverlay from "./ModelCardOverlay";
-import { IPlatformItemModel } from "../../../types/store/shapediverStorePlatform";
 import ModelStatusIcon from "./ModelStatusIcon";
+import { TModelItem } from "../../../types/store/shapediverStorePlatformModels";
 
 export interface IModelCardProps {
 	/** If true, show information about the owner of the model. Defaults to true. */
@@ -20,7 +20,7 @@ export interface IModelCardProps {
 
 interface Props extends IModelCardProps {
 	/** Model to be displayed */
-	item: IPlatformItemModel,
+	item: TModelItem,
 	/** Optional link */
 	href?: string
 	/** Target for the link */

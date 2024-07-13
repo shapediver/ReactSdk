@@ -1,25 +1,18 @@
 import {
-	IPlatformItemDataModel,
-	IPlatformQueryResponseItemModel,
 	IShapeDiverStorePlatform,
-	PlatformCacheKeyEnum,
 	PlatformCacheTypeEnum,
 } from "../types/store/shapediverStorePlatform";
 import {
 	create as createSdk,
 	isPBInvalidGrantOAuthResponseError,
 	isPBInvalidRequestOAuthResponseError,
-	SdPlatformModelQueryEmbeddableFields,
-	SdPlatformModelQueryParameters,
 	SdPlatformResponseUserSelf,
-	SdPlatformSortingOrder,
 	SdPlatformUserGetEmbeddableFields,
 } from "@shapediver/sdk.platform-api-sdk-v1";
 import { devtools } from "zustand/middleware";
 import { devtoolsSettings } from "../store/storeSettings";
 import { getDefaultPlatformUrl, getPlatformClientId, shouldUsePlatform } from "../utils/platform/environment";
 import { create } from "zustand";
-import { produce } from "immer";
 
 /**
  * Store data related to the ShapeDiver Platform.
@@ -29,8 +22,7 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 
 	clientRef: undefined,
 	user: undefined,
-	modelStore: {},
-	promiseCache: {},
+	genericCache: {},
 	
 	authenticate: async (forceReAuthenticate?: boolean) => {
 		if (!shouldUsePlatform()) return;
@@ -107,94 +99,14 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 		});
 	},
 
-	async addModel(item: IPlatformItemDataModel) {
-		const { clientRef, pruneCachedPromise } = get();
-		if (!clientRef) return;
-
-		const actions = {
-			bookmark: async () => {
-				await clientRef.client.bookmarks.create({model_id: item.id});
-				set(state => produce(state, draft => { draft.modelStore[item.id].data.bookmark = { bookmarked: true }; }), false, `bookmark ${item.id}`);
-				pruneCachedPromise(PlatformCacheTypeEnum.FetchModels, PlatformCacheKeyEnum.BookmarkedModels);
-			},
-			unbookmark: async () => {
-				await clientRef.client.bookmarks.delete(item.id);
-				set(state => produce(state, draft => { draft.modelStore[item.id].data.bookmark = { bookmarked: false }; }), false, `unbookmark ${item.id}`);
-				pruneCachedPromise(PlatformCacheTypeEnum.FetchModels, PlatformCacheKeyEnum.BookmarkedModels);
-			},
-			confirmForOrganization: async () => {
-				await clientRef.client.models.patch(item.id, { organization_settings: { confirmed: true } });
-				set(state => produce(state, draft => { draft.modelStore[item.id].data.organization_settings = { confirmed: true }; }), false, `confirmForOrganization ${item.id}`);
-				// TODO prune cache
-			},
-			revokeForOrganization: async () => {
-				await clientRef.client.models.patch(item.id, { organization_settings: { confirmed: false } });
-				set(state => produce(state, draft => { draft.modelStore[item.id].data.organization_settings = { confirmed: false }; }), false, `revokeForOrganization ${item.id}`);
-				// TODO prune cache
-			},
-		};
-		
-		set(state => ({
-			modelStore: {
-				...state.modelStore,
-				[item.id]: {
-					data: item,
-					actions
-				}
-			}
-		}), false, `addModel ${item.id}`);
-	},
-
-	fetchModels: async (params?: SdPlatformModelQueryParameters, cacheKey?: string, forceRefresh?: boolean) => {
-		if (!shouldUsePlatform()) return;
-		
-		const { addModel, authenticate, cachePromise } = get();
-		const clientRef = await authenticate();
-		if (!clientRef) return;
-
-		const requestParams = {
-			filters: { deleted_at: null, status: "done" },
-			sorters: { created_at: SdPlatformSortingOrder.Desc },
-			embed: [
-				SdPlatformModelQueryEmbeddableFields.Bookmark,
-				SdPlatformModelQueryEmbeddableFields.Decoration,
-				SdPlatformModelQueryEmbeddableFields.Tags,
-				SdPlatformModelQueryEmbeddableFields.User,
-			],
-			strict_limit: true,
-			limit: 12,
-			...params,
-		};
-
-		const _cacheKey = `${cacheKey}-${JSON.stringify(requestParams)}`;
-
-		return cachePromise(PlatformCacheTypeEnum.FetchModels, _cacheKey, forceRefresh ?? false, async () => {
-			const clientRef = await get().authenticate();
-			if (!clientRef) return;
-
-			const response = await clientRef.client.models.query(requestParams);
-			const pagination = response.data.pagination;
-			const items: IPlatformQueryResponseItemModel[] = response.data.result.map(item => {
-				addModel(item);
-
-				return item.id;
-			});
-
-			return {
-				items,
-				pagination
-			};
-		});
-	},
-
 	cachePromise: async <T>(cacheType: PlatformCacheTypeEnum, cacheKey: string, flush: boolean, initializer: () => Promise<T>): Promise<T> => {
 		const key = `${cacheType}-${cacheKey}`;
-		const { promiseCache } = get();
-		const promise = promiseCache[key];
+		const { genericCache } = get();
+		const promise = genericCache[key];
 
 		if (!promise || flush) {
 			const _promise = initializer();
-			set(() => ({ promiseCache: { ...promiseCache, ...({[key]: _promise}) }}), false, `cachePromise ${key}`);
+			set(() => ({ genericCache: { ...genericCache, ...({[key]: _promise}) }}), false, `cachePromise ${key}`);
 			
 			return _promise;
 		}
@@ -202,17 +114,17 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 		return promise;
 	},
 
-	pruneCachedPromise: (cacheType: PlatformCacheTypeEnum, cacheKey: string) => {
+	pruneCache: (cacheType: PlatformCacheTypeEnum, cacheKey: string) => {
 		const key = `${cacheType}-${cacheKey}`;
-		const { promiseCache } = get();
-		const _promiseCache = { ...promiseCache };
-		for (const _key in promiseCache) {
+		const { genericCache } = get();
+		const _promiseCache = { ...genericCache };
+		for (const _key in genericCache) {
 			if (_key.startsWith(key)) {
 				delete _promiseCache[_key];
 			}	
 		}
-		if (Object.keys(_promiseCache).length !== Object.keys(promiseCache).length)
-			set(() => ({ promiseCache: _promiseCache }), false, `pruneCachedPromise ${key}`);
+		if (Object.keys(_promiseCache).length !== Object.keys(genericCache).length)
+			set(() => ({ genericCache: _promiseCache }), false, `pruneCache ${key}`);
 	},
 
 }), { ...devtoolsSettings, name: "ShapeDiver | Platform" }));

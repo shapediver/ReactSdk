@@ -1,11 +1,11 @@
 import React from "react";
 import { Alert, Loader, SimpleGrid } from "@mantine/core";
 import ModelCard, { IModelCardProps } from "./ModelCard";
-import useModelQuery, { IUseModelQueryProps } from "../../../hooks/shapediver/platform/useModelQuery";
 import useInfiniteScroll from "react-infinite-scroll-hook";
-import { useShapeDiverStorePlatform } from "../../../store/useShapeDiverStorePlatform";
+import { useShapeDiverStorePlatformModels } from "../../../store/useShapeDiverStorePlatformModels";
+import { TModelQueryProps } from "shared/types/store/shapediverStorePlatformModels";
 
-export interface IModelLibraryProps extends IUseModelQueryProps {
+export interface IModelLibraryProps extends TModelQueryProps {
 	/** 
 	 * Base URL for model view pages
 	 */
@@ -19,8 +19,8 @@ export interface IModelLibraryProps extends IUseModelQueryProps {
 export default function ModelLibrary(props: IModelLibraryProps) {
 
 	const { modelViewBaseUrl, modelCardProps, ...rest } = props;
-	const { loading, error, items, hasNextPage, loadMore } = useModelQuery(rest);
-	const { modelStore } = useShapeDiverStorePlatform();
+	const { useQuery, items: modelStore } = useShapeDiverStorePlatformModels();
+	const { loading, error, items, hasMore: hasNextPage, loadMore } = useQuery(rest);
 	
 	/**
 	 * see https://www.npmjs.com/package/react-infinite-scroll-hook
