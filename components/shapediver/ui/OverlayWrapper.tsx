@@ -48,7 +48,6 @@ export default function OverlayWrapper(props: Props & Partial<OverlayStyleProps>
 	} = props;
 
 	const positionStyles = useMemo(() => getPositionStyles(offset), [offset]);
-	console.log("positionStyles", positionStyles);
 	
 	return <section style={{...positionStyles[position], position: "absolute"}}>
 		{ children }

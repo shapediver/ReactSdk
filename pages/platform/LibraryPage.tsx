@@ -6,6 +6,7 @@ import classes from "./LibraryPage.module.css";
 
 export interface IModelLibraryTabProps extends IModelLibraryProps {
 	name: string,
+	tooltip?: string,
 }
 
 interface Props extends BoxProps {
@@ -27,10 +28,11 @@ export default function LibraryPage(props: Props) {
 		return {
 			defaultValue: tabs[0].name,
 			tabs: tabs.map(tab => {
-				const { name, ...rest } = tab;
+				const { name, tooltip, ...rest } = tab;
 
 				return {
-					name: tab.name,
+					name,
+					tooltip,
 					children: [<ModelLibrary key={name} {...rest} />],
 					className: classes.tabsPanels
 				};

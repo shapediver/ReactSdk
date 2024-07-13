@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { IconAugmentedReality, IconZoomIn, IconMaximize, IconVideo } from "@tabler/icons-react";
 import { ActionIcon, ActionIconVariant, Loader, Menu, Modal, Tooltip, Text, useProps, MantineStyleProp, Box, MantineThemeComponent } from "@mantine/core";
 import { useClickEventHandler } from "../../../hooks/misc/useClickEventHandler";
 import { isIPhone } from "../../../utils/misc/navigator";
@@ -8,6 +7,8 @@ import { firstLetterUppercase } from "../../../utils/misc/strings";
 import { useShapeDiverStoreViewer } from "../../../store/useShapeDiverStoreViewer";
 import { FLAG_TYPE } from "@shapediver/viewer";
 import classes from "./ViewportIcons.module.css";
+import Icon from "../../ui/Icon";
+import { IconTypeEnum } from "../../../types/shapediver/icons";
 
 interface Props {
 	viewportId: string,
@@ -151,7 +152,7 @@ export default function ViewportIcons(props: Props & Partial<OptionalProps>) {
 		{ enableArBtn && isArEnabled && <Tooltip label="View in AR">
 			<div>
 				<ActionIcon onClick={onArClick} disabled={isArLoading} size={size} variant={isViewableInAr ? variantDisabled : variant} aria-label="View in AR" style={iconStyle}>
-					<IconAugmentedReality color={isArLoading ? colorDisabled : color} stroke={1}/>
+					<Icon type={IconTypeEnum.AugmentedReality} color={isArLoading ? colorDisabled : color} />
 				</ActionIcon>
 			</div>
 		</Tooltip> }
@@ -173,13 +174,13 @@ export default function ViewportIcons(props: Props & Partial<OptionalProps>) {
 
 		{ enableZoomBtn && <Tooltip label="Zoom extents">
 			<ActionIcon onClick={zoomClickHandler} size={size} variant={variant} aria-label="Zoom extents" style={iconStyle}>
-				<IconZoomIn color={color} stroke={1}/>
+				<Icon type={IconTypeEnum.ZoomIn} color={color} />
 			</ActionIcon>
 		</Tooltip> }
 
 		{ enableFullscreenBtn && <Tooltip label="Fullscreen">
 			<ActionIcon onClick={makeElementFullscreen} disabled={isFullscreenDisabled || !isFullScreenAvailable.current} size={size} variant={(isFullscreenDisabled || !isFullScreenAvailable.current) ? variantDisabled : variant} aria-label="Fullscreen" style={iconStyle}>
-				<IconMaximize color={(isFullscreenDisabled || !isFullScreenAvailable.current) ? colorDisabled : color} stroke={1} />
+				<Icon type={IconTypeEnum.Maximize} color={(isFullscreenDisabled || !isFullScreenAvailable.current) ? colorDisabled : color} />
 			</ActionIcon>
 		</Tooltip> }
 
@@ -194,7 +195,7 @@ export default function ViewportIcons(props: Props & Partial<OptionalProps>) {
 				<ActionIcon onClick={() => setIsCamerasMenuOpened(!isCamerasMenuOpened)} disabled={noCamerasAvailable} size={size} variant={noCamerasAvailable ? variantDisabled : variant} aria-label="Cameras" style={iconStyle}>
 					<Tooltip disabled={isCamerasMenuOpened} label="Cameras">
 						<Menu.Target>
-							<IconVideo color={color} stroke={1} />
+							<Icon type={IconTypeEnum.Video} color={color} />
 						</Menu.Target>
 					</Tooltip>
 				</ActionIcon>

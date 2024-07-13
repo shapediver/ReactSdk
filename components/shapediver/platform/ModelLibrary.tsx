@@ -1,10 +1,12 @@
 import React from "react";
 import { Alert, Loader, SimpleGrid } from "@mantine/core";
 import ModelCard, { IModelCardProps } from "./ModelCard";
-import useModelQuery, { IUseModelQueryProps } from "../../../hooks/shapediver/platform/useModelQuery";
 import useInfiniteScroll from "react-infinite-scroll-hook";
+import { useShapeDiverStorePlatformModels } from "../../../store/useShapeDiverStorePlatformModels";
+import { TModelQueryProps } from "shared/types/store/shapediverStorePlatformModels";
+import { useShallow } from "zustand/react/shallow";
 
-export interface IModelLibraryProps extends IUseModelQueryProps {
+export interface IModelLibraryProps extends TModelQueryProps {
 	/** 
 	 * Base URL for model view pages
 	 */
@@ -18,7 +20,10 @@ export interface IModelLibraryProps extends IUseModelQueryProps {
 export default function ModelLibrary(props: IModelLibraryProps) {
 
 	const { modelViewBaseUrl, modelCardProps, ...rest } = props;
-	const { loading, error, items, hasNextPage, loadMore } = useModelQuery(rest);
+	const { useQuery, items: modelStore } = useShapeDiverStorePlatformModels(
+		useShallow(state => ({useQuery: state.useQuery, items: state.items}))
+	);
+	const { loading, error, items, hasMore: hasNextPage, loadMore } = useQuery(rest);
 	
 	/**
 	 * see https://www.npmjs.com/package/react-infinite-scroll-hook
@@ -35,16 +40,18 @@ export default function ModelLibrary(props: IModelLibraryProps) {
 		// visible, instead of becoming fully visible on the screen.
 		rootMargin: "0px 0px 400px 0px",
 	});
+
+	const modelItems = items.map(id => modelStore[id]).filter(item => item !== undefined);
 	
 	return (
 		error ? <Alert title="Error">{error.message}</Alert> :
 			items.length === 0 && !hasNextPage ? <Alert>No models found.</Alert> :
 				<SimpleGrid cols={3}>
-					{items.map((model, index) => (
+					{modelItems.map((item, index) => (
 						<ModelCard 
 							key={index} 
-							model={model} 
-							href={`${modelViewBaseUrl}?slug=${model.slug}`}
+							item={item} 
+							href={`${modelViewBaseUrl}?slug=${item.data.slug}`}
 							target="_blank"
 							{...modelCardProps}
 						/>

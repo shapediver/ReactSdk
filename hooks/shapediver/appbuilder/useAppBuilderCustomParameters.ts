@@ -2,8 +2,7 @@ import { IAppBuilder } from "../../../types/shapediver/appbuilder";
 import { useCallback, useRef } from "react";
 import { useParameterStateless } from "../parameters/useParameterStateless";
 import { useDefineGenericParameters } from "../parameters/useDefineGenericParameters";
-import { ShapeDiverResponseParameterType } from "@shapediver/api.geometry-api-dto-v2";
-import { ISessionApi } from "@shapediver/viewer";
+import { ISessionApi, PARAMETER_TYPE } from "@shapediver/viewer";
 import { IAcceptRejectModeSelector } from "../../../types/store/shapediverStoreParameters";
 
 /** Prefix used to register custom parameters */
@@ -43,7 +42,7 @@ export function useAppBuilderCustomParameters(props: Props) {
 	const executor = useCallback((values: { [key: string]: any }) => new Promise((resolve, reject) => {
 		Object.keys(values).forEach(key => customParameterValues.current[key] = values[key]);
 		console.debug("Custom parameter value changes", values, "New state", customParameterValues.current);
-		if (appBuilderParam && appBuilderParam.definition.type === ShapeDiverResponseParameterType.STRING) {
+		if (appBuilderParam && appBuilderParam.definition.type === PARAMETER_TYPE.STRING) {
 			appBuilderParam.actions.setUiValue(JSON.stringify(customParameterValues.current));
 			appBuilderParam.actions.execute().then(resolve).catch(reject);
 		}

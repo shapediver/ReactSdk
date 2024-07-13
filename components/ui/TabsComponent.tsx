@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect, useState } from "react";
-import { BoxProps, Tabs } from "@mantine/core";
+import { BoxProps, Tabs, Tooltip } from "@mantine/core";
 import Icon from "./Icon";
 import { IconType } from "../../types/shapediver/icons";
 
@@ -10,6 +10,8 @@ interface PropsTab extends BoxProps {
 	icon?: IconType,
 	/** Children of tab. */
 	children: ReactElement[],
+	/** Optional tooltip to show when hovering the tab. */
+	tooltip?: string,
 }
 
 export interface ITabsComponentProps extends BoxProps {
@@ -43,13 +45,15 @@ export default function TabsComponent({defaultValue, tabs, ...rest}: ITabsCompon
 	>
 		<Tabs.List>
 			{
-				tabs.map((tab, index) => <Tabs.Tab
-					key={index}
-					value={tab.name}
-					leftSection={<Icon type={tab.icon} />}
-				>
-					{tab.name}
-				</Tabs.Tab>)
+				tabs.map((tab, index) => {
+					const tabsTab = <Tabs.Tab
+						key={index}
+						value={tab.name}
+						leftSection={tab.icon ? <Icon type={tab.icon} /> : undefined}
+					>{tab.name}</Tabs.Tab>;
+			
+					return tab.tooltip ? <Tooltip key={index} label={tab.tooltip}>{tabsTab}</Tooltip> : tabsTab;
+				})
 			}
 		</Tabs.List>
 		{

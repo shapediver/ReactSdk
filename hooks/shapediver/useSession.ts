@@ -4,6 +4,7 @@ import { useShapeDiverStoreViewer } from "../../store/useShapeDiverStoreViewer";
 import { SessionCreateDto } from "../../types/store/shapediverStoreViewer";
 import { useShapeDiverStoreParameters } from "../../store/useShapeDiverStoreParameters";
 import { IAcceptRejectModeSelector } from "../../types/store/shapediverStoreParameters";
+import { useShallow } from "zustand/react/shallow";
 
 /**
  * DTO for use with {@link useSession} and {@link useSessions}. 
@@ -34,8 +35,10 @@ export interface IUseSessionDto extends SessionCreateDto {
  * @returns
  */
 export function useSession(props: IUseSessionDto | undefined) {
-	const { createSession, closeSession } = useShapeDiverStoreViewer();
-	const { addSession: addSessionParameters, removeSession: removeSessionParameters } = useShapeDiverStoreParameters();
+	const { createSession, closeSession } = useShapeDiverStoreViewer(useShallow(state => ({ createSession: state.createSession, closeSession: state.closeSession })));
+	const { addSession: addSessionParameters, removeSession: removeSessionParameters } = useShapeDiverStoreParameters(
+		useShallow(state => ({ addSession: state.addSession, removeSession: state.removeSession }))
+	);
 	const [sessionApi, setSessionApi] = useState<ISessionApi | undefined>(undefined);
 	const [error, setError] = useState<Error | undefined>(undefined);
 	const promiseChain = useRef(Promise.resolve());

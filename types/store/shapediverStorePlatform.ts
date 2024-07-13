@@ -1,4 +1,7 @@
-import { SdPlatformModelQueryParameters, SdPlatformQueryResponse, SdPlatformResponseModelPublic, SdPlatformResponseUserSelf, SdPlatformSdk } from "@shapediver/sdk.platform-api-sdk-v1";
+import { 
+	SdPlatformResponseUserSelf, 
+	SdPlatformSdk 
+} from "@shapediver/sdk.platform-api-sdk-v1";
 
 /**
  * Reference to the authenticated platform client.
@@ -13,13 +16,13 @@ export interface IPlatformClientRef {
 }
 
 /**
- * Interface of the store for platform-related data.
+ * Interface of the store for basic platform interaction (authentication, user information).
  */
 export interface IShapeDiverStorePlatform {
 
     /** Reference to the authenticated platform client. */
     clientRef: IPlatformClientRef | undefined
-
+   
     /**
      * Authenticate the platform client.
      * In case the application is not running on the platform, this function returns undefined.
@@ -36,10 +39,28 @@ export interface IShapeDiverStorePlatform {
      * Load information about the current user.
      */
     getUser: (forceRefresh?: boolean) => Promise<SdPlatformResponseUserSelf | undefined>
-
-    /**
-     * Fetch models.
-     */
-    fetchModels: (params?: SdPlatformModelQueryParameters, forceRefresh?: boolean) => Promise<SdPlatformQueryResponse<SdPlatformResponseModelPublic> | undefined>
 }
 
+/** Type of cache. */
+export enum PlatformCacheKeyEnum {
+    Authenticate = "authenticate",
+    GetUser = "getUser",
+}
+
+/**
+ * Extended store for basic platform interaction, including functionality used by the store implementation
+ */
+export interface IShapeDiverStorePlatformExtended extends IShapeDiverStorePlatform {
+
+        /** Cache for diverse stuff */
+    genericCache: { [key: string]: any }
+
+    /**
+     * Cache a promise in the store.
+     * @param cacheType type of cache
+     * @param flush force flushing of the cache
+     * @param initializer 
+     * @returns 
+     */
+    cachePromise: <T>(cacheType: PlatformCacheKeyEnum, flush: boolean, initializer: () => Promise<T>) => Promise<T>
+}

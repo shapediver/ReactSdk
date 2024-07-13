@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useShapeDiverStoreParameters } from "../../../store/useShapeDiverStoreParameters";
 import { IAcceptRejectModeSelector, IGenericParameterDefinition, IGenericParameterExecutor } from "../../../types/store/shapediverStoreParameters";
+import { useShallow } from "zustand/react/shallow";
 
 
 /**
@@ -21,7 +22,9 @@ export function useDefineGenericParameters(sessionId: string, acceptRejectMode: 
 	definitions: IGenericParameterDefinition | IGenericParameterDefinition[], 
 	executor: IGenericParameterExecutor) {
 	
-	const { syncGeneric, removeSession } = useShapeDiverStoreParameters();
+	const { syncGeneric, removeSession } = useShapeDiverStoreParameters(
+		useShallow(state => ({ syncGeneric: state.syncGeneric, removeSession: state.removeSession }))
+	);
 	
 	// keep the generic parameters in sync
 	useEffect(() => {

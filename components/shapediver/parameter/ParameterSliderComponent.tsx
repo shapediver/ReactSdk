@@ -4,7 +4,7 @@ import ParameterLabelComponent from "./ParameterLabelComponent";
 import { IShapeDiverParameterDefinition } from "../../../types/shapediver/parameter";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
-import { ShapeDiverResponseParameterType } from "@shapediver/api.geometry-api-dto-v2";
+import { PARAMETER_TYPE } from "@shapediver/viewer";
 
 /**
  * Round the number depending on the parameter type.
@@ -14,7 +14,7 @@ import { ShapeDiverResponseParameterType } from "@shapediver/api.geometry-api-dt
  * @returns
  */
 const round = (parameter: IShapeDiverParameterDefinition, n: number) => {
-	if (parameter.type === ShapeDiverResponseParameterType.INT || parameter.type === ShapeDiverResponseParameterType.EVEN || parameter.type === ShapeDiverResponseParameterType.ODD)
+	if (parameter.type === PARAMETER_TYPE.INT || parameter.type === PARAMETER_TYPE.EVEN || parameter.type === PARAMETER_TYPE.ODD)
 		n = +n.toFixed(0);
 	n = +n.toFixed(parameter.decimalplaces);
 
@@ -61,9 +61,9 @@ export default function ParameterSliderComponent(props: PropsParameter & Partial
 
 	// calculate the step size which depends on the parameter type
 	let step = 1;
-	if (definition.type === ShapeDiverResponseParameterType.INT) {
+	if (definition.type === PARAMETER_TYPE.INT) {
 		step = 1;
-	} else if (definition.type === ShapeDiverResponseParameterType.EVEN || definition.type === ShapeDiverResponseParameterType.ODD) {
+	} else if (definition.type === PARAMETER_TYPE.EVEN || definition.type === PARAMETER_TYPE.ODD) {
 		step = 2;
 	} else {
 		step = 1 / Math.pow(10, definition.decimalplaces!);
@@ -90,7 +90,7 @@ export default function ParameterSliderComponent(props: PropsParameter & Partial
 				marks={marks}
 				disabled={disabled}
 			/> }
-			{ definition && <Tooltip label={tooltip} position="bottom"><NumberInput
+			{ definition && <Tooltip label={tooltip} ><NumberInput
 				w={numberWidth}
 				value={value}
 				min={+definition.min!}

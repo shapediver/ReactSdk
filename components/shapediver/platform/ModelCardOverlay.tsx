@@ -1,8 +1,9 @@
-import { SdPlatformResponseModelPublic } from "@shapediver/sdk.platform-api-sdk-v1";
-import { IconBookmark } from "@tabler/icons-react";
 import React, { useMemo } from "react";
 import ModelCardOverlayWrapper from "./ModelCardOverlayWrapper";
 import { Avatar, Tooltip } from "@mantine/core";
+import { IconTypeEnum } from "../../../types/shapediver/icons";
+import ToggleIcon from "../../ui/ToggleIcon";
+import { TModelItem } from "../../../types/store/shapediverStorePlatformModels";
 
 export interface IModelCardOverlayProps {
 	/** If true, show the model's bookmark status. Defaults to false. */
@@ -13,18 +14,18 @@ export interface IModelCardOverlayProps {
 
 interface Props extends IModelCardOverlayProps {
 	/** Model to be displayed */
-	model: SdPlatformResponseModelPublic
+	item: TModelItem
 }
 
 export default function ModelCardOverlay(props: Props) {
 	
 	const {
-		model,
+		item: { data: model, actions },
 		showBookmark = false, 
 		showUser = true,
 	}	= props;
 
-	const displayBookmark = showBookmark && model.bookmark?.bookmarked;
+	const displayBookmark = showBookmark;// && model.bookmark?.bookmarked;
 	const displayUser = showUser && model.user;
 
 	const username = useMemo(() => {
@@ -55,11 +56,20 @@ export default function ModelCardOverlay(props: Props) {
 	return <>
 		{ displayBookmark ? 
 			<ModelCardOverlayWrapper position="top-left">
-				<IconBookmark/>
+				<ToggleIcon 
+					value={model.bookmark?.bookmarked ?? false} 
+					iconActive={IconTypeEnum.Bookmark} 
+					iconInactive={IconTypeEnum.BookmarkOff} 
+					onActivate={actions.bookmark} 
+					onDeactivate={actions.unbookmark}
+					tooltipActive="Remove bookmark"
+					tooltipInactive="Add bookmark"
+					hideInactive={true}
+				/>
 			</ModelCardOverlayWrapper> : undefined }
 		{ displayUser ? 
 			<ModelCardOverlayWrapper position="top-right">
-				<Tooltip label={username} position="left">
+				<Tooltip label={username} >
 					{ model.user.avatar_url ? 
 						<Avatar src={model.user.avatar_url} alt={username}/> : 
 						<Avatar>{userInitials}</Avatar> }

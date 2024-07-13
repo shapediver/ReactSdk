@@ -1,4 +1,4 @@
-import { Accordion, Anchor, AppShellResponsiveSize, Button, CSSVariablesResolver, ColorInput, DEFAULT_THEME, Group, MantineSize, MantineSpacing, MantineThemeOverride, Paper, Stack, StyleProp, Switch, Tabs, createTheme, mergeThemeOverrides } from "@mantine/core";
+import { Accordion, Anchor, AppShellResponsiveSize, Button, CSSVariablesResolver, ColorInput, DEFAULT_THEME, Group, MantineSize, MantineSpacing, MantineThemeOverride, Paper, Stack, StyleProp, Switch, Tabs, Tooltip, createTheme, mergeThemeOverrides } from "@mantine/core";
 import { ViewportIconsThemeProps } from "../../components/shapediver/viewport/ViewportIcons";
 import { ViewportBrandingThemeProps, ViewportComponentThemeProps } from "../../components/shapediver/viewport/ViewportComponent";
 import { ViewportOverlayWrapperThemeProps } from "../../components/shapediver/viewport/ViewportOverlayWrapper";
@@ -199,6 +199,15 @@ export const useCustomTheme = (props: Props = {}) => {
 			TabsPanel: Tabs.Panel.extend({
 				defaultProps: {
 					pt: padding,
+				}
+			}),
+			/**
+			 * Tooltip
+			 * @see https://mantine.dev/core/tooltip/?t=props
+			 */
+			Tooltip: Tooltip.extend({
+				defaultProps: {
+					position: "bottom",
 				}
 			}),
 

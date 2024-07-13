@@ -10,7 +10,7 @@ import { useShapeDiverStorePlatform } from "../../../store/useShapeDiverStorePla
  */
 export default function useResolveAppBuilderSettings(settings : IAppBuilderSettings|undefined) {
 
-	const { authenticate } = useShapeDiverStorePlatform();
+	const authenticate = useShapeDiverStorePlatform(state => state.authenticate);
 
 	// when running on the platform, try to get a token (refresh token grant)
 	const { value: sdkRef, error: platformError } = useAsync(async () => {

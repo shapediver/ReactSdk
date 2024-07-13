@@ -1,36 +1,38 @@
-import { IShapeDiverStorePlatform } from "../types/store/shapediverStorePlatform";
-import { create as createSdk, isPBInvalidGrantOAuthResponseError, isPBInvalidRequestOAuthResponseError, SdPlatformModelQueryEmbeddableFields, SdPlatformModelQueryParameters, SdPlatformResponseUserSelf, SdPlatformSortingOrder, SdPlatformUserGetEmbeddableFields } from "@shapediver/sdk.platform-api-sdk-v1";
-import { create } from "zustand";
+import {
+	IShapeDiverStorePlatformExtended,
+	PlatformCacheKeyEnum,
+} from "../types/store/shapediverStorePlatform";
+import {
+	create as createSdk,
+	isPBInvalidGrantOAuthResponseError,
+	isPBInvalidRequestOAuthResponseError,
+	SdPlatformResponseUserSelf,
+	SdPlatformUserGetEmbeddableFields,
+} from "@shapediver/sdk.platform-api-sdk-v1";
 import { devtools } from "zustand/middleware";
 import { devtoolsSettings } from "../store/storeSettings";
 import { getDefaultPlatformUrl, getPlatformClientId, shouldUsePlatform } from "../utils/platform/environment";
-
-const PROMISE_CACHE: { [key: string]: Promise<any> } = {};
-
-function getCachedPromise<T>(key: string, flush: boolean, initializer: () => Promise<T>): Promise<T> {
-	if (!PROMISE_CACHE[key] || flush) {
-		PROMISE_CACHE[key] = initializer();
-	}
-	
-	return PROMISE_CACHE[key];
-}
+import { create } from "zustand";
 
 /**
  * Store data related to the ShapeDiver Platform.
  * @see {@link IShapeDiverStorePlatform}
  */
-export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(devtools((set, get) => ({
+export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatformExtended>()(devtools((set, get) => ({
 
 	clientRef: undefined,
 	user: undefined,
+	genericCache: {},
 	
 	authenticate: async (forceReAuthenticate?: boolean) => {
 		if (!shouldUsePlatform()) return;
 
-		if (!forceReAuthenticate && get().clientRef) 
-			return get().clientRef;
+		const { clientRef, cachePromise } = get();
 
-		return getCachedPromise("authenticate", forceReAuthenticate ?? false, async () => {
+		if (!forceReAuthenticate && clientRef) 
+			return clientRef;
+
+		return cachePromise(PlatformCacheKeyEnum.Authenticate, forceReAuthenticate ?? false, async () => {
 			const platformUrl = getDefaultPlatformUrl();
 			const client = createSdk({ clientId: getPlatformClientId(), baseUrl: platformUrl });
 			try {
@@ -71,10 +73,12 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 	getUser: async (forceRefresh?: boolean) => {
 		if (!shouldUsePlatform()) return;
 
-		if (!forceRefresh && get().user)
-			return get().user;
+		const { user, cachePromise } = get();
 
-		return getCachedPromise("getUser", forceRefresh ?? false, async () => {
+		if (!forceRefresh && user)
+			return user;
+
+		return cachePromise(PlatformCacheKeyEnum.GetUser, forceRefresh ?? false, async () => {
 			const clientRef = await get().authenticate();
 			if (!clientRef) return;
 
@@ -95,35 +99,19 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 		});
 	},
 
-	fetchModels: async (params?: SdPlatformModelQueryParameters, forceRefresh?: boolean) => {
-		if (!shouldUsePlatform()) return;
+	cachePromise: async <T>(cacheType: PlatformCacheKeyEnum, flush: boolean, initializer: () => Promise<T>): Promise<T> => {
+		const key = cacheType;
+		const { genericCache } = get();
+		const promise = genericCache[key];
 
-		const clientRef = await get().authenticate();
-		if (!clientRef) return;
-
-		const requestParams = {
-			filters: { deleted_at: null, status: "done" },
-			sorters: { created_at: SdPlatformSortingOrder.Desc },
-			embed: [
-				SdPlatformModelQueryEmbeddableFields.Bookmark,
-				SdPlatformModelQueryEmbeddableFields.Decoration,
-				SdPlatformModelQueryEmbeddableFields.Tags,
-				SdPlatformModelQueryEmbeddableFields.User,
-			],
-			strict_limit: true,
-			limit: 12,
-			...params,
-		};
-
-		const cacheKey = `fetchModels-${JSON.stringify(requestParams)}`;
-
-		return getCachedPromise(cacheKey, forceRefresh ?? false, async () => {
-			const clientRef = await get().authenticate();
-			if (!clientRef) return;
-
-			return clientRef.client.models.query(requestParams);
-		});
+		if (!promise || flush) {
+			const _promise = initializer();
+			set(() => ({ genericCache: { ...genericCache, ...({[key]: _promise}) }}), false, `cachePromise ${key}`);
+			
+			return _promise;
+		}
+		
+		return promise;
 	},
-
 
 }), { ...devtoolsSettings, name: "ShapeDiver | Platform" }));

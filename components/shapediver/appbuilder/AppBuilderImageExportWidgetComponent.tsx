@@ -3,6 +3,7 @@ import { useExport } from "../../../hooks/shapediver/parameters/useExport";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import AppBuilderImage from "./AppBuilderImage";
 import { useShapeDiverStoreParameters } from "../../../store/useShapeDiverStoreParameters";
+import { useShallow } from "zustand/react/shallow";
 
 interface Props {
 	/**
@@ -42,7 +43,10 @@ export default function AppBuilderImageExportWidgetComponent(props: Props) {
 	}, [setImageSrc]);
 
 	// Register the export to be requested on every parameter change.
-	const { registerDefaultExport, deregisterDefaultExport } = useShapeDiverStoreParameters();
+	const { registerDefaultExport, deregisterDefaultExport } = useShapeDiverStoreParameters(
+		useShallow(state => 
+			({ registerDefaultExport: state.registerDefaultExport, deregisterDefaultExport: state.deregisterDefaultExport }))
+	);
 	useEffect(() => {
 		registerDefaultExport(sessionId, definition.id);
 
