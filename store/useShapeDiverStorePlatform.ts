@@ -1,6 +1,6 @@
 import {
-	IShapeDiverStorePlatform,
-	PlatformCacheTypeEnum,
+	IShapeDiverStorePlatformExtended,
+	PlatformCacheKeyEnum,
 } from "../types/store/shapediverStorePlatform";
 import {
 	create as createSdk,
@@ -18,7 +18,7 @@ import { create } from "zustand";
  * Store data related to the ShapeDiver Platform.
  * @see {@link IShapeDiverStorePlatform}
  */
-export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(devtools((set, get) => ({
+export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatformExtended>()(devtools((set, get) => ({
 
 	clientRef: undefined,
 	user: undefined,
@@ -32,7 +32,7 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 		if (!forceReAuthenticate && clientRef) 
 			return clientRef;
 
-		return cachePromise(PlatformCacheTypeEnum.Authenticate, "", forceReAuthenticate ?? false, async () => {
+		return cachePromise(PlatformCacheKeyEnum.Authenticate, forceReAuthenticate ?? false, async () => {
 			const platformUrl = getDefaultPlatformUrl();
 			const client = createSdk({ clientId: getPlatformClientId(), baseUrl: platformUrl });
 			try {
@@ -78,7 +78,7 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 		if (!forceRefresh && user)
 			return user;
 
-		return cachePromise(PlatformCacheTypeEnum.GetUser, "", forceRefresh ?? false, async () => {
+		return cachePromise(PlatformCacheKeyEnum.GetUser, forceRefresh ?? false, async () => {
 			const clientRef = await get().authenticate();
 			if (!clientRef) return;
 
@@ -99,8 +99,8 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 		});
 	},
 
-	cachePromise: async <T>(cacheType: PlatformCacheTypeEnum, cacheKey: string, flush: boolean, initializer: () => Promise<T>): Promise<T> => {
-		const key = `${cacheType}-${cacheKey}`;
+	cachePromise: async <T>(cacheType: PlatformCacheKeyEnum, flush: boolean, initializer: () => Promise<T>): Promise<T> => {
+		const key = cacheType;
 		const { genericCache } = get();
 		const promise = genericCache[key];
 
@@ -112,19 +112,6 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatform>()(dev
 		}
 		
 		return promise;
-	},
-
-	pruneCache: (cacheType: PlatformCacheTypeEnum, cacheKey: string) => {
-		const key = `${cacheType}-${cacheKey}`;
-		const { genericCache } = get();
-		const _promiseCache = { ...genericCache };
-		for (const _key in genericCache) {
-			if (_key.startsWith(key)) {
-				delete _promiseCache[_key];
-			}	
-		}
-		if (Object.keys(_promiseCache).length !== Object.keys(genericCache).length)
-			set(() => ({ genericCache: _promiseCache }), false, `pruneCache ${key}`);
 	},
 
 }), { ...devtoolsSettings, name: "ShapeDiver | Platform" }));

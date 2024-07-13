@@ -15,34 +15,14 @@ export interface IPlatformClientRef {
     client: SdPlatformSdk
 }
 
-/** Type of cache. */
-export enum PlatformCacheTypeEnum {
-    Authenticate = "authenticate",
-    FetchModels = "fetchModels",
-    GetUser = "getUser",
-}
-
-/** Typically used cache keys. */
-export enum PlatformCacheKeyEnum {
-    AllModels = "allModels",
-    OrganizationModels = "organizationModels",
-    MyModels = "myModels",
-    TeamModels = "teamModels",
-    BookmarkedModels = "bookmarkedModels",
-    QualityGateModels = "qualityGateModels",
-}
-
 /**
- * Interface of the store for platform-related data.
+ * Interface of the store for basic platform interaction (authentication, user information).
  */
 export interface IShapeDiverStorePlatform {
 
     /** Reference to the authenticated platform client. */
     clientRef: IPlatformClientRef | undefined
-
-    /** Cache for diverse stuff */
-    genericCache: { [key: string]: any }
-
+   
     /**
      * Authenticate the platform client.
      * In case the application is not running on the platform, this function returns undefined.
@@ -59,15 +39,28 @@ export interface IShapeDiverStorePlatform {
      * Load information about the current user.
      */
     getUser: (forceRefresh?: boolean) => Promise<SdPlatformResponseUserSelf | undefined>
+}
+
+/** Type of cache. */
+export enum PlatformCacheKeyEnum {
+    Authenticate = "authenticate",
+    GetUser = "getUser",
+}
+
+/**
+ * Extended store for basic platform interaction, including functionality used by the store implementation
+ */
+export interface IShapeDiverStorePlatformExtended extends IShapeDiverStorePlatform {
+
+        /** Cache for diverse stuff */
+    genericCache: { [key: string]: any }
 
     /**
      * Cache a promise in the store.
      * @param cacheType type of cache
-     * @param cacheKey key of the cache  
      * @param flush force flushing of the cache
      * @param initializer 
      * @returns 
      */
-    cachePromise: <T>(cacheType: PlatformCacheTypeEnum, cacheKey: string, flush: boolean, initializer: () => Promise<T>) => Promise<T>
-
+    cachePromise: <T>(cacheType: PlatformCacheKeyEnum, flush: boolean, initializer: () => Promise<T>) => Promise<T>
 }

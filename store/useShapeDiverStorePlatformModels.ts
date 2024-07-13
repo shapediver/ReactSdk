@@ -2,7 +2,7 @@ import { devtools } from "zustand/middleware";
 import { devtoolsSettings } from "./storeSettings";
 import { create } from "zustand";
 import { produce } from "immer";
-import { IShapeDiverStorePlatformModelExtended, TModelData, TModelEmbed, TModelQueryPropsExt } from "../types/store/shapediverStorePlatformModels";
+import { IShapeDiverStorePlatformModelExtended, ModelCacheKeyEnum, TModelData, TModelEmbed, TModelQueryPropsExt } from "../types/store/shapediverStorePlatformModels";
 import { IPlatformPagedItemQueryProps } from "../types/store/shapediverStorePlatformGeneric";
 import { useShapeDiverStorePlatform } from "./useShapeDiverStorePlatform";
 import { SdPlatformModelQueryEmbeddableFields, SdPlatformModelQueryParameters, SdPlatformSortingOrder } from "@shapediver/sdk.platform-api-sdk-v1";
@@ -25,7 +25,7 @@ export const useShapeDiverStorePlatformModels = create<IShapeDiverStorePlatformM
 			bookmark: async () => {
 				await clientRef.client.bookmarks.create({model_id: data.id});
 				set(state => produce(state, draft => { draft.items[data.id].data.bookmark = { bookmarked: true }; }), false, `bookmark ${data.id}`);
-				//pruneCache(PlatformCacheTypeEnum.FetchModels, PlatformCacheKeyEnum.BookmarkedModels);
+				//pruneCache(ModelCacheKeyEnum.BookmarkedModels);
 			},
 			unbookmark: async () => {
 				await clientRef.client.bookmarks.delete(data.id);
@@ -75,7 +75,8 @@ export const useShapeDiverStorePlatformModels = create<IShapeDiverStorePlatformM
 			...queryParams,
 		}), [queryParams]);
 	
-		const key = useMemo(() => `${cacheKey}-${JSON.stringify(queryParamsExt)}`, [cacheKey, queryParamsExt]);
+		const cacheKeyArray = Array.isArray(cacheKey) ? cacheKey : [cacheKey];
+		const key = useMemo(() => `${JSON.stringify(cacheKeyArray)}-${JSON.stringify(queryParamsExt)}`, [cacheKeyArray, queryParamsExt]);
 	
 		const data = queryCache[key] ?? { items: [] };
 		if ( !queryCache[key] ) {
@@ -122,7 +123,7 @@ export const useShapeDiverStorePlatformModels = create<IShapeDiverStorePlatformM
 				setLoading(false);
 			}
 		
-		}, [clientRef, queryParamsExt, filterByUser, filterByOrganization, key, queryCache]);
+		}, [clientRef, queryParamsExt, filterByUser, filterByOrganization, key]);
 	
 		return {
 			loadMore, 
@@ -132,5 +133,21 @@ export const useShapeDiverStorePlatformModels = create<IShapeDiverStorePlatformM
 			error,
 		};
 	},
+
+	pruneCache: (cacheType: ModelCacheKeyEnum) => {
+		const key = cacheType;
+
+		const { queryCache } = get();
+		const _prunedCache = { ...queryCache };
+		for (const _key in queryCache) {
+			if (queryCache[_key].cacheKeys.includes(key)) {
+				delete _prunedCache[_key];
+			}	
+		}
+		
+		if (Object.keys(_prunedCache).length !== Object.keys(queryCache).length)
+			set(() => ({ queryCache: _prunedCache }), false, `pruneCache ${key}`);
+	},
+
 
 }), { ...devtoolsSettings, name: "ShapeDiver | Platform | Models" }));
