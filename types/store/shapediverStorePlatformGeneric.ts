@@ -2,7 +2,6 @@ import {
 	SdPlatformQueryParameters,
 	SdPlatformQueryResponse, 
 } from "@shapediver/sdk.platform-api-sdk-v1";
-import { IPlatformClientRef } from "./shapediverStorePlatform";
 
 /**
  * Platform pagination data.
@@ -100,11 +99,11 @@ export interface IShapeDiverStorePlatformGenericExtended<TData, TActions, TEmbed
     extends IShapeDiverStorePlatformGeneric<TData, TActions, TEmbed, TQueryItem, TQueryPropsExt> 
 {
     /** Add an item to the store. */
-    addItem: (clientRef: IPlatformClientRef, data: TData) => void
+    addItem: (data: TData) => void
 
     /** Query cache. */
     queryCache: { [key: string]: IPlatformPagedItemsCache<TQueryItem, TCacheKey> }
 
-    /** Prune cache. */
+    /** Prune cache. All cached queries depending on the key will be pruned. */
     pruneCache: (cacheKey: TCacheKey) => void
 }

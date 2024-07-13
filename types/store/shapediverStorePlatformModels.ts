@@ -10,7 +10,7 @@ import {
 } from "./shapediverStorePlatformGeneric";
 
 /**
- * Actions that can be taken on a platform model.
+ * Actions that can be taken on a model.
  */
 export interface TModelActions {
     /** Bookmark the model. */

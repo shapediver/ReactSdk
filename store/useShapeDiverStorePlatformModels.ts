@@ -6,8 +6,7 @@ import { IShapeDiverStorePlatformModelExtended, ModelCacheKeyEnum, TModelData, T
 import { IPlatformPagedItemQueryProps } from "../types/store/shapediverStorePlatformGeneric";
 import { useShapeDiverStorePlatform } from "./useShapeDiverStorePlatform";
 import { SdPlatformModelQueryEmbeddableFields, SdPlatformModelQueryParameters, SdPlatformSortingOrder } from "@shapediver/sdk.platform-api-sdk-v1";
-import { useCallback, useMemo, useState } from "react";
-import { IPlatformClientRef } from "../types/store/shapediverStorePlatform";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 /**
  * Store for ShapeDiver Platform models.
@@ -19,28 +18,31 @@ export const useShapeDiverStorePlatformModels = create<IShapeDiverStorePlatformM
 
 	queryCache: {},
 
-	addItem(clientRef: IPlatformClientRef, data: TModelData) {
+	addItem(data: TModelData) {
+
+		const clientRef = useShapeDiverStorePlatform.getState().clientRef!;
+		const pruneCache = get().pruneCache;
 	
 		const actions = {
 			bookmark: async () => {
 				await clientRef.client.bookmarks.create({model_id: data.id});
-				set(state => produce(state, draft => { draft.items[data.id].data.bookmark = { bookmarked: true }; }), false, `bookmark ${data.id}`);
-				//pruneCache(ModelCacheKeyEnum.BookmarkedModels);
+				set(produce(state => { state.items[data.id].data.bookmark = { bookmarked: true }; }), false, `bookmark ${data.id}`);
+				pruneCache(ModelCacheKeyEnum.BookmarkedModels);
 			},
 			unbookmark: async () => {
 				await clientRef.client.bookmarks.delete(data.id);
-				set(state => produce(state, draft => { draft.items[data.id].data.bookmark = { bookmarked: false }; }), false, `unbookmark ${data.id}`);
-				//pruneCache(PlatformCacheTypeEnum.FetchModels, PlatformCacheKeyEnum.BookmarkedModels);
+				set(produce(state => { state.items[data.id].data.bookmark = { bookmarked: false }; }), false, `unbookmark ${data.id}`);
+				pruneCache(ModelCacheKeyEnum.BookmarkedModels);
 			},
 			confirmForOrganization: async () => {
 				await clientRef.client.models.patch(data.id, { organization_settings: { confirmed: true } });
-				set(state => produce(state, draft => { draft.items[data.id].data.organization_settings = { confirmed: true }; }), false, `confirmForOrganization ${data.id}`);
-				// TODO prune cache
+				set(produce(state => { state.items[data.id].data.organization_settings = { confirmed: true }; }), false, `confirmForOrganization ${data.id}`);
+				pruneCache(ModelCacheKeyEnum.OrganizationConfirmedModels);
 			},
 			revokeForOrganization: async () => {
 				await clientRef.client.models.patch(data.id, { organization_settings: { confirmed: false } });
-				set(state => produce(state, draft => { draft.items[data.id].data.organization_settings = { confirmed: false }; }), false, `revokeForOrganization ${data.id}`);
-				// TODO prune cache
+				set(produce(state => { state.items[data.id].data.organization_settings = { confirmed: false }; }), false, `revokeForOrganization ${data.id}`);
+				pruneCache(ModelCacheKeyEnum.OrganizationConfirmedModels);
 			},
 		};
 		
@@ -61,6 +63,7 @@ export const useShapeDiverStorePlatformModels = create<IShapeDiverStorePlatformM
 		
 		const { queryParams, filterByUser, filterByOrganization, cacheKey } = params;
 
+		// here we define default query parameters and overwrite them by the provided ones
 		const queryParamsExt = useMemo(() => ({
 			filters: { deleted_at: null, status: "done" },
 			sorters: { created_at: SdPlatformSortingOrder.Desc },
@@ -75,14 +78,20 @@ export const useShapeDiverStorePlatformModels = create<IShapeDiverStorePlatformM
 			...queryParams,
 		}), [queryParams]);
 	
-		const cacheKeyArray = Array.isArray(cacheKey) ? cacheKey : [cacheKey];
-		const key = useMemo(() => `${JSON.stringify(cacheKeyArray)}-${JSON.stringify(queryParamsExt)}`, [cacheKeyArray, queryParamsExt]);
-	
-		const data = queryCache[key] ?? { items: [] };
-		if ( !queryCache[key] ) {
-			set(state => ({ queryCache: { ...state.queryCache, [key]: data } }), false, `useQuery ${key}`);
-		}
+		// define keys for cache pruning
+		const cacheKeys = useMemo(() => Array.isArray(cacheKey) ? cacheKey : cacheKey ? [cacheKey] : [], [cacheKey]);
 
+		// define key for query cache
+		const key = useMemo(() => `${JSON.stringify(cacheKeys)}-${JSON.stringify(queryParamsExt)}`, [cacheKeys, queryParamsExt]);
+
+		// get data from cache, or create it and update cache
+		const data = useMemo(() => queryCache[key] ?? { items: [], cacheKeys: cacheKeys }, [queryCache[key], cacheKeys]);
+		useEffect(() => {
+			if ( !queryCache[key] ) {
+				set(state => ({ queryCache: { ...state.queryCache, [key]: data } }), false, `useQuery ${key}`);
+			}
+		}, [key, data, queryCache[key]]);
+	
 		const [ loading, setLoading ] = useState<boolean>(false);
 		const [ error, setError ] = useState<Error | undefined>(undefined);
 
@@ -109,10 +118,10 @@ export const useShapeDiverStorePlatformModels = create<IShapeDiverStorePlatformM
 			setLoading(true);
 			try {
 				const { pagination, result: items } = (await clientRef.client.models.query(params)).data;
-				items.forEach(item => addItem(clientRef, item));
-				set(state => produce(state, draft => { 
-					draft.queryCache[key].items.push(...items.map(m => m.id)); 
-					draft.queryCache[key].pagination = pagination; 
+				items.forEach(item => addItem(item));
+				set(produce(state => { 
+					state.queryCache[key].items.push(...items.map(m => m.id)); 
+					state.queryCache[key].pagination = pagination; 
 				}), false, `loadMore ${key}`);
 			}
 			catch (error) {
@@ -123,7 +132,7 @@ export const useShapeDiverStorePlatformModels = create<IShapeDiverStorePlatformM
 				setLoading(false);
 			}
 		
-		}, [clientRef, queryParamsExt, filterByUser, filterByOrganization, key]);
+		}, [clientRef, getUser, queryParamsExt, filterByUser, filterByOrganization, key]);
 	
 		return {
 			loadMore, 
@@ -148,6 +157,5 @@ export const useShapeDiverStorePlatformModels = create<IShapeDiverStorePlatformM
 		if (Object.keys(_prunedCache).length !== Object.keys(queryCache).length)
 			set(() => ({ queryCache: _prunedCache }), false, `pruneCache ${key}`);
 	},
-
 
 }), { ...devtoolsSettings, name: "ShapeDiver | Platform | Models" }));
