@@ -80,12 +80,14 @@ export default function AppBuilderAppShellTemplatePage(props: Props & Partial<St
 	const aboveNavbarBreakpoint = useMediaQuery(`(min-width: ${theme.breakpoints[navbarBreakpoint]})`);
 	const showBottomInGrid = !!bottom && aboveNavbarBreakpoint && isLandscape;
 	const hasNavbarContent = !!left || (!!bottom && !showBottomInGrid);
-	const showHeader = !!top || (!!left && !aboveNavbarBreakpoint) || (!!bottom && !showBottomInGrid && !aboveNavbarBreakpoint); 
+	const showHeader = !!top || (!!left && !aboveNavbarBreakpoint) || (!!bottom && !showBottomInGrid && !aboveNavbarBreakpoint);
+	const hasRight = !!right && isLandscape;
+	const hasBottom = (!!right && !isLandscape) || (!!bottom && showBottomInGrid);
 
 	const [rootStyle, setRootStyle] = useState<React.CSSProperties>({
 		...(createGridLayout({
-			hasRight: !!right && isLandscape,
-			hasBottom: (!!right && !isLandscape) || (!!bottom && showBottomInGrid),
+			hasRight,
+			hasBottom,
 			rows: ROWS,
 			columns: COLUMNS
 		}))
@@ -95,13 +97,13 @@ export default function AppBuilderAppShellTemplatePage(props: Props & Partial<St
 		setRootStyle({
 			...rootStyle,
 			...(createGridLayout({
-				hasRight: !!right && isLandscape,
-				hasBottom: (!!right && !isLandscape) || (!!bottom && showBottomInGrid),
+				hasRight,
+				hasBottom,
 				rows: ROWS,
 				columns: COLUMNS
 			}))
 		});
-	}, [right, isLandscape, bottom, showBottomInGrid]);
+	}, [hasRight, hasBottom]);
 
 	return (
 		<>
@@ -143,13 +145,15 @@ export default function AppBuilderAppShellTemplatePage(props: Props & Partial<St
 					>
 						{ children }
 					</section>
-					<section
-						className={`${isLandscape ? classes.appShellGridAreaRight : classes.appShellGridAreaBottomPortrait}`}
-					>
-						<AppBuilderContainerWrapper orientation="vertical" name="right">
-							{ right }
-						</AppBuilderContainerWrapper>
-					</section>
+					{ !right ? undefined : 
+						<section
+							className={`${isLandscape ? classes.appShellGridAreaRight : classes.appShellGridAreaBottomPortrait}`}
+						>
+							<AppBuilderContainerWrapper orientation="vertical" name="right">
+								{ right }
+							</AppBuilderContainerWrapper>
+						</section>
+					}
 					{ bottom && showBottomInGrid ? <section
 						className={classes.appShellGridAreaBottom}
 					>
