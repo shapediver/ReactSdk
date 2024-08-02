@@ -37,9 +37,11 @@ export interface IInteractionParameterPropsDragging extends IGeneralInteractionP
 /**
  * Properties of a gumball parameter.
  */
-export interface IInteractionParameterPropsGumball extends IGeneralInteractionParameterProperties {
-    /** The initial frame of the gumball. */
-    initialFrame?: any, // TODO: How to define this?
+export interface IInteractionParameterPropsGumball extends IInteractionParameterPropsSelection {
+    /** The initial vector U of the gumball. (default: [1,0,0]) */
+    initialVectorU?: number[],
+    /** The initial vector V of the gumball. (default: [0,1,0]) */
+    initialVectorV?: number[],
     /** If the gumball can translate. (default: true) */
     translation?: boolean,
     /** If the gumball can rotate. (default: true) */
@@ -80,16 +82,10 @@ export interface IGeneralInteractionProperties {
 
 /**
  * Properties of a transformation interaction value (gumball or dragging).
- * 
- * TODO: How to define the transformation values? Should this be a matrix?
  */
 export interface ITransformationInteractionProperties extends IGeneralInteractionProperties {
-    /** The translation values. */
-    translation?: number[][], // TODO: How to define this?
-    /** The rotation values. */
-    rotation?: number[][], // TODO: How to define this?
-    /** The scaling values. */
-    scaling?: number[][], // TODO: How to define this?
+    /** The transformation matrices for each element in the "names" array as 4x4 matrices. */
+    matrix?: number[][]
 }
 
 /**
@@ -97,7 +93,7 @@ export interface ITransformationInteractionProperties extends IGeneralInteractio
  * 
  * For each type, there is a corresponding set of properties.
  */
-export interface IInteractionOutput {
+export interface IInteractionParameterOutputValue {
     /** Type of the interaction parameter. */
     type: InteractionParameterType,
     /** Properties of the output value. */
