@@ -114,7 +114,6 @@ export default function AppBuilderSelectionWidgetComponent({ interactionSettings
 			if((settings.props.nameFilter as string).startsWith("[") && (settings.props.nameFilter as string).endsWith("]") && (settings.props.nameFilter as string) !== "[]") {
 				try {
 					nameFilter = JSON.parse(settings.props.nameFilter) as string[];
-					console.log(nameFilter)
 				} catch(e) {
 					notifications.show({
 						title: "Invalid Name Filter",
@@ -136,6 +135,11 @@ export default function AppBuilderSelectionWidgetComponent({ interactionSettings
 			// create a regex pattern from the other parts of the array
 			// replace all "*" with ".*"
 			const patternArray = parts.slice(1).map(part => part.replace(/\*/g, ".*"));
+			// add a boundary to the start and end of each part
+			patternArray.forEach((part, index) => {
+				patternArray[index] = `^${part}$`;
+			});
+
 			if(patternRef.current[outputName] === undefined) patternRef.current[outputName] = [];
 			patternRef.current[outputName].push(patternArray);
 		}
