@@ -72,7 +72,7 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 				if(count === pattern.length - 1) result.push(node);
 
 				for(const child of node.children) {
-					checkNode(child, pattern, count + 1, result);
+					checkNode(child, pattern, count === pattern.length - 1 ? 0 : count + 1, result);
 				}
 			} else {
 				for(const child of node.children) {
