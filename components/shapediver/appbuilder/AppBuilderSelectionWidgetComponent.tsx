@@ -8,7 +8,7 @@ import { useId } from "@mantine/hooks";
 import { useInteraction } from "shared/hooks/shapediver/viewer/useInteraction";
 import { useParameterStateless } from "shared/hooks/shapediver/parameters/useParameterStateless";
 import { useSessionPropsParameter } from "../../../hooks/shapediver/parameters/useSessionPropsParameter";
-import { isInteractionSelectionParameterDefinition } from "shared/types/shapediver/appbuilderinteractiontypes";
+import { isInteractionSelectionParameterSettings } from "@shapediver/viewer";
 
 const VIEWPORT_ID = "viewport_1";
 
@@ -33,7 +33,7 @@ interface Props extends IAppBuilderWidgetPropsInteraction {
 export default function AppBuilderSelectionWidgetComponent({ interactionSettings, parameter: p, sessionId, viewportId }: Props) {
 	// generate a unique id for the widget
 	const uuid = useId();
-	const settings = isInteractionSelectionParameterDefinition(interactionSettings) ? interactionSettings : undefined;
+	const settings = isInteractionSelectionParameterSettings(interactionSettings) ? interactionSettings : undefined;
 
 	// state for the selection application
 	const [selectionActive, setSelectionActive] = useState<boolean>(false);

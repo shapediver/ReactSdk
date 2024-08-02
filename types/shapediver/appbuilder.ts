@@ -8,7 +8,7 @@ import {
 	IAppBuilderWidgetPropsLineChart, 
 	IAppBuilderWidgetPropsRoundChart 
 } from "./appbuildercharts";
-import { IInteractionParameterDefinition } from "./appbuilderinteractiontypes";
+import { IInteractionParameterSettings } from "@shapediver/viewer";
 
 /** Type used for parameter definitions */
 export type IAppBuilderParameterDefinition = IShapeDiverParameterDefinition;
@@ -88,7 +88,7 @@ export interface IAppBuilderWidgetPropsImage extends IAppBuilderWidgetPropsAncho
 /** Properties of an interaction widget. */
 export interface IAppBuilderWidgetPropsInteraction {
 	/** The settings of the interactions. */
-	interactionSettings?: IInteractionParameterDefinition,
+	interactionSettings?: IInteractionParameterSettings,
 	/** The parameter that should be used. */
 	parameter?: IAppBuilderParameterRef
 }

@@ -30,7 +30,7 @@ const parameterComponentsMap: ComponentsMapType = {
 	[PARAMETER_TYPE.STRINGLIST]: {c: ParameterSelectComponent, extraBottomPadding: false},
 	[PARAMETER_TYPE.COLOR]: {c: ParameterColorComponent, extraBottomPadding: false},
 	[PARAMETER_TYPE.FILE]: {c: ParameterFileInputComponent, extraBottomPadding: false},
-	[PARAMETER_TYPE.INTERACTION]: {c: ParameterSelectionComponent, extraBottomPadding: false},
+	[PARAMETER_TYPE.INTERACTION]: {c: ParameterSelectionComponent, extraBottomPadding: true},
 };
 
 export const getParameterComponent = (definition: IShapeDiverParamOrExportDefinition) => {
