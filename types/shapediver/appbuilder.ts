@@ -40,7 +40,7 @@ export interface IAppBuilderExportRef {
 }
 
 /** Types of widgets */
-export type AppBuilderWidgetType = "accordion" | "text" | "image" | "roundChart" | "lineChart" | "areaChart" | "barChart";
+export type AppBuilderWidgetType = "accordion" | "text" | "image" | "roundChart" | "lineChart" | "areaChart" | "barChart" | "interaction";
 
 /** 
  * Properties of a parameter and export accordion widget.
@@ -84,6 +84,38 @@ export interface IAppBuilderWidgetPropsImage extends IAppBuilderWidgetPropsAncho
 	href?: string
 }
 
+/** Properties of an interaction widget. */
+export interface IAppBuilderWidgetPropsInteraction {
+	/** The settings of the interactions. */
+	interactionSettings?: {
+		interactionTypes?: {
+			drag?: boolean,
+			select?: boolean,
+			hover?: boolean,
+		},
+		multiple?: boolean,
+		output?: string | string[],
+		pattern?: string | string[],
+		groupNodes?: boolean,
+		selectedNodes?: {
+			node?: {
+				output: string,
+				pattern?: string,
+				nodeName: string,
+				path: string
+			},
+			nodes?: {
+				output: string,
+				pattern?: string,
+				nodeName: string,
+				path: string
+			}[]
+		}
+	},
+	/** Name of the parameter that should be used. */
+	parameterName?: string
+}
+
 /** 
  * A widget.
  * 
@@ -104,6 +136,7 @@ export interface IAppBuilderWidget {
 		| IAppBuilderWidgetPropsLineChart
 		| IAppBuilderWidgetPropsAreaChart
 		| IAppBuilderWidgetPropsBarChart
+		| IAppBuilderWidgetPropsInteraction
 }
 
 /** 
@@ -190,6 +223,11 @@ export function isAreaChartWidget(widget: IAppBuilderWidget): widget is { type: 
 /** assert widget type "barChart" */
 export function isBarChartWidget(widget: IAppBuilderWidget): widget is { type: "barChart", props: IAppBuilderWidgetPropsBarChart } {
 	return widget.type === "barChart";
+}
+
+/** assert widget type "interaction" */
+export function isInteractionWidget(widget: IAppBuilderWidget): widget is { type: "interaction", props: IAppBuilderWidgetPropsInteraction } {
+	return widget.type === "interaction";
 }
 
 /**
