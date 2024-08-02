@@ -252,9 +252,6 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 			interactionEngineRef.current = new InteractionEngine(viewportApi);
 			setInteractionEngine(interactionEngineRef.current);
 
-			// const dragging = isInteractionDraggingParameterDefinition(settings) ? settings : undefined;
-			// const gumball = isInteractionGumballParameterDefinition(settings) ? settings : undefined;
-
 			if (selection) {
 				const selectMultiple = (selection.props.minimumSelection !== undefined && selection.props.maximumSelection !== undefined) &&
 					selection.props.minimumSelection < selection.props.maximumSelection && selection.props.maximumSelection > 1;
@@ -264,6 +261,8 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 					multiSelectManagerRef.current.effectMaterial = new MaterialStandardData({ color: "red" });
 					multiSelectManagerRef.current.minimumNodes = selection.props.minimumSelection!;
 					multiSelectManagerRef.current.maximumNodes = selection.props.maximumSelection!;
+					multiSelectManagerRef.current.deselectOnEmpty = false;
+					multiSelectManagerRef.current.useModifierKeys = true;
 					setMultiSelectManager(multiSelectManagerRef.current);
 
 					interactionEngineRef.current.addInteractionManager(multiSelectManagerRef.current);
@@ -271,6 +270,8 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 					selectManagerRef.current = new SelectManager();
 					selectManagerRef.current.deselectOnEmpty = false;
 					selectManagerRef.current.effectMaterial = new MaterialStandardData({ color: "blue" });
+					selectManagerRef.current.deselectOnEmpty = false;
+					selectManagerRef.current.useModifierKeys = true;
 					setSelectManager(selectManagerRef.current);
 
 					interactionEngineRef.current.addInteractionManager(selectManagerRef.current);
