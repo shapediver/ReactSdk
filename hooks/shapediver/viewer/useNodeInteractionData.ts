@@ -68,7 +68,7 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 		if(!node) return;
 
 		const checkNode = (node: ITreeNode, pattern: string[], count: number, result: ITreeNode[] = []): void => {
-			if(new RegExp(pattern[count]).test(node.name)) {
+			if(new RegExp(`^${pattern[count]}$`).test(node.name)) {
 				if(count === pattern.length - 1) result.push(node);
 
 				for(const child of node.children) {
