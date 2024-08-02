@@ -20,7 +20,7 @@ const nodesWithInteractionData: { [key: string]: { node: ITreeNode, data: IInter
  * 
  * @returns 
  */
-export function useNodeInteractionData(sessionId: string, outputIdOrName: string, patterns?: { [key: string]: string }, interactionSettings?: { select?: boolean, hover?: boolean, drag?: boolean }) : {
+export function useNodeInteractionData(sessionId: string, outputIdOrName: string, patterns?: string[][], interactionSettings?: { select?: boolean, hover?: boolean, drag?: boolean }) : {
 	/**
 	 * API of the output
 	 * @see https://viewer.shapediver.com/v3/latest/api/interfaces/IOutputApi.html
@@ -67,13 +67,28 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 	const callback = useCallback((node?: ITreeNode) => {
 		if(!node) return;
 
-		if (outputApi && patterns && patterns[outputApi.name]) {
-			const pattern = patterns[outputApi.name];
-			const nodes = node.getNodesByNameWithRegex(new RegExp(pattern));
+		const checkNode = (node: ITreeNode, pattern: string[], count: number, result: ITreeNode[] = []): void => {
+			if(new RegExp(pattern[count]).test(node.name)) {
+				if(count === pattern.length - 1) result.push(node);
 
-			nodes.forEach(node => {
-				addInteractionData(node);
-			});
+				for(const child of node.children) {
+					checkNode(child, pattern, count + 1, result);
+				}
+			} else {
+				for(const child of node.children) {
+					checkNode(child, pattern, 0, result);
+				}
+			}
+		};
+
+		if (outputApi && patterns) {
+			for (const pattern of patterns) {
+				const nodes: ITreeNode[] = [];
+				checkNode(node, pattern, 0, nodes);
+				nodes.forEach(node => {
+					addInteractionData(node);
+				});
+			}
 		} else {
 			node.traverse(node => {
 				if (node.data.some(data => data instanceof GeometryData)) {

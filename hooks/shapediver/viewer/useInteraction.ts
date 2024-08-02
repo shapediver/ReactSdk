@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useShapeDiverStoreViewer } from "../../../store/useShapeDiverStoreViewer";
-import { HoverManager, InteractionEngine, MultiSelectManager, SelectManager } from "@shapediver/viewer.features.interaction";
+import { HoverManager, InteractionData, InteractionEngine, MultiSelectManager, SelectManager } from "@shapediver/viewer.features.interaction";
 import { ITreeNode, MaterialStandardData } from "@shapediver/viewer";
 import { vec3 } from "gl-matrix";
 import { IInteractionParameterDefinition, isInteractionSelectionParameterDefinition } from "shared/types/shapediver/appbuilderinteractiontypes";
@@ -51,23 +51,28 @@ export function useInteraction(viewportId: string, settings?: IInteractionParame
 			// const gumball = isInteractionGumballParameterDefinition(settings) ? settings : undefined;
 
 			if (selection) {
-				const selectMultiple = selection.props.minimumSelection !== undefined && selection.props.maximumSelection !== undefined &&
-					selection.props.minimumSelection > 1 && selection.props.maximumSelection > 1;
+				const selectMultiple = (selection.props.minimumSelection !== undefined && selection.props.maximumSelection !== undefined) &&
+					selection.props.minimumSelection < selection.props.maximumSelection && selection.props.maximumSelection > 1;
 
 				if (selectMultiple) {
 					multiSelectManagerRef.current = new MultiSelectManager();
 					multiSelectManagerRef.current.effectMaterial = new MaterialStandardData({ color: "red" });
+					multiSelectManagerRef.current.minimumNodes = selection.props.minimumSelection!;
+					multiSelectManagerRef.current.maximumNodes = selection.props.maximumSelection!;
 					setMultiSelectManager(multiSelectManagerRef.current);
 
 					interactionEngineRef.current.addInteractionManager(multiSelectManagerRef.current);
 
 					if(selectedNodes) {
 						selectedNodes.forEach((node, i) => {
-							multiSelectManagerRef.current!.select({
-								distance: i,
-								point: vec3.create(),
-								node
-							});
+							const interactionData = node.data.find(d => d instanceof InteractionData) as InteractionData;
+							if(interactionData) {
+								multiSelectManagerRef.current!.select({
+									distance: i,
+									point: vec3.create(),
+									node
+								});
+							}
 						});
 					}
 
@@ -81,11 +86,14 @@ export function useInteraction(viewportId: string, settings?: IInteractionParame
 
 					if(selectedNodes) {
 						selectedNodes.forEach((node, i) => {
-							selectManagerRef.current!.select({
-								distance: i,
-								point: vec3.create(),
-								node
-							});
+							const interactionData = node.data.find(d => d instanceof InteractionData) as InteractionData;
+							if(interactionData) {
+								selectManagerRef.current!.select({
+									distance: i,
+									point: vec3.create(),
+									node
+								});
+							}
 						});
 					}
 				}
