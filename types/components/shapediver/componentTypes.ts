@@ -6,6 +6,7 @@ import ParameterSelectComponent from "../../../components/shapediver/parameter/P
 import ParameterColorComponent from "../../../components/shapediver/parameter/ParameterColorComponent";
 import ParameterFileInputComponent from "../../../components/shapediver/parameter/ParameterFileInputComponent";
 import ParameterLabelComponent from "../../../components/shapediver/parameter/ParameterLabelComponent";
+import ParameterSelectionComponent from "shared/components/shapediver/parameter/ParameterSelectionComponent";
 import { IShapeDiverParamOrExportDefinition } from "../../shapediver/common";
 import ExportButtonComponent from "../../../components/shapediver/exports/ExportButtonComponent";
 import ExportLabelComponent from "../../../components/shapediver/exports/ExportLabelComponent";
@@ -29,6 +30,7 @@ const parameterComponentsMap: ComponentsMapType = {
 	[PARAMETER_TYPE.STRINGLIST]: {c: ParameterSelectComponent, extraBottomPadding: false},
 	[PARAMETER_TYPE.COLOR]: {c: ParameterColorComponent, extraBottomPadding: false},
 	[PARAMETER_TYPE.FILE]: {c: ParameterFileInputComponent, extraBottomPadding: false},
+	[PARAMETER_TYPE.INTERACTION]: {c: ParameterSelectionComponent, extraBottomPadding: false},
 };
 
 export const getParameterComponent = (definition: IShapeDiverParamOrExportDefinition) => {

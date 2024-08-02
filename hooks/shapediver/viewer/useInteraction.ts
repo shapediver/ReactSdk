@@ -70,6 +70,8 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 			} else {
 				nameFilter = [settings.props.nameFilter];
 			}
+		} else if (Array.isArray(settings.props.nameFilter)) {
+			nameFilter = settings.props.nameFilter;
 		}
 
 		patternRef.current = {};
