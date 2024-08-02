@@ -12,6 +12,7 @@ import { useSessionPropsParameter } from "../../../hooks/shapediver/parameters/u
 import { EVENTTYPE_INTERACTION, IEvent, ITreeNode, OutputApiData, addListener, removeListener } from "@shapediver/viewer";
 import { InteractionEventResponseMapping, MultiSelectManager } from "@shapediver/viewer.features.interaction";
 import { notifications } from "@mantine/notifications";
+import { isInteractionSelectionParameterDefinition } from "shared/types/shapediver/appbuilderinteractiontypes";
 
 const VIEWPORT_ID = "viewport_1";
 
@@ -26,54 +27,6 @@ interface Props extends IAppBuilderWidgetPropsInteraction {
 	 */
 	viewportId?: string,
 }
-
-/**
- * Clean the output and pattern inputs to ensure that the output and pattern are in the correct format.
- * 
- * If the output is a string, it is converted to an array with one element.
- * 
- * For each output, a pattern has to be clearly defined, otherwise the patterns are ignored.
- * The patterns are stored in a dictionary with the output name as the key.
- * 
- * @param outputInput 
- * @param patternInput 
- * @returns 
- */
-const cleanOutputPattern = (outputInput: string | string[], patternInput?: string | string[]): { output: string[], pattern: { [key: string]: string } } => {
-	let outputs: string[] = [];
-	const pattern: { [key: string]: string } = {};
-	if(typeof outputInput === "string") {
-		outputs = [outputInput];
-
-		if(patternInput) {
-			if(typeof patternInput === "string") {
-				// one defined output to one defined pattern, fits!
-				pattern[outputInput] = patternInput;
-			} else {
-				// one defined output, multiple patterns, ignore the pattern
-			}
-		}
-	} else {
-		outputs = outputInput;
-
-		if(patternInput) {
-			if(typeof patternInput === "string") {
-				// multiple defined outputs to one defined pattern, ignore the pattern
-			} else {
-				if(outputInput.length === patternInput.length) {
-					// multiple defined outputs to multiple defined patterns, fits!
-					for(let i = 0; i < outputInput.length; i++) {
-						pattern[outputInput[i]] = patternInput[i];
-					}
-				} else {
-					// multiple defined outputs, multiple defined patterns, but not the same amount, ignore the pattern
-				}
-			}
-		}
-	}
-
-	return { output: outputs, pattern: pattern };
-};
 
 /**
  * Create the response object for the parameter.
@@ -91,56 +44,26 @@ const cleanOutputPattern = (outputInput: string | string[], patternInput?: strin
  * @param nodes 
  * @returns 
  */
-const createResponseObject = (outputs: string[], pattern?: { [key: string]: string },  node?: ITreeNode, nodes?: ITreeNode[]): string => {
-	const getOutputAndPathFromNode = (node: ITreeNode): {
-		output: string,
-		pattern?: string,
-		nodeName: string,
-		path: string
-	} | undefined => {
+const createResponseObject = (pattern?: { [key: string]: string }, nodes?: ITreeNode[]): string => {
+	const getOutputAndPathFromNode = (node: ITreeNode): string | undefined => {
 		let tempNode = node;
 		while(tempNode && tempNode.parent) {
 			const outputApiData = tempNode.data.find((data) => data instanceof OutputApiData);
 			if(outputApiData) {
-				const p = pattern?.[outputApiData.id];
-
-				return { 
-					output: outputApiData.id, 
-					pattern: p,
-					nodeName: node.name,
-					path: node.getPath()
-				};
+				// const p = pattern?.[outputApiData.id];
+				return node.getPath();
 			}
 			tempNode = tempNode.parent;
 		}
 	};
 
-	const response: {
-		node?: {
-			output: string,
-			pattern?: string,
-			nodeName: string,
-			path: string
-		},
-		nodes: {
-			output: string,
-			pattern?: string,
-			nodeName: string,
-			path: string
-		}[]
-	} = {
-		node: undefined,
-		nodes: [],
-	};
+	const response: { names: string[] } = { names: [], };
 
-	if(node) 
-		response.node = getOutputAndPathFromNode(node);
-	
 	if(nodes) {
 		nodes.map((node) => {
 			const result = getOutputAndPathFromNode(node);
 			if (result) 
-				response.nodes.push(result);
+				response.names.push(result);
 		});
 	}
 
@@ -153,9 +76,11 @@ const createResponseObject = (outputs: string[], pattern?: { [key: string]: stri
  * @param param0 
  * @returns 
  */
-export default function AppBuilderInteractionWidgetComponent({ interactionSettings, parameterName, sessionId, viewportId }: Props) {
+export default function AppBuilderInteractionWidgetComponent({ interactionSettings, parameter: p, sessionId, viewportId }: Props) {
 	// generate a unique id for the widget
 	const uuid = useId();
+
+	const settings = isInteractionSelectionParameterDefinition(interactionSettings) ? interactionSettings : undefined;
 
 	// state for the interaction application
 	const [interactionActive, setInteractionActive] = useState<boolean>(false);
@@ -163,7 +88,7 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 	const [selectedNodes, setSelectedNodes] = useState<ITreeNode[]>([]);
 
 	// get the parameter API
-	const parameter = useParameterStateless<string>(sessionId, parameterName || "");
+	const parameter = useParameterStateless<string>(sessionId, p?.name || "");
 	const parameterRef = useRef(parameter);
 
 	// update the parameter reference when the parameter changes
@@ -171,21 +96,24 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 		parameterRef.current = parameter;
 	}, [parameter]);
 
-	const outputRef = useRef<string[]>([]);
 	const patternRef = useRef<{
 		[key: string]: string;
-	} | undefined>(undefined);
+	}>({});
 
-	let output: string[] = [], pattern: { [key: string]: string } = {};
-	if (interactionSettings && interactionSettings.output) {
-		({ output, pattern } = cleanOutputPattern(interactionSettings.output, interactionSettings.pattern));
+	if (settings && settings.props.nameFilter) {
+		for(const name of settings.props.nameFilter) {
+			const parts = name.split(".");
+			const outputName = parts[0];
 
-		outputRef.current = output;
-		patternRef.current = pattern;
-	
-		output.forEach((item) => {
-			useNodeInteractionData(sessionId, item, pattern, interactionSettings.interactionTypes, interactionSettings.groupNodes);
-		});
+			// create a regex pattern from the other parts of the array
+			// replace all "*" with ".*"
+			const patternName = outputName + "." + parts.slice(1).join(".").replace(/\*/g, ".*");
+			patternRef.current[outputName] = patternName;
+		}
+
+		for(const output in patternRef.current) {
+			useNodeInteractionData(sessionId, output, patternRef.current, { select: true, hover: settings.props.hover });
+		}
 	}
 	
 	// register an event handler and listen for output updates
@@ -204,7 +132,7 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 
 			setSelectedNodes([selectEvent.node]);
 
-			parameterRef.current.actions.setUiValue(createResponseObject(outputRef.current, patternRef.current, selectEvent.node));
+			parameterRef.current.actions.setUiValue(createResponseObject(patternRef.current, selectedNodes));
 			await parameterRef.current.actions.execute(true);
 		});
 	
@@ -224,7 +152,7 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 
 			setSelectedNodes([]);
 
-			parameterRef.current.actions.setUiValue(createResponseObject(outputRef.current, patternRef.current));
+			parameterRef.current.actions.setUiValue(createResponseObject(patternRef.current));
 			await parameterRef.current.actions.execute(true);
 		});
 
@@ -252,7 +180,7 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 				return;
 			}
 
-			parameterRef.current.actions.setUiValue(createResponseObject(outputRef.current, patternRef.current, multiSelectEvent.node, multiSelectEvent.nodes));
+			parameterRef.current.actions.setUiValue(createResponseObject(patternRef.current, selectedNodes));
 			await parameterRef.current.actions.execute(true);
 		});
 
@@ -281,7 +209,7 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 				return;
 			}
 
-			parameterRef.current.actions.setUiValue(createResponseObject(outputRef.current, patternRef.current, undefined, multiSelectEvent.nodes));
+			parameterRef.current.actions.setUiValue(createResponseObject(patternRef.current, selectedNodes));
 			await parameterRef.current.actions.execute(true);
 		});
 
@@ -332,10 +260,10 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 			removeListener(tokenMinimumMultiSelect);
 			removeListener(tokenMaximumMultiSelect);
 		};
-	}, [interactionSettings]);
+	}, [settings]);
 
 
-	useInteraction(viewportId || VIEWPORT_ID, interactionActive ? interactionSettings : undefined, selectedNodes);
+	useInteraction(viewportId || VIEWPORT_ID, interactionActive ? settings : undefined, selectedNodes);
 
 	// define the parameter names for the interaction
 	const enum PARAMETER_NAMES {
@@ -374,7 +302,7 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 	);
 	const parameterProps = useSessionPropsParameter(customSessionId);
 
-	if (parameterName !== undefined)
+	if (parameter !== undefined)
 		return <ParametersAndExportsAccordionComponent key={uuid}
 			parameters={parameterProps}
 			defaultGroupName="Interactions"

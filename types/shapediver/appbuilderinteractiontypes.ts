@@ -32,7 +32,7 @@ export interface IInteractionParameterPropsSelection extends IGeneralInteraction
  * 
  * This is a placeholder for now.
  */
-export interface IInteractionParameterPropsDragging extends IGeneralInteractionParameterProperties {}
+export interface IInteractionParameterPropsDragging extends IGeneralInteractionParameterProperties { }
 
 /**
  * Properties of a gumball parameter.
@@ -56,12 +56,24 @@ export interface IInteractionParameterPropsGumball extends IInteractionParameter
  * For each type, there is a corresponding set of properties.
  */
 export interface IInteractionParameterDefinition {
-	/** Type of the interaction parameters. */
-	type: InteractionParameterType
-	/** Properties of the parameter definition. */
-	props: IInteractionParameterPropsSelection |
-        IInteractionParameterPropsDragging |
-        IInteractionParameterPropsGumball
+    /** Type of the interaction parameters. */
+    type: InteractionParameterType
+    /** Properties of the parameter definition. */
+    props: IInteractionParameterPropsSelection |
+    IInteractionParameterPropsDragging |
+    IInteractionParameterPropsGumball
+}
+
+export function isInteractionSelectionParameterDefinition(def?: IInteractionParameterDefinition): def is { type: "selection", props: IInteractionParameterPropsSelection } {
+	return def?.type === "selection";
+}
+
+export function isInteractionDraggingParameterDefinition(def?: IInteractionParameterDefinition): def is { type: "dragging", props: IInteractionParameterPropsDragging } {
+	return def?.type === "dragging";
+}
+
+export function isInteractionGumballParameterDefinition(def?: IInteractionParameterDefinition): def is { type: "gumball", props: IInteractionParameterPropsGumball } {
+	return def?.type === "gumball";
 }
 
 
@@ -99,4 +111,3 @@ export interface IInteractionParameterOutputValue {
     /** Properties of the output value. */
     props: IGeneralInteractionProperties | ITransformationInteractionProperties
 }
-

@@ -20,7 +20,7 @@ const nodesWithInteractionData: { [key: string]: { node: ITreeNode, data: IInter
  * 
  * @returns 
  */
-export function useNodeInteractionData(sessionId: string, outputIdOrName: string, patterns?: { [key: string]: string }, interactionSettings?: { select?: boolean, hover?: boolean, drag?: boolean }, groupNodes?: boolean) : {
+export function useNodeInteractionData(sessionId: string, outputIdOrName: string, patterns?: { [key: string]: string }, interactionSettings?: { select?: boolean, hover?: boolean, drag?: boolean }) : {
 	/**
 	 * API of the output
 	 * @see https://viewer.shapediver.com/v3/latest/api/interfaces/IOutputApi.html
@@ -71,28 +71,9 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 			const pattern = patterns[outputApi.name];
 			const nodes = node.getNodesByNameWithRegex(new RegExp(pattern));
 
-			if(groupNodes) {
-				// create a dictionary of nodes with the name of the node as key
-				const nodeDictionary = nodes.reduce((acc, node) => {
-					if(!acc[node.name]) {
-						acc[node.name] = [node];
-					} else {
-						acc[node.name].push(node);
-					}
-
-					return acc;
-				}, {} as { [key: string]: ITreeNode[] });
-
-				for(const name in nodeDictionary) {
-					nodeDictionary[name].forEach(node => {
-						addInteractionData(node, name);
-					});
-				}
-			} else {
-				nodes.forEach(node => {
-					addInteractionData(node);
-				});
-			}
+			nodes.forEach(node => {
+				addInteractionData(node);
+			});
 		} else {
 			node.traverse(node => {
 				if (node.data.some(data => data instanceof GeometryData)) {

@@ -3,23 +3,14 @@ import { useShapeDiverStoreViewer } from "../../../store/useShapeDiverStoreViewe
 import { HoverManager, InteractionEngine, MultiSelectManager, SelectManager } from "@shapediver/viewer.features.interaction";
 import { ITreeNode, MaterialStandardData } from "@shapediver/viewer";
 import { vec3 } from "gl-matrix";
+import { IInteractionParameterDefinition, isInteractionSelectionParameterDefinition } from "shared/types/shapediver/appbuilderinteractiontypes";
 
 /**
  * Hook allowing to create the interaction engine and the managers that are specified via the settings.
  * 
  * @param viewportId 
  */
-export function useInteraction(viewportId: string, settings?: {
-	interactionTypes?: {
-		drag?: boolean,
-		select?: boolean,
-		hover?: boolean,
-	},
-	multiple?: boolean,
-	output?: string | string[],
-	pattern?: string | string[],
-	groupNodes?: boolean
-}, selectedNodes?: ITreeNode[]): {
+export function useInteraction(viewportId: string, settings?: IInteractionParameterDefinition, selectedNodes?: ITreeNode[]): {
     interactionEngine?: InteractionEngine,
     selectManager?: SelectManager,
     multiSelectManager?: MultiSelectManager,
@@ -50,13 +41,20 @@ export function useInteraction(viewportId: string, settings?: {
 
 	// use an effect to apply changes to the material, and to apply the callback once the node is available
 	useEffect(() => {
-		if (viewportApi && settings && settings.output) {
+		if (viewportApi && settings) {
 			// whenever this output node changes, we want to create the interaction engine
 			interactionEngineRef.current = new InteractionEngine(viewportApi);
 			setInteractionEngine(interactionEngineRef.current);
 
-			if (settings.interactionTypes?.select) {
-				if (settings.multiple) {
+			const selection = isInteractionSelectionParameterDefinition(settings) ? settings : undefined;
+			// const dragging = isInteractionDraggingParameterDefinition(settings) ? settings : undefined;
+			// const gumball = isInteractionGumballParameterDefinition(settings) ? settings : undefined;
+
+			if (selection) {
+				const selectMultiple = selection.props.minimumSelection !== undefined && selection.props.maximumSelection !== undefined &&
+					selection.props.minimumSelection > 1 && selection.props.maximumSelection > 1;
+
+				if (selectMultiple) {
 					multiSelectManagerRef.current = new MultiSelectManager();
 					multiSelectManagerRef.current.effectMaterial = new MaterialStandardData({ color: "red" });
 					setMultiSelectManager(multiSelectManagerRef.current);
@@ -93,7 +91,7 @@ export function useInteraction(viewportId: string, settings?: {
 				}
 			}
 
-			if (settings.interactionTypes?.hover) {
+			if (settings.props.hover) {
 				hoverManagerRef.current = new HoverManager();
 				hoverManagerRef.current.effectMaterial = new MaterialStandardData({ color: "green" });
 				setHoverManager(hoverManagerRef.current);
