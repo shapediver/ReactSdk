@@ -105,8 +105,11 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 
 		if(multiSelectManagerRef.current || selectManagerRef.current) {
 			const manager = multiSelectManagerRef.current || selectManagerRef.current;
+
 			node.traverse(n => {
-				manager?.deselect(n);
+				const interactionData = n.data.find(d => d instanceof InteractionData) as InteractionData;
+				if (interactionData)
+					manager?.deselect(n);
 			});
 
 			if (selectedNodeNames) {
