@@ -20,7 +20,7 @@ const nodesWithInteractionData: { [key: string]: { node: ITreeNode, data: IInter
  * 
  * @returns 
  */
-export function useNodeInteractionData(sessionId: string, outputIdOrName: string, patterns?: string[][], interactionSettings?: { select?: boolean, hover?: boolean, drag?: boolean }) : {
+export function useNodeInteractionData(sessionId: string, outputIdOrName: string, patterns?: string[][], interactionSettings?: { select?: boolean, hover?: boolean, drag?: boolean }, additionalUpdateCallback?: (newNode?: ITreeNode, oldNode?: ITreeNode) => Promise<void> | void) : {
 	/**
 	 * API of the output
 	 * @see https://viewer.shapediver.com/v3/latest/api/interfaces/IOutputApi.html
@@ -96,6 +96,9 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 				}
 			});
 		}
+
+		if(additionalUpdateCallback)
+			additionalUpdateCallback(node);
 	}, [patterns] );
 
 	// define the node update callback

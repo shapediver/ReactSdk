@@ -1,9 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useShapeDiverStoreViewer } from "../../../store/useShapeDiverStoreViewer";
 import { HoverManager, InteractionData, InteractionEngine, InteractionEventResponseMapping, MultiSelectManager, SelectManager } from "@shapediver/viewer.features.interaction";
-import { addListener, EVENTTYPE_INTERACTION, IEvent, ITreeNode, MaterialStandardData, OutputApiData, removeListener } from "@shapediver/viewer";
+import { addListener, EVENTTYPE_INTERACTION, IEvent, IInteractionParameterSettings, isInteractionSelectionParameterSettings, ITreeNode, MaterialStandardData, OutputApiData, removeListener } from "@shapediver/viewer";
 import { vec3 } from "gl-matrix";
-import { IInteractionParameterDefinition, isInteractionSelectionParameterDefinition } from "shared/types/shapediver/appbuilderinteractiontypes";
 import { notifications } from "@mantine/notifications";
 import { useNodeInteractionData } from "./useNodeInteractionData";
 
@@ -14,12 +13,13 @@ import { useNodeInteractionData } from "./useNodeInteractionData";
  * 
  * @param viewportId 
  */
-export function useInteraction(sessionId: string, viewportId: string, settings?: IInteractionParameterDefinition): {
+export function useInteraction(sessionId: string, viewportId: string, settings?: IInteractionParameterSettings): {
 	interactionEngine?: InteractionEngine,
 	selectManager?: SelectManager,
 	multiSelectManager?: MultiSelectManager,
 	hoverManager?: HoverManager,
-	responseObject: string | undefined
+	responseObject: string | undefined,
+	resetSelectedNodeNames: () => void
 } {
 	// get the viewport API
 	const viewportApi = useShapeDiverStoreViewer(state => { return state.viewports[viewportId]; });
@@ -47,7 +47,10 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 	const hoverManagerRef = useRef<HoverManager | undefined>(undefined);
 
 	// state for the selected nodes
-	const [selectedNodes, setSelectedNodes] = useState<ITreeNode[]>([]);
+	const [selectedNodeNames, setSelectedNodeNames] = useState<string[]>([]);
+	const resetSelectedNodeNames = useCallback(() => setSelectedNodeNames([]), []);
+
+	// create a reference for the selected nodes
 	const responseObjectRef = useRef<string | undefined>(undefined);
 
 	const patternRef = useRef<{
@@ -92,14 +95,50 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 		patternRef.current = {};
 	}
 
-	const selection = isInteractionSelectionParameterDefinition(settings) ? settings : undefined;
+	const selection = isInteractionSelectionParameterSettings(settings) ? settings : undefined;
+
+	/**
+	 * Callback function to add interaction data to the nodes of the output.
+	 */
+	const callback = useCallback((node?: ITreeNode) => {
+		if (!node) return;
+
+		if(multiSelectManagerRef.current || selectManagerRef.current) {
+			const manager = multiSelectManagerRef.current || selectManagerRef.current;
+			node.traverse(n => {
+				manager?.deselect(n);
+			});
+
+			if (selectedNodeNames) {
+				selectedNodeNames.forEach((nodeName, i) => {
+					const parts = nodeName.split(".");
+
+					const outputApi = node.data.find(d => d instanceof OutputApiData) as OutputApiData;
+					if (!outputApi) return;
+					if (outputApi.api.name !== parts[0]) return;
+
+					node.traverse(n => {
+						if (n.getPath().endsWith(parts.slice(1).join("."))) {
+							const interactionData = n.data.find(d => d instanceof InteractionData) as InteractionData;
+							if (interactionData) {
+								manager!.select({
+									distance: i,
+									point: vec3.create(),
+									node: n
+								});
+							}
+						}
+					});
+				});
+			}
+		}
+	}, [selectedNodeNames, multiSelectManagerRef.current, selectManagerRef.current]);
 
 	for (const outputId in sessionApi.outputs) {
 		if (!patternRef.current[outputId]) patternRef.current[outputId] = [];
-		useNodeInteractionData(sessionId, outputId, patternRef.current[outputId], { select: !!selection, hover: settings?.props.hover });
+		useNodeInteractionData(sessionId, outputId, patternRef.current[outputId], { select: !!selection, hover: settings?.props.hover }, callback);
 	}
 
-	// TODO move this to separate file and only activate when needed
 	// register an event handler and listen for output updates
 	useEffect(() => {
 		/**
@@ -113,9 +152,9 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 			if (!selectEvent.event) return;
 
 			const selected = [selectEvent.node];
-			setSelectedNodes(selected);
-
-			responseObjectRef.current = createResponseObject(patternRef.current, selected);
+			const nodeNames = createResponseObject(patternRef.current, selected);
+			setSelectedNodeNames(nodeNames.names);
+			responseObjectRef.current = JSON.stringify(nodeNames);
 		});
 
 		/**
@@ -130,10 +169,8 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 			// don't send the customization if the event is coming from an API call
 			if (!selectEvent.event) return;
 
-			const selected: ITreeNode[] = [];
-			setSelectedNodes(selected);
-
-			responseObjectRef.current = createResponseObject(patternRef.current);
+			setSelectedNodeNames([]);
+			responseObjectRef.current = JSON.stringify(createResponseObject(patternRef.current));
 		});
 
 		/**
@@ -146,20 +183,14 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 			// don't send the customization if the event is coming from an API call
 			if (!multiSelectEvent.event) return;
 
-			const selected = selectedNodes;
-			selected.push(multiSelectEvent.node);
-			setSelectedNodes(selected);
+			const selected = multiSelectEvent.nodes;
+			const nodeNames = createResponseObject(patternRef.current, selected);
+			setSelectedNodeNames(nodeNames.names);
 
-			if (multiSelectEvent.nodes.length < (multiSelectEvent.manager as MultiSelectManager).minimumNodes) {
-				notifications.show({
-					title: "Minimum Number of Nodes not reached",
-					message: `Expected ${(multiSelectEvent.manager as MultiSelectManager).minimumNodes} nodes, got ${multiSelectEvent.nodes.length} nodes.`
-				});
+			if (multiSelectEvent.nodes.length < (multiSelectEvent.manager as MultiSelectManager).minimumNodes) return;
+			if (multiSelectEvent.nodes.length > (multiSelectEvent.manager as MultiSelectManager).maximumNodes) return;
 
-				return;
-			}
-
-			responseObjectRef.current = createResponseObject(patternRef.current, selected);
+			responseObjectRef.current = JSON.stringify(nodeNames);
 		});
 
 		/**
@@ -173,36 +204,14 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 			if (!multiSelectEvent.event) return;
 
 			// remove the node from the selected nodes
-			const selected = selectedNodes;
-			selected.splice(selected.indexOf(multiSelectEvent.node), 1);
-			setSelectedNodes(selected);
+			const selected = multiSelectEvent.nodes;
+			const nodeNames = createResponseObject(patternRef.current, selected);
+			setSelectedNodeNames(nodeNames.names);
 
-			if (multiSelectEvent.nodes.length < (multiSelectEvent.manager as MultiSelectManager).minimumNodes) {
-				notifications.show({
-					title: "Minimum Number of Nodes not reached",
-					message: `Expected ${(multiSelectEvent.manager as MultiSelectManager).minimumNodes} nodes, got ${multiSelectEvent.nodes.length} nodes.`
-				});
+			if (multiSelectEvent.nodes.length < (multiSelectEvent.manager as MultiSelectManager).minimumNodes) return;
+			if (multiSelectEvent.nodes.length > (multiSelectEvent.manager as MultiSelectManager).maximumNodes) return;
 
-				return;
-			}
-
-			responseObjectRef.current = createResponseObject(patternRef.current, selected);
-		});
-
-		/**
-		 * Event handler for the minimum multi select event.
-		 * In this event handler, a notification is shown.
-		 */
-		const tokenMinimumMultiSelect = addListener(EVENTTYPE_INTERACTION.MULTI_SELECT_MINIMUM_NODES, async (event: IEvent) => {
-			const multiSelectEvent = event as InteractionEventResponseMapping[EVENTTYPE_INTERACTION.MULTI_SELECT_MINIMUM_NODES];
-
-			// don't send the customization if the event is coming from an API call
-			if (!multiSelectEvent.event) return;
-
-			notifications.show({
-				title: "Minimum Number of Nodes not reached",
-				message: `Expected ${(multiSelectEvent.manager as MultiSelectManager).minimumNodes} nodes, got ${multiSelectEvent.nodes.length} nodes.`
-			});
+			responseObjectRef.current = JSON.stringify(nodeNames);
 		});
 
 		/**
@@ -229,7 +238,6 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 			removeListener(tokenSelectOff);
 			removeListener(tokenMultiSelectOn);
 			removeListener(tokenMultiSelectOff);
-			removeListener(tokenMinimumMultiSelect);
 			removeListener(tokenMaximumMultiSelect);
 		};
 	}, [settings]);
@@ -256,20 +264,6 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 					setMultiSelectManager(multiSelectManagerRef.current);
 
 					interactionEngineRef.current.addInteractionManager(multiSelectManagerRef.current);
-
-					if (selectedNodes) {
-						selectedNodes.forEach((node, i) => {
-							const interactionData = node.data.find(d => d instanceof InteractionData) as InteractionData;
-							if (interactionData) {
-								multiSelectManagerRef.current!.select({
-									distance: i,
-									point: vec3.create(),
-									node
-								});
-							}
-						});
-					}
-
 				} else {
 					selectManagerRef.current = new SelectManager();
 					selectManagerRef.current.deselectOnEmpty = false;
@@ -277,19 +271,6 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 					setSelectManager(selectManagerRef.current);
 
 					interactionEngineRef.current.addInteractionManager(selectManagerRef.current);
-
-					if (selectedNodes) {
-						selectedNodes.forEach((node, i) => {
-							const interactionData = node.data.find(d => d instanceof InteractionData) as InteractionData;
-							if (interactionData) {
-								selectManagerRef.current!.select({
-									distance: i,
-									point: vec3.create(),
-									node
-								});
-							}
-						});
-					}
 				}
 			}
 
@@ -337,7 +318,8 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 		selectManager,
 		multiSelectManager,
 		hoverManager,
-		responseObject: responseObjectRef.current
+		responseObject: responseObjectRef.current,
+		resetSelectedNodeNames
 	};
 }
 
@@ -361,7 +343,7 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
  * @param nodes 
  * @returns 
  */
-const createResponseObject = (patterns?: { [key: string]: string[][] }, nodes?: ITreeNode[]): string => {
+const createResponseObject = (patterns?: { [key: string]: string[][] }, nodes?: ITreeNode[]): { names: string[] } => {
 	const getOutputAndPathFromNode = (node: ITreeNode): string | undefined => {
 		let tempNode = node;
 		while (tempNode && tempNode.parent) {
@@ -374,7 +356,7 @@ const createResponseObject = (patterns?: { [key: string]: string[][] }, nodes?: 
 					for (const pattern of p) {
 						const match = path.match(pattern.join("."));
 						if (match)
-							return match[0];
+							return outputApiData.api.name + "." + match[0];
 					}
 				}
 			}
@@ -392,7 +374,7 @@ const createResponseObject = (patterns?: { [key: string]: string[][] }, nodes?: 
 		});
 	}
 
-	return JSON.stringify(response);
+	return response;
 };
 
 // #endregion Variables (1)
