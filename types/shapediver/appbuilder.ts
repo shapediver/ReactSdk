@@ -8,6 +8,7 @@ import {
 	IAppBuilderWidgetPropsLineChart, 
 	IAppBuilderWidgetPropsRoundChart 
 } from "./appbuildercharts";
+import { IInteractionParameterDefinition } from "./appbuilderinteractiontypes";
 
 /** Type used for parameter definitions */
 export type IAppBuilderParameterDefinition = IShapeDiverParameterDefinition;
@@ -87,33 +88,9 @@ export interface IAppBuilderWidgetPropsImage extends IAppBuilderWidgetPropsAncho
 /** Properties of an interaction widget. */
 export interface IAppBuilderWidgetPropsInteraction {
 	/** The settings of the interactions. */
-	interactionSettings?: {
-		interactionTypes?: {
-			drag?: boolean,
-			select?: boolean,
-			hover?: boolean,
-		},
-		multiple?: boolean,
-		output?: string | string[],
-		pattern?: string | string[],
-		groupNodes?: boolean,
-		selectedNodes?: {
-			node?: {
-				output: string,
-				pattern?: string,
-				nodeName: string,
-				path: string
-			},
-			nodes?: {
-				output: string,
-				pattern?: string,
-				nodeName: string,
-				path: string
-			}[]
-		}
-	},
-	/** Name of the parameter that should be used. */
-	parameterName?: string
+	interactionSettings?: IInteractionParameterDefinition,
+	/** The parameter that should be used. */
+	parameter?: IAppBuilderParameterRef
 }
 
 /** 
