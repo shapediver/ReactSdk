@@ -160,6 +160,8 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 	// state for the interaction application
 	const [interactionActive, setInteractionActive] = useState<boolean>(false);
 
+	const [selectedNodes, setSelectedNodes] = useState<ITreeNode[]>([]);
+
 	// get the parameter API
 	const parameter = useParameterStateless<string>(sessionId, parameterName || "");
 	const parameterRef = useRef(parameter);
@@ -200,6 +202,8 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 			// don't send the customization if the event is coming from an API call
 			if (!selectEvent.event) return;
 
+			setSelectedNodes([selectEvent.node]);
+
 			parameterRef.current.actions.setUiValue(createResponseObject(outputRef.current, patternRef.current, selectEvent.node));
 			await parameterRef.current.actions.execute(true);
 		});
@@ -218,6 +222,8 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 			// don't send the customization if the event is coming from an API call
 			if (!selectEvent.event) return;
 
+			setSelectedNodes([]);
+
 			parameterRef.current.actions.setUiValue(createResponseObject(outputRef.current, patternRef.current));
 			await parameterRef.current.actions.execute(true);
 		});
@@ -233,6 +239,9 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 			if (!parameterRef.current) return;
 			// don't send the customization if the event is coming from an API call
 			if (!multiSelectEvent.event) return;
+
+			selectedNodes.push(multiSelectEvent.node);
+			setSelectedNodes(selectedNodes);
 
 			if(multiSelectEvent.nodes.length < (multiSelectEvent.manager as MultiSelectManager).minimumNodes) {
 				notifications.show({
@@ -258,7 +267,11 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 			if (!parameterRef.current) return;
 			// don't send the customization if the event is coming from an API call
 			if (!multiSelectEvent.event) return;
-			
+
+			// remove the node from the selected nodes
+			selectedNodes.splice(selectedNodes.indexOf(multiSelectEvent.node), 1);
+			setSelectedNodes(selectedNodes);
+
 			if(multiSelectEvent.nodes.length < (multiSelectEvent.manager as MultiSelectManager).minimumNodes) {
 				notifications.show({
 					title: "Minimum Number of Nodes not reached",
@@ -322,7 +335,7 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 	}, [interactionSettings]);
 
 
-	useInteraction(viewportId || VIEWPORT_ID, interactionActive ? interactionSettings : undefined);
+	useInteraction(viewportId || VIEWPORT_ID, interactionActive ? interactionSettings : undefined, selectedNodes);
 
 	// define the parameter names for the interaction
 	const enum PARAMETER_NAMES {
