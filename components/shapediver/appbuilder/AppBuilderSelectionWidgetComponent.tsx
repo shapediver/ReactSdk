@@ -44,14 +44,22 @@ interface Props extends IAppBuilderWidgetPropsInteraction {
  * @param nodes 
  * @returns 
  */
-const createResponseObject = (pattern?: { [key: string]: string }, nodes?: ITreeNode[]): string => {
+const createResponseObject = (patterns?: { [key: string]: string[][] }, nodes?: ITreeNode[]): string => {
 	const getOutputAndPathFromNode = (node: ITreeNode): string | undefined => {
 		let tempNode = node;
 		while(tempNode && tempNode.parent) {
-			const outputApiData = tempNode.data.find((data) => data instanceof OutputApiData);
+			const outputApiData = tempNode.data.find((data) => data instanceof OutputApiData) as OutputApiData | undefined;
 			if(outputApiData) {
-				// const p = pattern?.[outputApiData.id];
-				return node.getPath();
+				const path = node.getPath().replace(tempNode.getPath(), "");
+				const p = patterns?.[outputApiData.api.name];
+
+				if(p) {
+					for(const pattern of p) {
+						const match = path.match(pattern.join(".*"));
+						if(match) 
+							return match[0];
+					}
+				}
 			}
 			tempNode = tempNode.parent;
 		}
@@ -71,24 +79,23 @@ const createResponseObject = (pattern?: { [key: string]: string }, nodes?: ITree
 };
 
 /**
- * Widget component for the interactions.
+ * Widget component for the selections.
  * 
  * @param param0 
  * @returns 
  */
-export default function AppBuilderInteractionWidgetComponent({ interactionSettings, parameter: p, sessionId, viewportId }: Props) {
+export default function AppBuilderSelectionWidgetComponent({ interactionSettings, parameter: p, sessionId, viewportId }: Props) {
 	// generate a unique id for the widget
 	const uuid = useId();
-
 	const settings = isInteractionSelectionParameterDefinition(interactionSettings) ? interactionSettings : undefined;
 
-	// state for the interaction application
-	const [interactionActive, setInteractionActive] = useState<boolean>(false);
-
+	// state for the selection application
+	const [selectionActive, setSelectionActive] = useState<boolean>(false);
+	// state for the selected nodes
 	const [selectedNodes, setSelectedNodes] = useState<ITreeNode[]>([]);
 
 	// get the parameter API
-	const parameter = useParameterStateless<string>(sessionId, p?.name || "");
+	const parameter = useParameterStateless<string>(sessionId, p?.name || "selected");
 	const parameterRef = useRef(parameter);
 
 	// update the parameter reference when the parameter changes
@@ -97,23 +104,48 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 	}, [parameter]);
 
 	const patternRef = useRef<{
-		[key: string]: string;
+		[key: string]: string[][];
 	}>({});
 
-	if (settings && settings.props.nameFilter) {
-		for(const name of settings.props.nameFilter) {
-			const parts = name.split(".");
+	let nameFilter: string[] = [];
+
+	if (settings && settings.props.nameFilter !== undefined) {
+		if(typeof settings.props.nameFilter === "string") {
+			if((settings.props.nameFilter as string).startsWith("[") && (settings.props.nameFilter as string).endsWith("]") && (settings.props.nameFilter as string) !== "[]") {
+				try {
+					nameFilter = JSON.parse(settings.props.nameFilter) as string[];
+					console.log(nameFilter)
+				} catch(e) {
+					notifications.show({
+						title: "Invalid Name Filter",
+						message: "The name filter is not a valid JSON array."
+					});
+				}
+			} else {
+				nameFilter = [settings.props.nameFilter];
+			}
+		}
+
+
+		patternRef.current = {};
+
+		for(let i = 0; i < nameFilter.length; i++) {
+			const parts = nameFilter[i].split(".");
 			const outputName = parts[0];
 
 			// create a regex pattern from the other parts of the array
 			// replace all "*" with ".*"
-			const patternName = outputName + "." + parts.slice(1).join(".").replace(/\*/g, ".*");
-			patternRef.current[outputName] = patternName;
+			const patternArray = parts.slice(1).map(part => part.replace(/\*/g, ".*"));
+			if(patternRef.current[outputName] === undefined) patternRef.current[outputName] = [];
+			patternRef.current[outputName].push(patternArray);
 		}
 
+
 		for(const output in patternRef.current) {
-			useNodeInteractionData(sessionId, output, patternRef.current, { select: true, hover: settings.props.hover });
+			useNodeInteractionData(sessionId, output, patternRef.current[output], { select: true, hover: settings.props.hover });
 		}
+	} else {
+		patternRef.current = {};
 	}
 	
 	// register an event handler and listen for output updates
@@ -130,9 +162,10 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 			// don't send the customization if the event is coming from an API call
 			if (!selectEvent.event) return;
 
-			setSelectedNodes([selectEvent.node]);
+			const selected = [selectEvent.node];
+			setSelectedNodes(selected);
 
-			parameterRef.current.actions.setUiValue(createResponseObject(patternRef.current, selectedNodes));
+			parameterRef.current.actions.setUiValue(createResponseObject(patternRef.current, selected));
 			await parameterRef.current.actions.execute(true);
 		});
 	
@@ -150,7 +183,8 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 			// don't send the customization if the event is coming from an API call
 			if (!selectEvent.event) return;
 
-			setSelectedNodes([]);
+			const selected: ITreeNode[] = [];
+			setSelectedNodes(selected);
 
 			parameterRef.current.actions.setUiValue(createResponseObject(patternRef.current));
 			await parameterRef.current.actions.execute(true);
@@ -168,8 +202,9 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 			// don't send the customization if the event is coming from an API call
 			if (!multiSelectEvent.event) return;
 
-			selectedNodes.push(multiSelectEvent.node);
-			setSelectedNodes(selectedNodes);
+			const selected = selectedNodes;
+			selected.push(multiSelectEvent.node);
+			setSelectedNodes(selected);
 
 			if(multiSelectEvent.nodes.length < (multiSelectEvent.manager as MultiSelectManager).minimumNodes) {
 				notifications.show({
@@ -180,7 +215,7 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 				return;
 			}
 
-			parameterRef.current.actions.setUiValue(createResponseObject(patternRef.current, selectedNodes));
+			parameterRef.current.actions.setUiValue(createResponseObject(patternRef.current, selected));
 			await parameterRef.current.actions.execute(true);
 		});
 
@@ -197,8 +232,9 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 			if (!multiSelectEvent.event) return;
 
 			// remove the node from the selected nodes
-			selectedNodes.splice(selectedNodes.indexOf(multiSelectEvent.node), 1);
-			setSelectedNodes(selectedNodes);
+			const selected = selectedNodes;
+			selected.splice(selected.indexOf(multiSelectEvent.node), 1);
+			setSelectedNodes(selected);
 
 			if(multiSelectEvent.nodes.length < (multiSelectEvent.manager as MultiSelectManager).minimumNodes) {
 				notifications.show({
@@ -209,7 +245,7 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 				return;
 			}
 
-			parameterRef.current.actions.setUiValue(createResponseObject(patternRef.current, selectedNodes));
+			parameterRef.current.actions.setUiValue(createResponseObject(patternRef.current, selected));
 			await parameterRef.current.actions.execute(true);
 		});
 
@@ -263,11 +299,11 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 	}, [settings]);
 
 
-	useInteraction(viewportId || VIEWPORT_ID, interactionActive ? settings : undefined, selectedNodes);
+	useInteraction(viewportId || VIEWPORT_ID, selectionActive ? settings : undefined, selectedNodes);
 
-	// define the parameter names for the interaction
+	// define the parameter names for the selection
 	const enum PARAMETER_NAMES {
-		START_INTERACTION = "startInteraction"
+		START_SELECTION = "startSelection"
 	}
 
 	const [parameters, setParameters] = useState<IGenericParameterDefinition[]>([]);
@@ -277,25 +313,25 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 			[
 				{
 					definition: {
-						id: PARAMETER_NAMES.START_INTERACTION,
-						name: "Start Interaction",
-						defval: interactionActive + "",
+						id: PARAMETER_NAMES.START_SELECTION,
+						name: "Start Selection",
+						defval: selectionActive + "",
 						type: ShapeDiverResponseParameterType.BOOL,
 						hidden: false
 					},
 				}
 			]
 		);
-	}, [interactionActive]);
+	}, [selectionActive]);
 
 
-	// define the custom interaction parameters and a handler for changes
+	// define the custom selection parameters and a handler for changes
 	const customSessionId = "mysession";
 	useDefineGenericParameters(customSessionId, false /* acceptRejectMode */,
 		parameters,
 		async (values) => {
-			if (PARAMETER_NAMES.START_INTERACTION in values)
-				setInteractionActive("" + values[PARAMETER_NAMES.START_INTERACTION] === "true");
+			if (PARAMETER_NAMES.START_SELECTION in values)
+				setSelectionActive("" + values[PARAMETER_NAMES.START_SELECTION] === "true");
 
 			return values;
 		}
@@ -305,7 +341,7 @@ export default function AppBuilderInteractionWidgetComponent({ interactionSettin
 	if (parameter !== undefined)
 		return <ParametersAndExportsAccordionComponent key={uuid}
 			parameters={parameterProps}
-			defaultGroupName="Interactions"
+			defaultGroupName="Selections"
 		/>;
 	else
 		return <></>;
