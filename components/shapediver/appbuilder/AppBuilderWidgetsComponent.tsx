@@ -18,7 +18,8 @@ import AppBuilderLineChartWidgetComponent from "./AppBuilderLineChartWidgetCompo
 import AppBuilderAreaChartWidgetComponent from "./AppBuilderAreaChartWidgetComponent";
 import AppBuilderBarChartWidgetComponent from "./AppBuilderBarChartWidgetComponent";
 import AppBuilderSelectionWidgetComponent from "./AppBuilderSelectionWidgetComponent";
-import { isInteractionSelectionParameterSettings } from "@shapediver/viewer";
+import AppBuilderGumballWidgetComponent from "./AppBuilderGumballWidgetComponent";
+import { isInteractionGumballParameterSettings, isInteractionSelectionParameterSettings } from "@shapediver/viewer";
 
 interface Props {
 	/** 
@@ -55,6 +56,8 @@ export default function AppBuilderWidgetsComponent({ sessionId, widgets }: Props
 			else if (isInteractionWidget(w))
 				if(isInteractionSelectionParameterSettings(w.props.interactionSettings))
 					return <AppBuilderSelectionWidgetComponent key={i} sessionId={sessionId} {...w.props} />;
+				else if(isInteractionGumballParameterSettings(w.props.interactionSettings))
+					return <AppBuilderGumballWidgetComponent key={i} sessionId={sessionId} {...w.props} />;
 				else
 					return null;
 			else

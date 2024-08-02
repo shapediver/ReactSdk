@@ -1,5 +1,5 @@
 import ParametersAndExportsAccordionComponent from "../ui/ParametersAndExportsAccordionComponent";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { IAppBuilderWidgetPropsInteraction } from "../../../types/shapediver/appbuilder";
 import { IGenericParameterDefinition } from "../../../types/store/shapediverStoreParameters";
 import { ShapeDiverResponseParameterType } from "@shapediver/sdk.geometry-api-sdk-v2";
@@ -8,7 +8,8 @@ import { useId } from "@mantine/hooks";
 import { useInteraction } from "shared/hooks/shapediver/viewer/useInteraction";
 import { useParameterStateless } from "shared/hooks/shapediver/parameters/useParameterStateless";
 import { useSessionPropsParameter } from "../../../hooks/shapediver/parameters/useSessionPropsParameter";
-import { isInteractionSelectionParameterSettings } from "@shapediver/viewer";
+import { IInteractionParameterSettings, ISelectionParameterSettings, isInteractionGumballParameterSettings, SelectionParameterValue } from "@shapediver/viewer";
+import { useGumball } from "shared/hooks/shapediver/viewer/useGumball";
 
 const VIEWPORT_ID = "viewport_1";
 
@@ -25,18 +26,18 @@ interface Props extends IAppBuilderWidgetPropsInteraction {
 }
 
 /**
- * Widget component for the selections.
+ * Widget component for the gumball.
  * 
  * @param param0 
  * @returns 
  */
-export default function AppBuilderSelectionWidgetComponent({ interactionSettings, parameter: p, sessionId, viewportId }: Props) {
+export default function AppBuilderGumballWidgetComponent({ interactionSettings, parameter: p, sessionId, viewportId }: Props) {
 	// generate a unique id for the widget
 	const uuid = useId();
-	const settings = isInteractionSelectionParameterSettings(interactionSettings) ? interactionSettings : undefined;
+	const settings = isInteractionGumballParameterSettings(interactionSettings) ? interactionSettings : undefined;
 
-	// state for the selection application
-	const [selectionActive, setSelectionActive] = useState<boolean>(false);
+	// state for the gumball application
+	const [gumballActive, setGumballActive] = useState<boolean>(false);
 
 	// get the parameter API
 	const parameter = useParameterStateless<string>(sessionId, p?.name || "selected");
@@ -47,18 +48,45 @@ export default function AppBuilderSelectionWidgetComponent({ interactionSettings
 		parameterRef.current = parameter;
 	}, [parameter]);
 
-	const { responseObject } = useInteraction(sessionId, viewportId || VIEWPORT_ID, selectionActive ? settings : undefined);
+
+	const selectionSettingsRef = useRef<IInteractionParameterSettings | undefined>(undefined);
+	useEffect(() => {
+		selectionSettingsRef.current = {
+			type: "selection",
+			props: {
+				nameFilter: settings?.props.nameFilter,
+				hover: settings?.props.hover,
+				minimumSelection: 0,
+				maximumSelection: Infinity
+			} as ISelectionParameterSettings
+		};
+	}, [settings]);
+
+
+	const selectionParameterValueRef = useRef<SelectionParameterValue | undefined>(undefined);
+
+	const callback = useCallback((value: SelectionParameterValue | undefined) => {
+		selectionParameterValueRef.current = value;
+		console.log("Selection value", value);
+	}, [settings]);
+	
+
+	useInteraction(sessionId, viewportId || VIEWPORT_ID, gumballActive ? selectionSettingsRef.current : undefined, callback);
+
+	const { gumball, responseObject } = useGumball(sessionId, viewportId || VIEWPORT_ID, gumballActive ? settings : undefined, selectionParameterValueRef.current);
 
 	useEffect(() => {
+		// once the selected object changes, we create a new gumball
+		// if the gumball has already been created, we store the name and the transformation matrix
 		if (parameterRef.current && responseObject) {
 			parameterRef.current.actions.setUiValue(JSON.stringify(responseObject));
 			parameterRef.current.actions.execute(true);
 		}
-	}, [responseObject]);
+	}, [gumball]);
 
-	// define the parameter names for the selection
+	// define the parameter names for the gumball
 	const enum PARAMETER_NAMES {
-		START_SELECTION = "startSelection"
+		START_GUMBALL = "startGumball"
 	}
 
 	const [parameters, setParameters] = useState<IGenericParameterDefinition[]>([]);
@@ -68,25 +96,25 @@ export default function AppBuilderSelectionWidgetComponent({ interactionSettings
 			[
 				{
 					definition: {
-						id: PARAMETER_NAMES.START_SELECTION,
-						name: "Start Selection",
-						defval: selectionActive + "",
+						id: PARAMETER_NAMES.START_GUMBALL,
+						name: "Start Gumball",
+						defval: gumballActive + "",
 						type: ShapeDiverResponseParameterType.BOOL,
 						hidden: false
 					},
 				}
 			]
 		);
-	}, [selectionActive]);
+	}, [gumballActive]);
 
 
-	// define the custom selection parameters and a handler for changes
+	// define the custom gumball parameters and a handler for changes
 	const customSessionId = "mysession";
 	useDefineGenericParameters(customSessionId, false /* acceptRejectMode */,
 		parameters,
 		async (values) => {
-			if (PARAMETER_NAMES.START_SELECTION in values)
-				setSelectionActive("" + values[PARAMETER_NAMES.START_SELECTION] === "true");
+			if (PARAMETER_NAMES.START_GUMBALL in values)
+				setGumballActive("" + values[PARAMETER_NAMES.START_GUMBALL] === "true");
 
 			return values;
 		}
@@ -96,7 +124,7 @@ export default function AppBuilderSelectionWidgetComponent({ interactionSettings
 	if (parameter !== undefined)
 		return <ParametersAndExportsAccordionComponent key={uuid}
 			parameters={parameterProps}
-			defaultGroupName="Selections"
+			defaultGroupName="Gumball"
 		/>;
 	else
 		return <></>;

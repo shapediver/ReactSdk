@@ -49,8 +49,8 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 	const { responseObject, resetSelectedNodeNames } = useInteraction(props.sessionId, VIEWPORT_ID, selectionActive ? definition.settings as IInteractionParameterSettings : undefined);
 
 	useEffect(() => {
-		if(responseObject)
-			handleChange(responseObject);
+		if(responseObject) 
+			handleChange(JSON.stringify(responseObject));
 	}, [responseObject]);
 
 	useEffect(() => {

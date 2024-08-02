@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useShapeDiverStoreViewer } from "../../../store/useShapeDiverStoreViewer";
 import { HoverManager, InteractionData, InteractionEngine, InteractionEventResponseMapping, MultiSelectManager, SelectManager } from "@shapediver/viewer.features.interaction";
-import { addListener, EVENTTYPE_INTERACTION, IEvent, IInteractionParameterSettings, isInteractionSelectionParameterSettings, ITreeNode, MaterialStandardData, OutputApiData, removeListener } from "@shapediver/viewer";
+import { addListener, EVENTTYPE_INTERACTION, IEvent, IInteractionParameterSettings, isInteractionSelectionParameterSettings, ITreeNode, MaterialStandardData, OutputApiData, removeListener, SelectionParameterValue } from "@shapediver/viewer";
 import { vec3 } from "gl-matrix";
 import { notifications } from "@mantine/notifications";
 import { useNodeInteractionData } from "./useNodeInteractionData";
@@ -13,12 +13,13 @@ import { useNodeInteractionData } from "./useNodeInteractionData";
  * 
  * @param viewportId 
  */
-export function useInteraction(sessionId: string, viewportId: string, settings?: IInteractionParameterSettings): {
+export function useInteraction(sessionId: string, viewportId: string, settings?: IInteractionParameterSettings, updateCallback?: (responseObject: SelectionParameterValue | undefined) => void): {
 	interactionEngine?: InteractionEngine,
 	selectManager?: SelectManager,
 	multiSelectManager?: MultiSelectManager,
 	hoverManager?: HoverManager,
-	responseObject: string | undefined,
+	responseObject: SelectionParameterValue | undefined,
+	selectedNodeNames: string[],
 	resetSelectedNodeNames: () => void
 } {
 	// get the viewport API
@@ -51,7 +52,7 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 	const resetSelectedNodeNames = useCallback(() => setSelectedNodeNames([]), []);
 
 	// create a reference for the selected nodes
-	const responseObjectRef = useRef<string | undefined>(undefined);
+	const responseObjectRef = useRef<SelectionParameterValue | undefined>(undefined);
 
 	const patternRef = useRef<{
 		[key: string]: string[][];
@@ -157,7 +158,9 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 			const selected = [selectEvent.node];
 			const nodeNames = createResponseObject(patternRef.current, selected);
 			setSelectedNodeNames(nodeNames.names);
-			responseObjectRef.current = JSON.stringify(nodeNames);
+			responseObjectRef.current = nodeNames;
+
+			if(updateCallback) updateCallback(responseObjectRef.current);
 		});
 
 		/**
@@ -173,7 +176,9 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 			if (!selectEvent.event) return;
 
 			setSelectedNodeNames([]);
-			responseObjectRef.current = JSON.stringify(createResponseObject(patternRef.current));
+			responseObjectRef.current = createResponseObject(patternRef.current);
+
+			if(updateCallback) updateCallback(responseObjectRef.current);
 		});
 
 		/**
@@ -193,7 +198,10 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 			if (multiSelectEvent.nodes.length < (multiSelectEvent.manager as MultiSelectManager).minimumNodes) return;
 			if (multiSelectEvent.nodes.length > (multiSelectEvent.manager as MultiSelectManager).maximumNodes) return;
 
-			responseObjectRef.current = JSON.stringify(nodeNames);
+			console.log("Multi select on", nodeNames);
+			responseObjectRef.current = nodeNames;
+
+			if(updateCallback) updateCallback(responseObjectRef.current);
 		});
 
 		/**
@@ -214,7 +222,10 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 			if (multiSelectEvent.nodes.length < (multiSelectEvent.manager as MultiSelectManager).minimumNodes) return;
 			if (multiSelectEvent.nodes.length > (multiSelectEvent.manager as MultiSelectManager).maximumNodes) return;
 
-			responseObjectRef.current = JSON.stringify(nodeNames);
+			console.log("Multi select off", nodeNames);
+			responseObjectRef.current = nodeNames;
+
+			if(updateCallback) updateCallback(responseObjectRef.current);
 		});
 
 		/**
@@ -323,6 +334,7 @@ export function useInteraction(sessionId: string, viewportId: string, settings?:
 		multiSelectManager,
 		hoverManager,
 		responseObject: responseObjectRef.current,
+		selectedNodeNames,
 		resetSelectedNodeNames
 	};
 }
