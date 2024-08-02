@@ -205,7 +205,7 @@ function createParameterStore<T>(executor: IShapeDiverParameterExecutor<T>, acce
  * @param parameterApi 
  * @returns 
  */
-function mapParameterDefinition<T>(parameterApi: IParameterApi<T>): IShapeDiverParameterDefinition {
+function mapParameterDefinition<T>(parameterApi: IParameterApi<T>): IShapeDiverParameterDefinition {	
 	return {
 		id: parameterApi.id,
 		choices: parameterApi.choices,
@@ -230,6 +230,7 @@ function mapParameterDefinition<T>(parameterApi: IParameterApi<T>): IShapeDiverP
 		tooltip: parameterApi.tooltip,
 		displayname: parameterApi.displayname,
 		hidden: parameterApi.hidden,
+		settings: parameterApi.settings,
 	};
 }
 
