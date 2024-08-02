@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useShapeDiverStoreViewer } from "../../../store/useShapeDiverStoreViewer";
 import { HoverManager, InteractionEngine, MultiSelectManager, SelectManager } from "@shapediver/viewer.features.interaction";
-import { MaterialStandardData, sceneTree } from "@shapediver/viewer";
+import { ITreeNode, MaterialStandardData } from "@shapediver/viewer";
 import { vec3 } from "gl-matrix";
 
 /**
@@ -18,22 +18,8 @@ export function useInteraction(viewportId: string, settings?: {
 	multiple?: boolean,
 	output?: string | string[],
 	pattern?: string | string[],
-	groupNodes?: boolean,
-	selectedNodes?: {
-		node?: {
-			output: string,
-			pattern?: string,
-			nodeName: string,
-			path: string
-		},
-		nodes?: {
-			output: string,
-			pattern?: string,
-			nodeName: string,
-			path: string
-		}[]
-	}
-}): {
+	groupNodes?: boolean
+}, selectedNodes?: ITreeNode[]): {
     interactionEngine?: InteractionEngine,
     selectManager?: SelectManager,
     multiSelectManager?: MultiSelectManager,
@@ -77,16 +63,13 @@ export function useInteraction(viewportId: string, settings?: {
 
 					interactionEngineRef.current.addInteractionManager(multiSelectManagerRef.current);
 
-					if(settings.selectedNodes && settings.selectedNodes.nodes) {
-						settings.selectedNodes.nodes.forEach((nodeData, i) => {
-							const node = sceneTree.getNodeAtPath(nodeData.path);
-							if(node) {
-								multiSelectManagerRef.current!.select({
-									distance: i,
-									point: vec3.create(),
-									node
-								});
-							}
+					if(selectedNodes) {
+						selectedNodes.forEach((node, i) => {
+							multiSelectManagerRef.current!.select({
+								distance: i,
+								point: vec3.create(),
+								node
+							});
 						});
 					}
 
@@ -98,15 +81,14 @@ export function useInteraction(viewportId: string, settings?: {
 
 					interactionEngineRef.current.addInteractionManager(selectManagerRef.current);
 
-					if(settings.selectedNodes && settings.selectedNodes.node) {
-						const node = sceneTree.getNodeAtPath(settings.selectedNodes.node.path);
-						if(node) {
+					if(selectedNodes) {
+						selectedNodes.forEach((node, i) => {
 							selectManagerRef.current!.select({
-								distance: 0,
+								distance: i,
 								point: vec3.create(),
 								node
 							});
-						}
+						});
 					}
 				}
 			}
