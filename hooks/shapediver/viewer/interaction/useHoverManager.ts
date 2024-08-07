@@ -1,6 +1,6 @@
 import { IInteractionParameterSettings, MaterialStandardData } from "@shapediver/viewer";
 import { HoverManager } from "@shapediver/viewer.features.interaction";
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
 import { useInteractionEngine } from "./useInteractionEngine";
 
@@ -23,8 +23,8 @@ export function useHoverManager(viewportId: string, settings?: IInteractionParam
 	// call the interaction engine hook
 	const { interactionEngine } = useInteractionEngine(viewportId);
 
-	// create a state for the hover manager
-	const [hoverManager, setHoverManager] = useState<HoverManager | undefined>(undefined);
+	// create a reference for the hover manager
+	const hoverManagerRef = useRef<HoverManager | undefined>(undefined);
 	// create a reference for the hover manager token
 	const hoverManagerTokenRef = useRef<string | undefined>(undefined);
 
@@ -33,23 +33,23 @@ export function useHoverManager(viewportId: string, settings?: IInteractionParam
 		if (viewportApi && interactionEngine && settings) {
 			const hoverManager = new HoverManager();
 			hoverManager.effectMaterial = new MaterialStandardData({ color: settings.props.hoverColor || "#00ff78" });
-			setHoverManager(hoverManager);
 			hoverManagerTokenRef.current = interactionEngine.addInteractionManager(hoverManager);
+			hoverManagerRef.current = hoverManager;
 		}
 
 		return () => {
 			// clean up the hover manager
-			if (hoverManager) {
+			if (hoverManagerRef.current) {
 				if(hoverManagerTokenRef.current && interactionEngine)
 					interactionEngine.removeInteractionManager(hoverManagerTokenRef.current);
 				hoverManagerTokenRef.current = undefined;
-				setHoverManager(undefined);
+				hoverManagerRef.current = undefined;
 			}
 		};
 	}, [viewportApi, interactionEngine, settings]);
 
 	return {
-		hoverManager
+		hoverManager: hoverManagerRef.current
 	};
 }
 
