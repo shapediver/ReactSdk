@@ -1,6 +1,6 @@
 import { IInteractionParameterSettings, isInteractionSelectionParameterSettings, MaterialStandardData } from "@shapediver/viewer";
 import { SelectManager, MultiSelectManager } from "@shapediver/viewer.features.interaction";
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
 import { useInteractionEngine } from "./useInteractionEngine";
 
@@ -27,13 +27,13 @@ export function useSelectManager(viewportId: string, settings?: IInteractionPara
 	// call the interaction engine hook
 	const { interactionEngine } = useInteractionEngine(viewportId);
 
-	// create a state for the select manager
-	const [selectManager, setSelectManager] = useState<SelectManager | undefined>(undefined);
+	// create a reference for the select manager
+	const selectManagerRef = useRef<SelectManager | undefined>(undefined);
 	// create a reference for the select manager token
 	const selectManagerTokenRef = useRef<string | undefined>(undefined);
 
-	// create a state for the multi select manager
-	const [multiSelectManager, setMultiSelectManager] = useState<MultiSelectManager | undefined>(undefined);
+	// create a reference for the multi select manager
+	const multiSelectManagerRef = useRef<MultiSelectManager | undefined>(undefined);
 	// create a reference for the multi select manager token
 	const multiSelectManagerTokenRef = useRef<string | undefined>(undefined);
 
@@ -58,7 +58,7 @@ export function useSelectManager(viewportId: string, settings?: IInteractionPara
 					multiSelect.useModifierKeys = true;
 
 					multiSelectManagerTokenRef.current = interactionEngine.addInteractionManager(multiSelect);
-					setMultiSelectManager(multiSelect);
+					multiSelectManagerRef.current = multiSelect;
 				} else {
 					const select = new SelectManager();
 					select.deselectOnEmpty = false;
@@ -67,35 +67,35 @@ export function useSelectManager(viewportId: string, settings?: IInteractionPara
 					select.useModifierKeys = true;
 
 					selectManagerTokenRef.current = interactionEngine.addInteractionManager(select);
-					setSelectManager(select);
+					selectManagerRef.current = select;
 				}
 			}
 		}
 
 		return () => {
 			// clean up the select manager
-			if (selectManager) {
-				selectManager.deselect();
+			if (selectManagerRef.current) {
+				selectManagerRef.current.deselect();
 				if(selectManagerTokenRef.current && interactionEngine)
 					interactionEngine.removeInteractionManager(selectManagerTokenRef.current);
 				selectManagerTokenRef.current = undefined;
-				setSelectManager(undefined);
+				selectManagerRef.current = undefined;
 			}
 
 			// clean up the multi select manager
-			if (multiSelectManager) {
-				multiSelectManager.deselectAll();
+			if (multiSelectManagerRef.current) {
+				multiSelectManagerRef.current.deselectAll();
 				if(multiSelectManagerTokenRef.current && interactionEngine) 
 					interactionEngine.removeInteractionManager(multiSelectManagerTokenRef.current);
 				multiSelectManagerTokenRef.current = undefined;
-				setMultiSelectManager(undefined);
+				multiSelectManagerRef.current = undefined;
 			}
 		};
 	}, [viewportApi, interactionEngine, settings]);
 
 	return {
-		selectManager,
-		multiSelectManager
+		selectManager: selectManagerRef.current,
+		multiSelectManager: multiSelectManagerRef.current
 	};
 }
 
