@@ -1,7 +1,7 @@
 import { GeometryData, IOutputApi, ITreeNode } from "@shapediver/viewer";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import { IInteractionData, InteractionData } from "@shapediver/viewer.features.interaction";
-import { useOutputNode } from "./useOutputNode";
+import { useOutputNode } from "../useOutputNode";
 
 const nodesWithInteractionData: { [key: string]: { node: ITreeNode, data: IInteractionData } } = {};
 
@@ -32,7 +32,6 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 	 */
 	outputNode: ITreeNode | undefined
 } {
-	const interactionSettingsRef = useRef<{ select: boolean, hover: boolean, drag: boolean } | null>(null);
 
 	/**
 	 * Add interaction data to a node.
@@ -47,12 +46,12 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 			delete nodesWithInteractionData[node.id];
 		}
 
-		if(!interactionSettingsRef.current) return;
+		if(!interactionSettings) return;
 
 		const interactionData = new InteractionData({
-			select: interactionSettingsRef.current.select,
-			hover: interactionSettingsRef.current.hover,
-			drag: interactionSettingsRef.current.drag
+			select: interactionSettings.select,
+			hover: interactionSettings.hover,
+			drag: interactionSettings.drag
 		}, groupId);
 		node.addData(interactionData);
 		node.updateVersion();
@@ -99,25 +98,13 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 
 		if(additionalUpdateCallback)
 			additionalUpdateCallback(node);
-	}, [patterns] );
+	}, [patterns, additionalUpdateCallback] );
 
 	// define the node update callback
 	const { outputApi, outputNode } = useOutputNode(sessionId, outputIdOrName, callback);
 	
 	useEffect(() => {
-		if (interactionSettings) {
-			interactionSettingsRef.current = {
-				select: interactionSettings.select || false,
-				hover: interactionSettings.hover || false,
-				drag: interactionSettings.drag || false
-			};
-		}
-		else {
-			interactionSettingsRef.current = null;
-		}
-
 		callback(outputNode);
-
 
 		return () => {
 			for(const id in nodesWithInteractionData) {
@@ -129,7 +116,7 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 			Object.keys(nodesWithInteractionData).forEach(key => delete nodesWithInteractionData[key]);
 		};
 		
-	}, [interactionSettings, patterns]);
+	}, [interactionSettings, patterns, additionalUpdateCallback]);
 
 	return {
 		outputApi,

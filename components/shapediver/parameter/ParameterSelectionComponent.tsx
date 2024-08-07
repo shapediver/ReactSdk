@@ -3,10 +3,10 @@ import React, { useEffect, useState } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
-import { useInteraction } from "shared/hooks/shapediver/viewer/useInteraction";
 import { IconHandFinger, IconInfoCircleFilled } from "@tabler/icons-react";
-import { IInteractionParameterSettings, ISelectionParameterSettings, isInteractionSelectionParameterSettings } from "@shapediver/viewer";
+import { IInteractionParameterSettings, ISelectionParameterSettings, isInteractionSelectionParameterSettings, SelectionParameterValue } from "@shapediver/viewer";
 import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
+import { useSelection } from "shared/hooks/shapediver/viewer/interaction/useSelection";
 
 const VIEWPORT_ID = "viewport_1";
 
@@ -46,12 +46,12 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 	
 	// state for the selection application
 	const [selectionActive, setSelectionActive] = useState<boolean>(false);
-	const { responseObject, resetSelectedNodeNames } = useInteraction(props.sessionId, VIEWPORT_ID, selectionActive ? definition.settings as IInteractionParameterSettings : undefined);
+	const { selectedNodes, resetSelectedNodeNames } = useSelection(props.sessionId, VIEWPORT_ID, selectionActive ? definition.settings as IInteractionParameterSettings : undefined);
 
 	useEffect(() => {
-		if(responseObject)
-			handleChange(responseObject);
-	}, [responseObject]);
+		const parameterValue: SelectionParameterValue = { names: selectedNodes };
+		handleChange(JSON.stringify(parameterValue));
+	}, [selectedNodes]);
 
 	useEffect(() => {
 		if(acceptRejectMode === true && state.execValue === value) {

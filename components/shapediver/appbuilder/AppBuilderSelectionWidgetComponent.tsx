@@ -5,10 +5,10 @@ import { IGenericParameterDefinition } from "../../../types/store/shapediverStor
 import { ShapeDiverResponseParameterType } from "@shapediver/sdk.geometry-api-sdk-v2";
 import { useDefineGenericParameters } from "../../../hooks/shapediver/parameters/useDefineGenericParameters";
 import { useId } from "@mantine/hooks";
-import { useInteraction } from "shared/hooks/shapediver/viewer/useInteraction";
 import { useParameterStateless } from "shared/hooks/shapediver/parameters/useParameterStateless";
 import { useSessionPropsParameter } from "../../../hooks/shapediver/parameters/useSessionPropsParameter";
-import { isInteractionSelectionParameterSettings } from "@shapediver/viewer";
+import { isInteractionSelectionParameterSettings, SelectionParameterValue } from "@shapediver/viewer";
+import { useSelection } from "shared/hooks/shapediver/viewer/interaction/useSelection";
 
 const VIEWPORT_ID = "viewport_1";
 
@@ -47,14 +47,15 @@ export default function AppBuilderSelectionWidgetComponent({ interactionSettings
 		parameterRef.current = parameter;
 	}, [parameter]);
 
-	const { responseObject } = useInteraction(sessionId, viewportId || VIEWPORT_ID, selectionActive ? settings : undefined);
+	const { selectedNodes } = useSelection(sessionId, viewportId || VIEWPORT_ID, selectionActive ? settings : undefined);
 
 	useEffect(() => {
-		if (parameterRef.current && responseObject) {
-			parameterRef.current.actions.setUiValue(responseObject);
+		if (parameterRef.current && selectedNodes) {
+			const parameterValue: SelectionParameterValue = { names: selectedNodes };
+			parameterRef.current.actions.setUiValue(JSON.stringify(parameterValue));
 			parameterRef.current.actions.execute(true);
 		}
-	}, [responseObject]);
+	}, [selectedNodes]);
 
 	// define the parameter names for the selection
 	const enum PARAMETER_NAMES {
