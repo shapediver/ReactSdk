@@ -2,16 +2,16 @@ import { notifications } from "@mantine/notifications";
 import { addListener, EVENTTYPE_INTERACTION, IEvent, removeListener } from "@shapediver/viewer";
 import { InteractionEventResponseMapping, MultiSelectManager } from "@shapediver/viewer.features.interaction";
 import { useState, useCallback, useEffect } from "react";
-import { processNodes } from "./utils/patternUtils";
+import { NameFilterPattern, processNodes } from "./utils/patternUtils";
 
 // #region Functions (1)
 
 /**
  * Hook allowing to create the select manager events.
  * 
- * @param viewportId 
+ * @param pattern The pattern to match the hovered nodes.
  */
-export function useSelectManagerEvents(pattern: { [key: string]: string[][] }): {
+export function useSelectManagerEvents(pattern: NameFilterPattern): {
 	/**
 	 * The selected node names.
 	 */
@@ -36,12 +36,12 @@ export function useSelectManagerEvents(pattern: { [key: string]: string[][] }): 
 		const tokenSelectOn = addListener(EVENTTYPE_INTERACTION.SELECT_ON, async (event: IEvent) => {
 			const selectEvent = event as InteractionEventResponseMapping[EVENTTYPE_INTERACTION.SELECT_ON];
 
-			// don't send the customization if the event is coming from an API call
+			// We ignore the event if it's not based on an event triggered by the UI.
 			if (!selectEvent.event) return;
 
 			const selected = [selectEvent.node];
 			const nodeNames = processNodes(pattern, selected);
-			setSelectedNodeNames(nodeNames.names);
+			setSelectedNodeNames(nodeNames);
 		});
 
 		/**
@@ -53,7 +53,7 @@ export function useSelectManagerEvents(pattern: { [key: string]: string[][] }): 
 
 			// don't send the event if it is a reselection
 			if (selectEvent.reselection) return;
-			// don't send the customization if the event is coming from an API call
+			// We ignore the event if it's not based on an event triggered by the UI.
 			if (!selectEvent.event) return;
 
 			setSelectedNodeNames([]);
@@ -66,15 +66,15 @@ export function useSelectManagerEvents(pattern: { [key: string]: string[][] }): 
 		const tokenMultiSelectOn = addListener(EVENTTYPE_INTERACTION.MULTI_SELECT_ON, async (event: IEvent) => {
 			const multiSelectEvent = event as InteractionEventResponseMapping[EVENTTYPE_INTERACTION.MULTI_SELECT_ON];
 
-			// don't send the customization if the event is coming from an API call
+			// We ignore the event if it's not based on an event triggered by the UI.
 			if (!multiSelectEvent.event) return;
-
-			const selected = multiSelectEvent.nodes;
-			const nodeNames = processNodes(pattern, selected);
-			setSelectedNodeNames(nodeNames.names);
 
 			if (multiSelectEvent.nodes.length < (multiSelectEvent.manager as MultiSelectManager).minimumNodes) return;
 			if (multiSelectEvent.nodes.length > (multiSelectEvent.manager as MultiSelectManager).maximumNodes) return;
+
+			const selected = multiSelectEvent.nodes;
+			const nodeNames = processNodes(pattern, selected);
+			setSelectedNodeNames(nodeNames);
 		});
 
 		/**
@@ -84,16 +84,16 @@ export function useSelectManagerEvents(pattern: { [key: string]: string[][] }): 
 		const tokenMultiSelectOff = addListener(EVENTTYPE_INTERACTION.MULTI_SELECT_OFF, async (event: IEvent) => {
 			const multiSelectEvent = event as InteractionEventResponseMapping[EVENTTYPE_INTERACTION.MULTI_SELECT_OFF];
 
-			// don't send the customization if the event is coming from an API call
+			// We ignore the event if it's not based on an event triggered by the UI.
 			if (!multiSelectEvent.event) return;
+
+			if (multiSelectEvent.nodes.length < (multiSelectEvent.manager as MultiSelectManager).minimumNodes) return;
+			if (multiSelectEvent.nodes.length > (multiSelectEvent.manager as MultiSelectManager).maximumNodes) return;
 
 			// remove the node from the selected nodes
 			const selected = multiSelectEvent.nodes;
 			const nodeNames = processNodes(pattern, selected);
-			setSelectedNodeNames(nodeNames.names);
-
-			if (multiSelectEvent.nodes.length < (multiSelectEvent.manager as MultiSelectManager).minimumNodes) return;
-			if (multiSelectEvent.nodes.length > (multiSelectEvent.manager as MultiSelectManager).maximumNodes) return;
+			setSelectedNodeNames(nodeNames);
 		});
 
 		/**
@@ -103,7 +103,7 @@ export function useSelectManagerEvents(pattern: { [key: string]: string[][] }): 
 		const tokenMaximumMultiSelect = addListener(EVENTTYPE_INTERACTION.MULTI_SELECT_MAXIMUM_NODES, async (event: IEvent) => {
 			const multiSelectEvent = event as InteractionEventResponseMapping[EVENTTYPE_INTERACTION.MULTI_SELECT_MAXIMUM_NODES];
 
-			// don't send the customization if the event is coming from an API call
+			// We ignore the event if it's not based on an event triggered by the UI.
 			if (!multiSelectEvent.event) return;
 
 			notifications.show({

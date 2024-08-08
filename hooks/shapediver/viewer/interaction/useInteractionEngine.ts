@@ -1,50 +1,47 @@
 import { InteractionEngine } from "@shapediver/viewer.features.interaction";
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
 
 // #region Functions (1)
 
+// create an object to store the interaction engines for the viewports
+const interactionEngines: { [key: string]: InteractionEngine } = {};
+
 /**
- * Hook allowing to create the interaction engine.
+ * Hook allowing to create an interaction engine for a viewport.
  * 
  * @param viewportId 
  */
 export function useInteractionEngine(viewportId: string): {
 	/**
-	 * The interaction engine.
+	 * The interaction engine that was created for the viewport.
 	 */
-    interactionEngine?: InteractionEngine
+	interactionEngine?: InteractionEngine
 } {
 	// get the viewport API
 	const viewportApi = useShapeDiverStoreViewer(state => { return state.viewports[viewportId]; });
 
-	// create a state for the interaction engine
-	const [interactionEngine, setInteractionEngine] = useState<InteractionEngine | undefined>(undefined);
-	const interactionEngineRef = useRef<InteractionEngine | undefined>(undefined);
-
-	// use an effect to apply changes to the material, and to apply the callback once the node is available
+	// use an effect to create the interaction engine
 	useEffect(() => {
 		if (viewportApi) {
-			// whenever this output node changes, we want to create the interaction engine
-			const interactionEngine = new InteractionEngine(viewportApi);
-			interactionEngineRef.current = interactionEngine;
-			setInteractionEngine(interactionEngine);
+			if (!interactionEngines[viewportId]) {
+				// create the interaction engine
+				const interactionEngine = new InteractionEngine(viewportApi);
+				interactionEngines[viewportId] = interactionEngine;
+			}
 		}
 
 		return () => {
-			console.log("Cleaning up interaction engine");
 			// clean up the interaction engine
-			if (interactionEngine) {
-				interactionEngine.close();
-				console.log("Interaction engine closed");
-				interactionEngineRef.current = undefined;
-				setInteractionEngine(undefined);
+			if (interactionEngines[viewportId]) {
+				interactionEngines[viewportId].close();
+				delete interactionEngines[viewportId];
 			}
 		};
 	}, [viewportApi]);
 
 	return {
-		interactionEngine: interactionEngineRef.current
+		interactionEngine: interactionEngines[viewportId]
 	};
 }
 

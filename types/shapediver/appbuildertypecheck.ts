@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { IconTypeEnum } from "./icons";
-import { PARAMETER_TYPE, PARAMETER_VISUALIZATION } from "@shapediver/viewer";
+import { IInteractionParameterJsonSchema, PARAMETER_TYPE, PARAMETER_VISUALIZATION } from "@shapediver/viewer";
 import { ShapeDiverResponseParameterStructure } from "@shapediver/api.geometry-api-dto-v2";
 
 // Zod type definition for IAppBuilderParameterDefinition
@@ -31,6 +31,7 @@ const IAppBuilderParameterDefinitionSchema = z.object({
 	tooltip: z.string().optional(),
 	displayname: z.string().optional(),
 	hidden: z.boolean(),
+	settings: IInteractionParameterJsonSchema.optional()
 });
 
 // Zod type definition for property "overrides" of IAppBuilderParameterRef
@@ -139,7 +140,7 @@ const IAppBuilderWidgetPropsBarChartSchema = z.object({
 // Zod type definition for IAppBuilderWidgetPropsInteraction
 const IAppBuilderWidgetPropsInteractionSchema = z.object({
 	parameterName: z.string().optional(),
-	interactionSettings: z.any(),
+	interactionSettings: IInteractionParameterJsonSchema,
 });
 
 // Zod type definition for IAppBuilderWidget
