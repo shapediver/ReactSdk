@@ -1,11 +1,11 @@
 import { IInteractionParameterSettings, isInteractionSelectionParameterSettings, ITreeNode, OutputApiData } from "@shapediver/viewer";
 import { InteractionData } from "@shapediver/viewer.features.interaction";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { vec3 } from "gl-matrix";
 import { useSelectManagerEvents } from "./useSelectManagerEvents";
 import { useSelectManager } from "./useSelectManager";
 import { useHoverManager } from "./useHoverManager";
-import { useProcessPattern } from "./useProcessPattern";
+import { useCreateNameFilterPattern } from "./useCreateNameFilterPattern";
 import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
 import { useNodeInteractionData } from "./useNodeInteractionData";
 
@@ -32,15 +32,19 @@ export function useSelection(sessionId: string, viewportId: string, settings?: I
 	const sessionApi = useShapeDiverStoreViewer(state => { return state.sessions[sessionId]; });
 
 	// check if the settings are selection settings
-	const selectionSettings = isInteractionSelectionParameterSettings(settings) ? settings : undefined;
+	const selectionSettings = isInteractionSelectionParameterSettings(settings) ? settings.props : undefined;
+	// create the hover settings
+	const hoverSettings = useMemo(() => { 
+		return settings ? { color: settings?.props.hoverColor } : undefined; 
+	}, [settings]);
 
 	// call the select manager hook
-	const { selectManager } = useSelectManager(viewportId, selectionSettings?.props);
+	const { selectManager } = useSelectManager(viewportId, selectionSettings);
 	// call the hover manager hook
-	useHoverManager(viewportId, { color: settings?.props.hoverColor });
+	useHoverManager(viewportId, hoverSettings);
 
 	// call the process pattern hook
-	const { pattern } = useProcessPattern(sessionId, settings?.props.nameFilter);
+	const { pattern } = useCreateNameFilterPattern(sessionId, settings?.props.nameFilter);
 	// call the select manager events hook
 	const { selectedNodeNames, resetSelectedNodeNames } = useSelectManagerEvents(pattern);
 

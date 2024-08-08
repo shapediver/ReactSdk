@@ -27,6 +27,9 @@ interface Props extends IAppBuilderWidgetPropsInteraction {
 /**
  * Widget component for the selections.
  * 
+ * IMPORTANT NOTE: THIS COMPONENT IS WILL PROBABLY BE REFACTORED IN THE FUTURE.
+ * Once the AppBuilder Selection Widget is fully implemented, this component will be refactored to match the new structure.
+ * 
  * @param param0 
  * @returns 
  */

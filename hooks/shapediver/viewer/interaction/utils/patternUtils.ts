@@ -38,6 +38,15 @@ export const processPattern = (nameFilter: string[], outputIdsToNamesMapping: { 
 		[key: string]: string[][];
 	} = {};
 
+	// create an object where the key is the output name and the value is an array of the output Ids
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const outputNamesToIdsMapping = Object.entries(outputIdsToNamesMapping).reduce((acc, [id, name]) => {
+		if (!acc[name]) acc[name] = [];
+		acc[name].push(id);
+
+		return acc;
+	}, {} as { [key: string]: string[] });
+
 	// we iterate over the name filter array
 	// we store the result with the output ID as the key and an array of patterns as the value
 	for (let i = 0; i < nameFilter.length; i++) {
@@ -45,8 +54,7 @@ export const processPattern = (nameFilter: string[], outputIdsToNamesMapping: { 
 		const outputName = parts[0];
 		
 		// find the output Ids that match the output name
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const outputIds = Object.entries(outputIdsToNamesMapping).filter(([id, name]) => name === outputName).map(([outputId, _]) => outputId);
+		const outputIds = outputNamesToIdsMapping[outputName] ?? [];
 		
 		// we iterate over the output mappings
 		for(const outputId of outputIds) {
@@ -120,7 +128,8 @@ export const processNodes = (patterns: NameFilterPattern = {}, nodes: ITreeNode[
 		const path = node.getPath().replace(outputNode.getPath(), "");
 		// check if the path matches the pattern and return the first match
 		for(const pattern of patterns[outputApi.id] ?? []) {
-			const match = path.match(pattern.join("."));
+			// create a regex pattern from the pattern array, join the array with dot
+			const match = path.match(pattern.join("\\."));
 			if (match) return outputApi.name + "." + match[0];
 		}
 	};
