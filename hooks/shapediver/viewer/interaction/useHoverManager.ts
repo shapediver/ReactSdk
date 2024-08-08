@@ -1,55 +1,54 @@
-import { IInteractionParameterSettings, MaterialStandardData } from "@shapediver/viewer";
+import { MaterialStandardData } from "@shapediver/viewer";
 import { HoverManager } from "@shapediver/viewer.features.interaction";
-import { useRef, useEffect } from "react";
-import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
+import { useEffect } from "react";
 import { useInteractionEngine } from "./useInteractionEngine";
 
 // #region Functions (1)
 
+// create an object to store the hover managers for the viewports
+const hoverManagers: { [key: string]: {
+	hoverManager: HoverManager,
+	token: string
+} } = {};
+
 /**
- * Hook allowing to create the hoverManager.
+ * Hook allowing to create a hover manager for a viewport.
  * 
- * @param viewportId 
+ * @param viewportId The ID of the viewport.
+ * @param settings The settings for the hover manager. If the settings are not provided, the hover manager will not be created.
  */
-export function useHoverManager(viewportId: string, settings?: IInteractionParameterSettings): {
+export function useHoverManager(viewportId: string, settings?: { color?: string }): {
 	/**
-	 * The hover manager.
+	 * The hover manager that was created for the viewport.
 	 */
     hoverManager?: HoverManager
 } {
-	// get the viewport API
-	const viewportApi = useShapeDiverStoreViewer(state => { return state.viewports[viewportId]; });
-
 	// call the interaction engine hook
 	const { interactionEngine } = useInteractionEngine(viewportId);
 
-	// create a reference for the hover manager
-	const hoverManagerRef = useRef<HoverManager | undefined>(undefined);
-	// create a reference for the hover manager token
-	const hoverManagerTokenRef = useRef<string | undefined>(undefined);
-
-	// use an effect to apply changes to the material, and to apply the callback once the node is available
+	// use an effect to create the hover manager
 	useEffect(() => {
-		if (viewportApi && interactionEngine && settings) {
-			const hoverManager = new HoverManager();
-			hoverManager.effectMaterial = new MaterialStandardData({ color: settings.props.hoverColor || "#00ff78" });
-			hoverManagerTokenRef.current = interactionEngine.addInteractionManager(hoverManager);
-			hoverManagerRef.current = hoverManager;
+		if (interactionEngine && settings) {
+			if(!hoverManagers[viewportId]) {
+				const hoverManager = new HoverManager();
+				hoverManager.effectMaterial = new MaterialStandardData({ color: settings.color || "#00ff78" });
+				const token = interactionEngine.addInteractionManager(hoverManager);
+				hoverManagers[viewportId] = { hoverManager, token };
+			}
 		}
 
 		return () => {
 			// clean up the hover manager
-			if (hoverManagerRef.current) {
-				if(hoverManagerTokenRef.current && interactionEngine)
-					interactionEngine.removeInteractionManager(hoverManagerTokenRef.current);
-				hoverManagerTokenRef.current = undefined;
-				hoverManagerRef.current = undefined;
+			if (hoverManagers[viewportId]) {
+				if(interactionEngine)
+					interactionEngine.removeInteractionManager(hoverManagers[viewportId].token);
+				delete hoverManagers[viewportId];
 			}
 		};
-	}, [viewportApi, interactionEngine, settings]);
+	}, [interactionEngine, settings]);
 
 	return {
-		hoverManager: hoverManagerRef.current
+		hoverManager: hoverManagers[viewportId]?.hoverManager
 	};
 }
 

@@ -1,16 +1,16 @@
 import { addListener, EVENTTYPE_INTERACTION, IEvent, removeListener } from "@shapediver/viewer";
 import { InteractionEventResponseMapping } from "@shapediver/viewer.features.interaction";
 import { useState, useEffect } from "react";
-import { processNodes } from "./utils/patternUtils";
+import { NameFilterPattern, processNodes } from "./utils/patternUtils";
 
 // #region Functions (1)
 
 /**
  * Hook allowing to create the hover manager events.
  * 
- * @param viewportId 
+ * @param pattern The pattern to match the hovered nodes.
  */
-export function useHoverManagerEvents(pattern: { [key: string]: string[][] }): {
+export function useHoverManagerEvents(pattern: NameFilterPattern): {
 	/**
 	 * The hovered node names.
 	 */
@@ -28,12 +28,12 @@ export function useHoverManagerEvents(pattern: { [key: string]: string[][] }): {
 		const tokenHoverOn = addListener(EVENTTYPE_INTERACTION.HOVER_ON, async (event: IEvent) => {
 			const hoverEvent = event as InteractionEventResponseMapping[EVENTTYPE_INTERACTION.HOVER_ON];
 
-			// don't send the customization if the event is coming from an API call
+			// We ignore the event if it's not based on an event triggered by the UI.
 			if (!hoverEvent.event) return;
 
 			const hovered = [hoverEvent.node];
 			const nodeNames = processNodes(pattern, hovered);
-			setHoveredNodeNames(nodeNames.names);
+			setHoveredNodeNames(nodeNames);
 		});
 
 		/**
@@ -43,7 +43,7 @@ export function useHoverManagerEvents(pattern: { [key: string]: string[][] }): {
 		const tokenHoverOff = addListener(EVENTTYPE_INTERACTION.HOVER_OFF, async (event: IEvent) => {
 			const hoverEvent = event as InteractionEventResponseMapping[EVENTTYPE_INTERACTION.HOVER_OFF];
 
-			// don't send the customization if the event is coming from an API call
+			// We ignore the event if it's not based on an event triggered by the UI.
 			if (!hoverEvent.event) return;
 
 			setHoveredNodeNames([]);

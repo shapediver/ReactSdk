@@ -31,18 +31,16 @@ export function useSelection(sessionId: string, viewportId: string, settings?: I
 	// get the session API
 	const sessionApi = useShapeDiverStoreViewer(state => { return state.sessions[sessionId]; });
 
-	// call the select manager hook and save the result into a single manager
-	const { selectManager: single, multiSelectManager: multi } = useSelectManager(viewportId, settings);
-
-	// call the hover manager hook
-	useHoverManager(viewportId, settings?.props.hover ? settings : undefined);
-
-	// call the process pattern hook
-	const { pattern } = useProcessPattern(sessionId, settings);
-
 	// check if the settings are selection settings
 	const selectionSettings = isInteractionSelectionParameterSettings(settings) ? settings : undefined;
 
+	// call the select manager hook
+	const { selectManager } = useSelectManager(viewportId, selectionSettings?.props);
+	// call the hover manager hook
+	useHoverManager(viewportId, { color: settings?.props.hoverColor });
+
+	// call the process pattern hook
+	const { pattern } = useProcessPattern(sessionId, settings?.props.nameFilter);
 	// call the select manager events hook
 	const { selectedNodeNames, resetSelectedNodeNames } = useSelectManagerEvents(pattern);
 
@@ -55,32 +53,36 @@ export function useSelection(sessionId: string, viewportId: string, settings?: I
 	 */
 	const callback = useCallback((node?: ITreeNode) => {
 		if (!node) return;
-		if ((single || multi) && settings) {
+		if (selectManager && settings) {
+			// deselect all nodes
 			node.traverse(n => {
 				const interactionData = n.data.find(d => d instanceof InteractionData) as InteractionData;
 				if (interactionData)
-					(single || multi)?.deselect(n);
+					selectManager?.deselect(n);
 			});
 
+			// select the nodes based on the selected node names
 			if (selectedNodeNames) {
 				selectedNodeNames.forEach((nodeName, i) => {
 					const parts = nodeName.split(".");
 
+					// check if the node name matches the pattern
 					const outputApi = node.data.find(d => d instanceof OutputApiData) as OutputApiData;
 					if (!outputApi) return;
 					if (outputApi.api.name !== parts[0]) return;
 
+					// if the node name matches the pattern, select the node
 					node.traverse(n => {
 						if (n.getPath().endsWith(parts.slice(1).join("."))) {
 							const interactionData = n.data.find(d => d instanceof InteractionData) as InteractionData;
 							if (interactionData) 
-								(single || multi)?.select({ distance: i, point: vec3.create(), node: n });
+								selectManager?.select({ distance: i, point: vec3.create(), node: n });
 						}
 					});
 				});
 			}
 		}
-	}, [selectedNodeNames, single, multi, settings]);
+	}, [selectedNodeNames, selectManager, settings]);
 
 	// add interaction data for each output, even if it is not in the pattern
 	// this is necessary to keep the number of hooks constant

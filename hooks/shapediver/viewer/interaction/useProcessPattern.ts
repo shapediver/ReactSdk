@@ -1,6 +1,5 @@
 import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
 import { processPattern } from "./utils/patternUtils";
-import { IInteractionParameterSettings } from "@shapediver/viewer";
 import { useState, useEffect } from "react";
 
 // #region Functions (1)
@@ -8,9 +7,10 @@ import { useState, useEffect } from "react";
 /**
  * Hook that processes a pattern for a session.
  * 
- * @param viewportId 
+ * @param sessionId The ID of the session.
+ * @param nameFilter The name filter to apply to the pattern.
  */
-export function useProcessPattern(sessionId: string, settings?: IInteractionParameterSettings): {
+export function useProcessPattern(sessionId: string, nameFilter?: string[]): {
     pattern: {
         [key: string]: string[][];
     }
@@ -22,10 +22,12 @@ export function useProcessPattern(sessionId: string, settings?: IInteractionPara
 	const [pattern, setPattern] = useState<{ [key: string]: string[][]; }>({});
 
 	useEffect(() => {
-		if (settings && settings.props.nameFilter !== undefined) {
-			setPattern(processPattern(sessionApi, settings));
+		if (nameFilter !== undefined) {
+			const outputIdsToNamesMapping: { [key: string]: string } = {};
+			Object.entries(sessionApi.outputs).forEach(([outputId, output]) => outputIdsToNamesMapping[outputId] = output.name);
+			setPattern(processPattern(nameFilter, outputIdsToNamesMapping));
 		}
-	}, [settings]);
+	}, [nameFilter]);
 
 	return {
 		pattern

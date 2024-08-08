@@ -1,101 +1,101 @@
-import { IInteractionParameterSettings, isInteractionSelectionParameterSettings, MaterialStandardData } from "@shapediver/viewer";
-import { SelectManager, MultiSelectManager } from "@shapediver/viewer.features.interaction";
-import { useRef, useEffect } from "react";
-import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
+import { ISelectionParameterSettings, MaterialStandardData } from "@shapediver/viewer";
+import { SelectManager, MultiSelectManager, InteractionEngine } from "@shapediver/viewer.features.interaction";
+import { useEffect } from "react";
 import { useInteractionEngine } from "./useInteractionEngine";
 
 // #region Functions (1)
 
+// create an object to store the select managers or the multi select managers for the viewports
+const selectManagers: { [key: string]: {
+	selectManager: SelectManager | MultiSelectManager,
+	selectMultiple: boolean,
+	token: string
+} } = {};
+
+/**
+ * Clean up the select manager for the given viewportId.
+ * We also deselect all selected nodes.
+ *
+ * @param viewportId - The ID of the viewport.
+ * @param interactionEngine - The interaction engine instance.
+ */
+const cleanUpSelectManager = (viewportId: string, interactionEngine?: InteractionEngine) => {
+	if (selectManagers[viewportId]) {
+		if (selectManagers[viewportId].selectManager instanceof SelectManager) {
+			selectManagers[viewportId].selectManager.deselect();
+		} else if (selectManagers[viewportId].selectManager instanceof MultiSelectManager) {
+			selectManagers[viewportId].selectManager.deselectAll();
+		}
+		if(interactionEngine)
+			interactionEngine.removeInteractionManager(selectManagers[viewportId].token);
+		delete selectManagers[viewportId];
+	}
+};
+
 /**
  * Hook allowing to create a select manager for a viewport.
  * 
- * @param viewportId 
+ * @param viewportId The ID of the viewport.
+ * @param settings The settings for the select manager. If the settings are not provided, the select manager will not be created.
  */
-export function useSelectManager(viewportId: string, settings?: IInteractionParameterSettings): {
+export function useSelectManager(viewportId: string, settings?: ISelectionParameterSettings): {
 	/**
-	 * The select manager, if the parameter settings only allow single selection.
+	 * The select manager that was created for the viewport.
+	 * Depending on the settings, this can be a select manager or a multi select manager.
 	 */
-	selectManager?: SelectManager,
-	/**
-	 * The multi select manager, if the parameter settings allow multiple selection.
-	 */
-	multiSelectManager?: MultiSelectManager
+	selectManager?: SelectManager | MultiSelectManager
 } {
-	// get the viewport API
-	const viewportApi = useShapeDiverStoreViewer(state => { return state.viewports[viewportId]; });
-
 	// call the interaction engine hook
 	const { interactionEngine } = useInteractionEngine(viewportId);
 
-	// create a reference for the select manager
-	const selectManagerRef = useRef<SelectManager | undefined>(undefined);
-	// create a reference for the select manager token
-	const selectManagerTokenRef = useRef<string | undefined>(undefined);
-
-	// create a reference for the multi select manager
-	const multiSelectManagerRef = useRef<MultiSelectManager | undefined>(undefined);
-	// create a reference for the multi select manager token
-	const multiSelectManagerTokenRef = useRef<string | undefined>(undefined);
-
-	// check if the settings are selection settings
-	const selection = isInteractionSelectionParameterSettings(settings) ? settings : undefined;
-
-	// use an effect to apply changes to the material, and to apply the callback once the node is available
+	// use an effect to create the select manager
 	useEffect(() => {
-		if (viewportApi && interactionEngine && settings) {
+		if (settings) {
 			// whenever this output node changes, we want to create the interaction engine
-			if (selection) {
-				const selectMultiple = (selection.props.minimumSelection !== undefined && selection.props.maximumSelection !== undefined) &&
-					selection.props.minimumSelection < selection.props.maximumSelection && selection.props.maximumSelection > 1;
+			const selectMultiple = (settings.minimumSelection !== undefined && settings.maximumSelection !== undefined) &&
+				settings.minimumSelection < settings.maximumSelection && settings.maximumSelection > 1;
 
+			// check if a select manager already exists for the viewport, but with different settings
+			// in this case we need to remove the old select manager and create a new one
+			if (selectManagers[viewportId] && selectManagers[viewportId].selectMultiple !== selectMultiple) {
+				cleanUpSelectManager(viewportId, interactionEngine);
+			}
+
+			if (interactionEngine) {
 				// depending on the settings, create a select manager or a multi select manager
 				if (selectMultiple) {
-					const multiSelect = new MultiSelectManager();
-					multiSelect.effectMaterial = new MaterialStandardData({ color: selection.props.selectionColor || "#0d44f0" });
-					multiSelect.minimumNodes = selection.props.minimumSelection!;
-					multiSelect.maximumNodes = selection.props.maximumSelection!;
-					multiSelect.deselectOnEmpty = false;
-					multiSelect.useModifierKeys = true;
+					const selectManager = new MultiSelectManager();
+					selectManager.effectMaterial = new MaterialStandardData({ color: settings.selectionColor || "#0d44f0" });
+					selectManager.minimumNodes = settings.minimumSelection!;
+					selectManager.maximumNodes = settings.maximumSelection!;
+					selectManager.deselectOnEmpty = false;
+					selectManager.useModifierKeys = true;
 
-					multiSelectManagerTokenRef.current = interactionEngine.addInteractionManager(multiSelect);
-					multiSelectManagerRef.current = multiSelect;
+					const token = interactionEngine.addInteractionManager(selectManager);
+					selectManagers[viewportId] = { selectManager, token, selectMultiple };
 				} else {
-					const select = new SelectManager();
-					select.deselectOnEmpty = false;
-					select.effectMaterial = new MaterialStandardData({ color: selection.props.selectionColor || "#0d44f0" });
-					select.deselectOnEmpty = false;
-					select.useModifierKeys = true;
+					const selectManager = new SelectManager();
+					selectManager.deselectOnEmpty = false;
+					selectManager.effectMaterial = new MaterialStandardData({ color: settings.selectionColor || "#0d44f0" });
+					selectManager.deselectOnEmpty = false;
+					selectManager.useModifierKeys = true;
 
-					selectManagerTokenRef.current = interactionEngine.addInteractionManager(select);
-					selectManagerRef.current = select;
+					const token = interactionEngine.addInteractionManager(selectManager);
+					selectManagers[viewportId] = { selectManager, token, selectMultiple };
 				}
 			}
 		}
 
 		return () => {
 			// clean up the select manager
-			if (selectManagerRef.current) {
-				selectManagerRef.current.deselect();
-				if(selectManagerTokenRef.current && interactionEngine)
-					interactionEngine.removeInteractionManager(selectManagerTokenRef.current);
-				selectManagerTokenRef.current = undefined;
-				selectManagerRef.current = undefined;
-			}
-
-			// clean up the multi select manager
-			if (multiSelectManagerRef.current) {
-				multiSelectManagerRef.current.deselectAll();
-				if(multiSelectManagerTokenRef.current && interactionEngine) 
-					interactionEngine.removeInteractionManager(multiSelectManagerTokenRef.current);
-				multiSelectManagerTokenRef.current = undefined;
-				multiSelectManagerRef.current = undefined;
+			if (selectManagers[viewportId]) {
+				cleanUpSelectManager(viewportId, interactionEngine);
 			}
 		};
-	}, [viewportApi, interactionEngine, settings]);
+	}, [interactionEngine, settings]);
 
 	return {
-		selectManager: selectManagerRef.current,
-		multiSelectManager: multiSelectManagerRef.current
+		selectManager: selectManagers[viewportId]?.selectManager
 	};
 }
 
