@@ -90,17 +90,20 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 		</Text>;
 
 	return <>
-		<ParameterLabelComponent {...props} cancel={onCancel && onCancelCallback} />
-		{
-			definition &&
-			<Button justify="space-between" fullWidth h="100%" disabled={disabled}
-				rightSection={selectionActive ? iconInfo : iconFinger} 
-				bg={selectionActive ? "" : "blue"} 
-				onClick={() => setSelectionActive(!selectionActive)}>
-				<Group justify="space-between" w="100%" pt={"sm"} pb={"sm"}>
-					{selectionActive ? contentActive : contentInactive}
-				</Group>
-			</Button>
-		}
+		<Group>
+			<ParameterLabelComponent {...props} cancel={onCancel && onCancelCallback} />
+			{
+				definition &&
+				<Button justify="space-between" fullWidth h="100%" disabled={disabled}
+					rightSection={selectionActive ? iconInfo : iconFinger}
+					bg={selectionActive ? "" : "blue"}
+					onClick={() => setSelectionActive(!selectionActive)}>
+					<Group justify="space-between" w="100%" pt={"sm"} pb={"sm"}>
+						{selectionActive ? contentActive : contentInactive}
+					</Group>
+				</Button>
+			}
+		</Group>
+		
 	</>;
 }
