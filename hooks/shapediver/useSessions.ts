@@ -34,7 +34,13 @@ export function useSessions(props: IUseSessionDto[]) {
 				const { registerParametersAndExports = true } = dto;
 				if (registerParametersAndExports && api) {
 					/** execute changes immediately if the component is not running in accept/reject mode */
-					addSessionParameters(api, !!dto.acceptRejectMode, dto.jwtToken);
+					addSessionParameters(
+						api, 
+						// in case the session definition defines acceptRejectMode, use it
+						// otherwise fall back to acceptRejectMode defined by the viewer settings
+						dto.acceptRejectMode ?? api.commitParameters, 
+						dto.jwtToken
+					);
 				}
 			});
 		});

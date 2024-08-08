@@ -19,6 +19,9 @@ export interface IUseSessionDto extends SessionCreateDto {
 
 	/**
 	 * Set to true to require confirmation of the user to accept or reject changed parameter values.
+	 * Set to false to disable this confirmation. 
+	 * If undefined, the default stored for the model on the platform or in the model's viewer settings
+	 * will be used.
 	 */
 	acceptRejectMode?: boolean | IAcceptRejectModeSelector;
 }
@@ -49,14 +52,20 @@ export function useSession(props: IUseSessionDto | undefined) {
 			return;
 		}
 
-		const { registerParametersAndExports = true, acceptRejectMode = false } = props;
+		const { registerParametersAndExports = true, acceptRejectMode } = props;
 	
 		promiseChain.current = promiseChain.current.then(async () => {
 			const api = await createSession(props, { onError: setError });
 			setSessionApi(api);
 
 			if (registerParametersAndExports && api) {
-				addSessionParameters(api, acceptRejectMode, props.jwtToken);
+				addSessionParameters(
+					api, 
+					// in case the session definition defines acceptRejectMode, use it
+					// otherwise fall back to acceptRejectMode defined by the viewer settings 
+					acceptRejectMode ?? api.commitParameters, 
+					props.jwtToken
+				);
 			}
 		});
 

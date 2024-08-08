@@ -38,6 +38,10 @@ export default function useResolveAppBuilderSettings(settings : IAppBuilderSetti
 				document.title = `${model?.title ?? model?.slug} | ShapeDiver App Builder`;
 			
 				return {
+					// use the acceptRejectMode setting store on the platform
+					// this can be overridden by the optional acceptRejectMode
+					// setting in session
+					acceptRejectMode: model.settings.parameters_commit,
 					...session, 
 					ticket: model!.ticket!.ticket,
 					modelViewUrl: model!.backend_system!.model_view_url,
@@ -66,7 +70,7 @@ export default function useResolveAppBuilderSettings(settings : IAppBuilderSetti
 
 		return settingsResolved;
 	}, [settings, sdkRef]);
-
+	
 	return {
 		settings: value, 
 		error: platformError ?? error, 

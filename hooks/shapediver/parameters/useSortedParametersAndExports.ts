@@ -16,8 +16,8 @@ interface ParamOrExportDefinition {
 /**
  * Hook providing a sorted list of definitions of parameters and exports, used
  * by {@link ParametersAndExportsAccordionComponent} for creating parameter and export UI components. 
- * @param parameters 
- * @param exports 
+ * @param parameters parameter references
+ * @param exports export references
  * @returns 
  */
 export function useSortedParametersAndExports(parameters?: PropsParameter[], exports?: PropsExport[]) : ParamOrExportDefinition[] {
@@ -31,9 +31,20 @@ export function useSortedParametersAndExports(parameters?: PropsParameter[], exp
 	sortedParamsAndExports = sortedParamsAndExports.concat((parameters ?? []).flatMap(p => {
 		const stores = Object.values(parameterStores[p.sessionId] ?? {});
 		for (const store of stores) {
-			const definition = store.getState().definition;
+			const { definition, acceptRejectMode } = store.getState();
 			if (definition.id === p.parameterId || definition.name === p.parameterId || definition.displayname === p.parameterId)
-				return { parameter: p, definition: {...definition, ...p.overrides} };
+				return { 
+					parameter: { 
+						...p, 
+						// in case the parameter reference defines acceptRejectMode, use it
+						// otherwise fall back to acceptRejectMode given by parameter definition
+						acceptRejectMode: p.acceptRejectMode === undefined ? acceptRejectMode : p.acceptRejectMode
+					}, 
+					definition: {
+						...definition, 
+						...p.overrides
+					} 
+				};
 		}
 
 		return [];

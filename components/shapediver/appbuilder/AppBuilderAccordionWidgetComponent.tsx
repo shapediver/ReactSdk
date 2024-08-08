@@ -21,7 +21,7 @@ export default function AppBuilderAccordionWidgetComponent({ sessionId, paramete
 			sessionId: p.sessionId ?? sessionId, 
 			parameterId: p.name,
 			disableIfDirty: p.disableIfDirty,
-			acceptRejectMode: !!p.acceptRejectMode,
+			acceptRejectMode: p.acceptRejectMode,
 			overrides: p.overrides
 		}; 
 	}), [parameters, sessionId]);

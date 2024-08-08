@@ -1,7 +1,7 @@
 import { IShapeDiverExportDefinition } from "../../shapediver/export";
 import { PropsParameterOrExport } from "./propsCommon";
 
-/** Props of an export. */
+/** Props of an export reference. */
 export interface PropsExport extends PropsParameterOrExport {
 	
 	/**

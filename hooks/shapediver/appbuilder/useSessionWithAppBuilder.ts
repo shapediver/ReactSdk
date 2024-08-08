@@ -31,7 +31,6 @@ export function useSessionWithAppBuilder(props: IUseSessionDto | undefined, appB
 	// start session and register parameters and exports
 	const { sessionApi, error: sessionError } = useSession(props ? {
 		...props,
-		acceptRejectMode: true,
 	} : undefined);
 	const sessionInitialized = !!sessionApi;
 

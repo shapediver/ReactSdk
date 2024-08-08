@@ -2,7 +2,7 @@ import { IShapeDiverParameterDefinition } from "../../shapediver/parameter";
 import { PropsParameterOrExport } from "./propsCommon";
 
 /**
- * Props of a parameter.
+ * Props of a parameter reference.
  */
 export interface PropsParameter extends PropsParameterOrExport {
 
@@ -19,7 +19,7 @@ export interface PropsParameter extends PropsParameterOrExport {
      /** 
       * If true, the component can assume that changes are not executed immediately.
       */
-     readonly acceptRejectMode: boolean,
+     readonly acceptRejectMode?: boolean,
 
      /**
       * Properties of the parameter to be overridden.
