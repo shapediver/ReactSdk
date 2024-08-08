@@ -23,7 +23,7 @@ export function useHoverManagerEvents(pattern: NameFilterPattern): {
 	useEffect(() => {
 		/**
          * Event handler for the hover on event.
-         * In this event handler, the response object is created and the parameter is updated.
+         * In this event handler, the hovered node names are updated.
          */
 		const tokenHoverOn = addListener(EVENTTYPE_INTERACTION.HOVER_ON, async (event: IEvent) => {
 			const hoverEvent = event as InteractionEventResponseMapping[EVENTTYPE_INTERACTION.HOVER_ON];
@@ -38,7 +38,7 @@ export function useHoverManagerEvents(pattern: NameFilterPattern): {
 
 		/**
          * Event handler for the hover off event.
-         * In this event handler, the response object is created and the parameter is updated.
+         * In this event handler, the hovered node names are updated.
          */
 		const tokenHoverOff = addListener(EVENTTYPE_INTERACTION.HOVER_OFF, async (event: IEvent) => {
 			const hoverEvent = event as InteractionEventResponseMapping[EVENTTYPE_INTERACTION.HOVER_OFF];

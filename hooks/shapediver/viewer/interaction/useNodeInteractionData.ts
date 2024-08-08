@@ -119,7 +119,7 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 			Object.keys(nodesWithInteractionData).forEach(key => delete nodesWithInteractionData[key]);
 		};
 		
-	}, [interactionSettings, patterns, additionalUpdateCallback]);
+	}, [patterns, interactionSettings, additionalUpdateCallback, callback, outputNode]);
 
 	return {
 		outputApi,

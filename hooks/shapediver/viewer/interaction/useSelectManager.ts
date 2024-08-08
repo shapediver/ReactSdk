@@ -38,7 +38,7 @@ const cleanUpSelectManager = (viewportId: string, interactionEngine?: Interactio
  * @param viewportId The ID of the viewport.
  * @param settings The settings for the select manager. If the settings are not provided, the select manager will not be created.
  */
-export function useSelectManager(viewportId: string, settings?: ISelectionParameterSettings): {
+export function useSelectManager(viewportId: string, settings?: Pick<ISelectionParameterSettings, "minimumSelection" | "maximumSelection" | "selectionColor">): {
 	/**
 	 * The select manager that was created for the viewport.
 	 * Depending on the settings, this can be a select manager or a multi select manager.

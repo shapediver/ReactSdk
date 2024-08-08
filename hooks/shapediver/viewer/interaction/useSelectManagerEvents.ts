@@ -31,7 +31,7 @@ export function useSelectManagerEvents(pattern: NameFilterPattern): {
 	useEffect(() => {
 		/**
          * Event handler for the select on event.
-         * In this event handler, the response object is created and the parameter is updated.
+         * In this event handler, the selected node names are updated.
          */
 		const tokenSelectOn = addListener(EVENTTYPE_INTERACTION.SELECT_ON, async (event: IEvent) => {
 			const selectEvent = event as InteractionEventResponseMapping[EVENTTYPE_INTERACTION.SELECT_ON];
@@ -46,7 +46,7 @@ export function useSelectManagerEvents(pattern: NameFilterPattern): {
 
 		/**
          * Event handler for the select off event.
-         * In this event handler, the response object is created and the parameter is updated.
+         * In this event handler, the selected node names are updated.
          */
 		const tokenSelectOff = addListener(EVENTTYPE_INTERACTION.SELECT_OFF, async (event: IEvent) => {
 			const selectEvent = event as InteractionEventResponseMapping[EVENTTYPE_INTERACTION.SELECT_OFF];
@@ -61,7 +61,7 @@ export function useSelectManagerEvents(pattern: NameFilterPattern): {
 
 		/**
          * Event handler for the multi select on event.
-         * In this event handler, the response object is created and the parameter is updated.
+         * In this event handler, the selected node names are updated.
          */
 		const tokenMultiSelectOn = addListener(EVENTTYPE_INTERACTION.MULTI_SELECT_ON, async (event: IEvent) => {
 			const multiSelectEvent = event as InteractionEventResponseMapping[EVENTTYPE_INTERACTION.MULTI_SELECT_ON];
@@ -79,7 +79,7 @@ export function useSelectManagerEvents(pattern: NameFilterPattern): {
 
 		/**
          * Event handler for the multi select off event.
-         * In this event handler, the response object is created and the parameter is updated.
+         * In this event handler, the selected node names are updated.
          */
 		const tokenMultiSelectOff = addListener(EVENTTYPE_INTERACTION.MULTI_SELECT_OFF, async (event: IEvent) => {
 			const multiSelectEvent = event as InteractionEventResponseMapping[EVENTTYPE_INTERACTION.MULTI_SELECT_OFF];
