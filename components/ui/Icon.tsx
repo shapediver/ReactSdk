@@ -29,6 +29,8 @@ import {
 	IconFileDownload,
 	IconFileExport,
 	IconFileImport,
+	IconHandFinger,
+	IconInfoCircleFilled,
 	IconKey,
 	IconKeyOff,
 	IconLink,
@@ -154,6 +156,10 @@ const Icon = forwardRef<_TablerIconType, Props>( function Icon({type, size, stro
 		return <IconFileExport {...iconProps} />;
 	case IconTypeEnum.FileImport:
 		return <IconFileImport {...iconProps} />;
+	case IconTypeEnum.IconHandFinger:
+		return <IconHandFinger {...iconProps} />;
+	case IconTypeEnum.IconInfoCircleFilled:
+		return <IconInfoCircleFilled {...iconProps} />;
 	case IconTypeEnum.Key:
 		return <IconKey {...iconProps} />;
 	case IconTypeEnum.KeyOff:

@@ -32,6 +32,8 @@ export enum IconTypeEnum {
 	FileDownload = "file-download",
 	FileExport = "file-export",
 	FileImport = "file-import",
+	IconHandFinger = "icon-hand-finger",
+	IconInfoCircleFilled = "icon-info-circle-filled",
 	Key = "key",
 	KeyOff = "key-off",
 	Link = "link",

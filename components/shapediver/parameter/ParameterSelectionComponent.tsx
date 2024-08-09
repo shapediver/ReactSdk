@@ -3,10 +3,11 @@ import React, { useCallback, useEffect, useState } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
-import { IconHandFinger, IconInfoCircleFilled } from "@tabler/icons-react";
 import { IInteractionParameterSettings, ISelectionParameterSettings, isInteractionSelectionParameterSettings, SelectionParameterValue } from "@shapediver/viewer";
 import { useShapeDiverStoreViewer } from "../../../store/useShapeDiverStoreViewer";
 import { useSelection } from "../../../hooks/shapediver/viewer/interaction/useSelection";
+import { IconTypeEnum } from "../../../types/shapediver/icons";
+import Icon from "../../ui/Icon";
 
 const VIEWPORT_ID = "viewport_1";
 
@@ -71,8 +72,8 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 			onCancel();
 	}, [selectionActive, resetSelectedNodeNames]);
 
-	const iconFinger = <IconHandFinger width={"1.5rem"} height={"1.5rem"} />;
-	const iconInfo = <IconInfoCircleFilled width={"1.5rem"} height={"1.5rem"} />;
+	const iconFinger = <Icon type={IconTypeEnum.IconHandFinger} />;
+	const iconInfo = <Icon type={IconTypeEnum.IconInfoCircleFilled} />;
 	const contentActive =
 		<Group style={{ flexDirection: "column" }} align="left">
 			<Text style={{ textAlign: "left" }} size="sm" fw={500}>
