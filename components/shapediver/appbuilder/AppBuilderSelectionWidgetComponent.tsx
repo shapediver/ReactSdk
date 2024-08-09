@@ -5,10 +5,10 @@ import { IGenericParameterDefinition } from "../../../types/store/shapediverStor
 import { ShapeDiverResponseParameterType } from "@shapediver/sdk.geometry-api-sdk-v2";
 import { useDefineGenericParameters } from "../../../hooks/shapediver/parameters/useDefineGenericParameters";
 import { useId } from "@mantine/hooks";
-import { useParameterStateless } from "shared/hooks/shapediver/parameters/useParameterStateless";
+import { useParameterStateless } from "../../../hooks/shapediver/parameters/useParameterStateless";
 import { useSessionPropsParameter } from "../../../hooks/shapediver/parameters/useSessionPropsParameter";
 import { isInteractionSelectionParameterSettings, SelectionParameterValue } from "@shapediver/viewer";
-import { useSelection } from "shared/hooks/shapediver/viewer/interaction/useSelection";
+import { useSelection } from "../../../hooks/shapediver/viewer/interaction/useSelection";
 
 const VIEWPORT_ID = "viewport_1";
 

@@ -3,7 +3,7 @@ import { Alert, Loader, SimpleGrid } from "@mantine/core";
 import ModelCard, { IModelCardProps } from "./ModelCard";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 import { useShapeDiverStorePlatformModels } from "../../../store/useShapeDiverStorePlatformModels";
-import { TModelQueryProps } from "shared/types/store/shapediverStorePlatformModels";
+import { TModelQueryProps } from "../../../types/store/shapediverStorePlatformModels";
 import { useShallow } from "zustand/react/shallow";
 
 export interface IModelLibraryProps extends TModelQueryProps {

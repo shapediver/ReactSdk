@@ -6,7 +6,7 @@ import ParameterSelectComponent from "../../../components/shapediver/parameter/P
 import ParameterColorComponent from "../../../components/shapediver/parameter/ParameterColorComponent";
 import ParameterFileInputComponent from "../../../components/shapediver/parameter/ParameterFileInputComponent";
 import ParameterLabelComponent from "../../../components/shapediver/parameter/ParameterLabelComponent";
-import ParameterSelectionComponent from "shared/components/shapediver/parameter/ParameterSelectionComponent";
+import ParameterSelectionComponent from "../../../components/shapediver/parameter/ParameterSelectionComponent";
 import { IShapeDiverParamOrExportDefinition } from "../../shapediver/common";
 import ExportButtonComponent from "../../../components/shapediver/exports/ExportButtonComponent";
 import ExportLabelComponent from "../../../components/shapediver/exports/ExportLabelComponent";

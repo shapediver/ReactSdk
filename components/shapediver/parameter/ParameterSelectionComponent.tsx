@@ -5,8 +5,8 @@ import { PropsParameter } from "../../../types/components/shapediver/propsParame
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
 import { IconHandFinger, IconInfoCircleFilled } from "@tabler/icons-react";
 import { IInteractionParameterSettings, ISelectionParameterSettings, isInteractionSelectionParameterSettings, SelectionParameterValue } from "@shapediver/viewer";
-import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
-import { useSelection } from "shared/hooks/shapediver/viewer/interaction/useSelection";
+import { useShapeDiverStoreViewer } from "../../../store/useShapeDiverStoreViewer";
+import { useSelection } from "../../../hooks/shapediver/viewer/interaction/useSelection";
 
 const VIEWPORT_ID = "viewport_1";
 

@@ -1,4 +1,4 @@
-import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
+import { useShapeDiverStoreViewer } from "../../../../store/useShapeDiverStoreViewer";
 import { NameFilterPattern, processPattern } from "./utils/patternUtils";
 import { useState, useEffect } from "react";
 

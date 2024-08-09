@@ -6,7 +6,7 @@ import { useSelectManagerEvents } from "./useSelectManagerEvents";
 import { useSelectManager } from "./useSelectManager";
 import { useHoverManager } from "./useHoverManager";
 import { useCreateNameFilterPattern } from "./useCreateNameFilterPattern";
-import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
+import { useShapeDiverStoreViewer } from "../../../../store/useShapeDiverStoreViewer";
 import { useNodeInteractionData } from "./useNodeInteractionData";
 
 // #region Functions (1)

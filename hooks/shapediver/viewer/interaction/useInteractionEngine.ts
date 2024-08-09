@@ -1,6 +1,6 @@
 import { InteractionEngine } from "@shapediver/viewer.features.interaction";
 import { useEffect } from "react";
-import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
+import { useShapeDiverStoreViewer } from "../../../../store/useShapeDiverStoreViewer";
 
 // #region Functions (1)
 
