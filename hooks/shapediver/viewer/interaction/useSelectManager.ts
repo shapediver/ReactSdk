@@ -22,9 +22,9 @@ const selectManagers: { [key: string]: {
 const cleanUpSelectManager = (viewportId: string, interactionEngine?: InteractionEngine) => {
 	if (selectManagers[viewportId]) {
 		if (selectManagers[viewportId].selectManager instanceof SelectManager) {
-			selectManagers[viewportId].selectManager.deselect();
+			(selectManagers[viewportId].selectManager as SelectManager).deselect();
 		} else if (selectManagers[viewportId].selectManager instanceof MultiSelectManager) {
-			selectManagers[viewportId].selectManager.deselectAll();
+			(selectManagers[viewportId].selectManager as MultiSelectManager).deselectAll();
 		}
 		if(interactionEngine)
 			interactionEngine.removeInteractionManager(selectManagers[viewportId].token);
