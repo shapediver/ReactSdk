@@ -1,4 +1,4 @@
-import { IOutputApi, ITreeNode } from "@shapediver/viewer";
+import { GeometryData, IOutputApi, ITreeNode } from "@shapediver/viewer";
 import { useCallback, useEffect } from "react";
 import { IInteractionData, InteractionData } from "@shapediver/viewer.features.interaction";
 import { useOutputNode } from "../useOutputNode";
@@ -70,28 +70,46 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 			}
 		};
 
+		/**
+		 * Add interaction data to the node.
+		 * 
+		 * If the node already has interaction data, the function will remove the interaction data and add the new interaction data.
+		 * Then the function will update the version of the node.
+		 * 
+		 * @param node 
+		 * @param interactionDataSettings 
+		 */
+		const addInteractionData = (node: ITreeNode, interactionDataSettings: { select?: boolean, hover?: boolean, drag?: boolean}) => {
+			// remove the interaction data if it already exists
+			if (nodesWithInteractionData[node.id]) {
+				nodesWithInteractionData[node.id].node.removeData(nodesWithInteractionData[node.id].data);
+				delete nodesWithInteractionData[node.id];
+			}
+
+			// add the interaction data to the node
+			const interactionData = new InteractionData(interactionDataSettings);
+			node.addData(interactionData);
+			node.updateVersion();
+			nodesWithInteractionData[node.id] = { node, data: interactionData };
+		};
+
 		// if there are patterns, begin the check
 		if (patterns && interactionSettings) {
 			for (const pattern of patterns) {
-				const nodes: ITreeNode[] = [];
-				checkNode(node, pattern, 0, nodes);
-				nodes.forEach(node => {
-					// remove the interaction data if it already exists
-					if (nodesWithInteractionData[node.id]) {
-						nodesWithInteractionData[node.id].node.removeData(nodesWithInteractionData[node.id].data);
-						delete nodesWithInteractionData[node.id];
-					}
-
-					// add the interaction data to the node
-					const interactionData = new InteractionData({
-						select: interactionSettings.select,
-						hover: interactionSettings.hover,
-						drag: interactionSettings.drag
+				// special case: if there is only one pattern and it is allows anything, we enable selection on the lowest level
+				if(pattern.length === 1 && pattern[0] === ".*") {
+					node.traverse(node => {
+						if (node.data.some(data => data instanceof GeometryData)) {
+							addInteractionData(node, interactionSettings);
+						}
 					});
-					node.addData(interactionData);
-					node.updateVersion();
-					nodesWithInteractionData[node.id] = { node, data: interactionData };
-				});
+				} else {
+					const nodes: ITreeNode[] = [];
+					checkNode(node, pattern, 0, nodes);
+					nodes.forEach(node => {
+						addInteractionData(node, interactionSettings);
+					});
+				}
 			}
 		}
 
