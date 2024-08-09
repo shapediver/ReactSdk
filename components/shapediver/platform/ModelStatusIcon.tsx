@@ -3,7 +3,7 @@ import { SdPlatformModelVisibility, SdPlatformResponseModelPublic } from "@shape
 import React, { useMemo } from "react";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import Icon from "../../ui/Icon";
-import ToggleIcon from "shared/components/ui/ToggleIcon";
+import ToggleIcon from "../../../components/ui/ToggleIcon";
 import { TModelItem } from "../../../types/store/shapediverStorePlatformModels";
 
 interface Props {
