@@ -1,5 +1,5 @@
 import { Button, Group, Text } from "@mantine/core";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
@@ -63,13 +63,13 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 	/**
 	 * Callback function for the cancel button.
 	 */
-	const onCancelCallback: (() => void) | undefined = () => {
+	const onCancelCallback = useCallback(() => {
 		setSelectionActive(false);
 		resetSelectedNodeNames();
 		
 		if(onCancel)
 			onCancel();
-	};
+	}, [selectionActive, resetSelectedNodeNames]);
 
 	const iconFinger = <IconHandFinger width={"1.5rem"} height={"1.5rem"} />;
 	const iconInfo = <IconInfoCircleFilled width={"1.5rem"} height={"1.5rem"} />;
@@ -91,7 +91,7 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 
 	return <>
 		<Group>
-			<ParameterLabelComponent {...props} cancel={onCancel && onCancelCallback} />
+			<ParameterLabelComponent {...props} cancel={selectionActive ? onCancel && onCancelCallback : undefined} />
 			{
 				definition &&
 				<Button justify="space-between" fullWidth h="100%" disabled={disabled}
