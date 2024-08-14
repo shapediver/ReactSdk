@@ -157,8 +157,7 @@ function createParameterStore<T>(executor: IShapeDiverParameterExecutor<T>, acce
 			},
 			execute: async function (forceImmediate?: boolean): Promise<T | string> {
 				const state = get().state;
-				const acceptRejectMode = get().acceptRejectMode;
-				const result = await executor.execute(state.uiValue, state.execValue, forceImmediate || !acceptRejectMode);
+				const result = await executor.execute(state.uiValue, state.execValue, forceImmediate);
 				// TODO in case result is not the current uiValue, we could somehow visualize
 				// the fact that the uiValue gets reset here
 				set((_state) => ({
