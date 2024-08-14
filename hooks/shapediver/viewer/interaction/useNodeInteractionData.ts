@@ -1,14 +1,10 @@
-import { GeometryData, IOutputApi, ITreeNode } from "@shapediver/viewer";
-import { useCallback, useEffect } from "react";
+import { gatherNodesForPattern } from "./utils/patternUtils";
 import { IInteractionData, InteractionData } from "@shapediver/viewer.features.interaction";
+import { IOutputApi, ITreeNode } from "@shapediver/viewer";
+import { useCallback, useEffect } from "react";
 import { useOutputNode } from "../useOutputNode";
 
-/**
- * Dictionary to store the nodes with interaction data.
- * 
- * We need to store the nodes with interaction data to be able to remove the interaction data when the hook is unmounted.
- */
-const nodesWithInteractionData: { [key: string]: { node: ITreeNode, data: IInteractionData } } = {};
+// #region Functions (1)
 
 /**
  * Hook adding interaction data to the nodes of an output.
@@ -25,7 +21,7 @@ const nodesWithInteractionData: { [key: string]: { node: ITreeNode, data: IInter
  * 
  * @returns 
  */
-export function useNodeInteractionData(sessionId: string, outputIdOrName: string, patterns?: string[][], interactionSettings?: { select?: boolean, hover?: boolean, drag?: boolean }, additionalUpdateCallback?: (newNode?: ITreeNode, oldNode?: ITreeNode) => Promise<void> | void) : {
+export function useNodeInteractionData(sessionId: string, outputIdOrName: string, patterns?: string[][], interactionSettings?: { select?: boolean, hover?: boolean, drag?: boolean }, additionalUpdateCallback?: (newNode?: ITreeNode, oldNode?: ITreeNode) => Promise<void> | void): {
 	/**
 	 * API of the output
 	 * @see https://viewer.shapediver.com/v3/latest/api/interfaces/IOutputApi.html
@@ -43,32 +39,7 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 	 * @param node
 	 */
 	const callback = useCallback((node?: ITreeNode) => {
-		if(!node) return;
-		/**
-		 * Check if the node matches the pattern and add interaction data if it does.
-		 * 
-		 * For each pattern, the function will check if the node name matches the pattern.
-		 * If the node name matches the pattern, the function will check the children of the node.
-		 * Only if the node name matches the last pattern, the interaction data will be added.
-		 * 
-		 * @param node The node to check.
-		 * @param pattern The pattern to check.
-		 * @param count The current count of the pattern.
-		 * @param result The result array. 
-		 */
-		const checkNode = (node: ITreeNode, pattern: string[], count: number, result: ITreeNode[] = []): void => {
-			if(new RegExp(`^${pattern[count]}$`).test(node.name)) {
-				if(count === pattern.length - 1) result.push(node);
-
-				for(const child of node.children) {
-					checkNode(child, pattern, count === pattern.length - 1 ? 0 : count + 1, result);
-				}
-			} else {
-				for(const child of node.children) {
-					checkNode(child, pattern, 0, result);
-				}
-			}
-		};
+		if (!node) return;
 
 		/**
 		 * Add interaction data to the node.
@@ -79,7 +50,7 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 		 * @param node 
 		 * @param interactionDataSettings 
 		 */
-		const addInteractionData = (node: ITreeNode, interactionDataSettings: { select?: boolean, hover?: boolean, drag?: boolean}) => {
+		const addInteractionData = (node: ITreeNode, interactionDataSettings: { select?: boolean, hover?: boolean, drag?: boolean }) => {
 			// remove the interaction data if it already exists
 			if (nodesWithInteractionData[node.id]) {
 				nodesWithInteractionData[node.id].node.removeData(nodesWithInteractionData[node.id].data);
@@ -96,28 +67,18 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 		// if there are patterns, begin the check
 		if (patterns && interactionSettings) {
 			for (const pattern of patterns) {
-				// special case: if there is only one pattern and it is allows anything, we enable selection on the lowest level
-				if(pattern.length === 1 && pattern[0] === ".*") {
-					node.traverse(node => {
-						if (node.data.some(data => data instanceof GeometryData)) {
-							addInteractionData(node, interactionSettings);
-						}
-					});
-				} else {
-					const nodes: ITreeNode[] = [];
-					checkNode(node, pattern, 0, nodes);
-					nodes.forEach(node => {
-						addInteractionData(node, interactionSettings);
-					});
-				}
+				const nodes: ITreeNode[] = [];
+				gatherNodesForPattern(node, pattern, 0, nodes);
+				nodes.forEach(node => {
+					addInteractionData(node, interactionSettings);
+				});
 			}
 		}
 
 		// call the additional update callback
-		if(additionalUpdateCallback)
+		if (additionalUpdateCallback)
 			additionalUpdateCallback(node);
-	}, [patterns, interactionSettings, additionalUpdateCallback] );
-	
+	}, [patterns, interactionSettings, additionalUpdateCallback]);
 
 	// define the node update callback
 	const { outputApi, outputNode } = useOutputNode(sessionId, outputIdOrName, callback);
@@ -128,7 +89,7 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 
 		return () => {
 			// remove the interaction data from the nodes
-			for(const id in nodesWithInteractionData) {
+			for (const id in nodesWithInteractionData) {
 				const { node, data } = nodesWithInteractionData[id];
 				node.removeData(data);
 				node.updateVersion();
@@ -136,7 +97,7 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 			// clear the dictionary
 			Object.keys(nodesWithInteractionData).forEach(key => delete nodesWithInteractionData[key]);
 		};
-		
+
 	}, [patterns, interactionSettings, additionalUpdateCallback, callback, outputNode]);
 
 	return {
@@ -144,3 +105,16 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 		outputNode
 	};
 }
+
+// #endregion Functions (1)
+
+// #region Variables (1)
+
+/**
+ * Dictionary to store the nodes with interaction data.
+ * 
+ * We need to store the nodes with interaction data to be able to remove the interaction data when the hook is unmounted.
+ */
+const nodesWithInteractionData: { [key: string]: { node: ITreeNode, data: IInteractionData } } = {};
+
+// #endregion Variables (1)
