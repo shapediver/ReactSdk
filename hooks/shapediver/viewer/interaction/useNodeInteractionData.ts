@@ -41,29 +41,6 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 	const callback = useCallback((node?: ITreeNode) => {
 		if (!node) return;
 
-		/**
-		 * Add interaction data to the node.
-		 * 
-		 * If the node already has interaction data, the function will remove the interaction data and add the new interaction data.
-		 * Then the function will update the version of the node.
-		 * 
-		 * @param node 
-		 * @param interactionDataSettings 
-		 */
-		const addInteractionData = (node: ITreeNode, interactionDataSettings: { select?: boolean, hover?: boolean, drag?: boolean }) => {
-			// remove the interaction data if it already exists
-			if (nodesWithInteractionData[node.id]) {
-				nodesWithInteractionData[node.id].node.removeData(nodesWithInteractionData[node.id].data);
-				delete nodesWithInteractionData[node.id];
-			}
-
-			// add the interaction data to the node
-			const interactionData = new InteractionData(interactionDataSettings);
-			node.addData(interactionData);
-			node.updateVersion();
-			nodesWithInteractionData[node.id] = { node, data: interactionData };
-		};
-
 		// if there are patterns, begin the check
 		if (patterns && interactionSettings) {
 			for (const pattern of patterns) {
@@ -108,7 +85,7 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 
 // #endregion Functions (1)
 
-// #region Variables (1)
+// #region Variables (2)
 
 /**
  * Dictionary to store the nodes with interaction data.
@@ -117,4 +94,27 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
  */
 const nodesWithInteractionData: { [key: string]: { node: ITreeNode, data: IInteractionData } } = {};
 
-// #endregion Variables (1)
+/**
+ * Add interaction data to the node.
+ * 
+ * If the node already has interaction data, the function will remove the interaction data and add the new interaction data.
+ * Then the function will update the version of the node.
+ * 
+ * @param node 
+ * @param interactionDataSettings 
+ */
+const addInteractionData = (node: ITreeNode, interactionDataSettings: { select?: boolean, hover?: boolean, drag?: boolean }) => {
+	// remove the interaction data if it already exists
+	if (nodesWithInteractionData[node.id]) {
+		nodesWithInteractionData[node.id].node.removeData(nodesWithInteractionData[node.id].data);
+		delete nodesWithInteractionData[node.id];
+	}
+
+	// add the interaction data to the node
+	const interactionData = new InteractionData(interactionDataSettings);
+	node.addData(interactionData);
+	node.updateVersion();
+	nodesWithInteractionData[node.id] = { node, data: interactionData };
+};
+
+// #endregion Variables (2)
