@@ -17,6 +17,13 @@ export function useSelectManagerEvents(pattern: NameFilterPattern): {
 	 */
     selectedNodeNames: string[],
 	/**
+	 * Set the selected node names.
+	 * 
+	 * @param names 
+	 * @returns 
+	 */
+	setSelectedNodeNames: (names: string[]) => void,
+	/**
 	 * Callback function to reset the selected node names.
 	 * 
 	 * @returns 
@@ -69,7 +76,6 @@ export function useSelectManagerEvents(pattern: NameFilterPattern): {
 			// We ignore the event if it's not based on an event triggered by the UI.
 			if (!multiSelectEvent.event) return;
 
-			if (multiSelectEvent.nodes.length < (multiSelectEvent.manager as MultiSelectManager).minimumNodes) return;
 			if (multiSelectEvent.nodes.length > (multiSelectEvent.manager as MultiSelectManager).maximumNodes) return;
 
 			const selected = multiSelectEvent.nodes;
@@ -86,9 +92,6 @@ export function useSelectManagerEvents(pattern: NameFilterPattern): {
 
 			// We ignore the event if it's not based on an event triggered by the UI.
 			if (!multiSelectEvent.event) return;
-
-			if (multiSelectEvent.nodes.length < (multiSelectEvent.manager as MultiSelectManager).minimumNodes) return;
-			if (multiSelectEvent.nodes.length > (multiSelectEvent.manager as MultiSelectManager).maximumNodes) return;
 
 			// remove the node from the selected nodes
 			const selected = multiSelectEvent.nodes;
@@ -107,8 +110,8 @@ export function useSelectManagerEvents(pattern: NameFilterPattern): {
 			if (!multiSelectEvent.event) return;
 
 			notifications.show({
-				title: "Maximum Number of Nodes reached",
-				message: `Expected ${(multiSelectEvent.manager as MultiSelectManager).maximumNodes} nodes, got ${multiSelectEvent.nodes.length} nodes.`
+				title: "Maximum number of objects has already been selected",
+				message: `Expected ${(multiSelectEvent.manager as MultiSelectManager).maximumNodes} objects, but selected ${multiSelectEvent.nodes.length + 1} objects instead.`
 			});
 		});
 
@@ -126,6 +129,7 @@ export function useSelectManagerEvents(pattern: NameFilterPattern): {
 
 	return {
 		selectedNodeNames,
+		setSelectedNodeNames,
 		resetSelectedNodeNames
 	};
 }

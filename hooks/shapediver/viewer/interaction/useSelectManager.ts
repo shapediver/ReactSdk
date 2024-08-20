@@ -53,7 +53,7 @@ export function useSelectManager(viewportId: string, settings?: Pick<ISelectionP
 		if (settings) {
 			// whenever this output node changes, we want to create the interaction engine
 			const selectMultiple = (settings.minimumSelection !== undefined && settings.maximumSelection !== undefined) &&
-				settings.minimumSelection < settings.maximumSelection && settings.maximumSelection > 1;
+				settings.minimumSelection <= settings.maximumSelection && settings.maximumSelection > 1;
 
 			// check if a select manager already exists for the viewport, but with different settings
 			// in this case we need to remove the old select manager and create a new one
@@ -69,16 +69,13 @@ export function useSelectManager(viewportId: string, settings?: Pick<ISelectionP
 					selectManager.minimumNodes = settings.minimumSelection!;
 					selectManager.maximumNodes = settings.maximumSelection!;
 					selectManager.deselectOnEmpty = false;
-					selectManager.useModifierKeys = true;
 
 					const token = interactionEngine.addInteractionManager(selectManager);
 					selectManagers[viewportId] = { selectManager, token, selectMultiple };
 				} else {
 					const selectManager = new SelectManager();
-					selectManager.deselectOnEmpty = false;
 					selectManager.effectMaterial = new MaterialStandardData({ color: settings.selectionColor || "#0d44f0" });
 					selectManager.deselectOnEmpty = false;
-					selectManager.useModifierKeys = true;
 
 					const token = interactionEngine.addInteractionManager(selectManager);
 					selectManagers[viewportId] = { selectManager, token, selectMultiple };
