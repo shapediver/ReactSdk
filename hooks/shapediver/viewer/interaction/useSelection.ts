@@ -42,7 +42,7 @@ export function useSelection(sessionId: string, viewportId: string, settings?: I
 	const { selectManager } = useSelectManager(viewportId, selectionSettings);
 	// call the hover manager hook
 	useHoverManager(viewportId, hoverSettings);
-
+	
 	// call the process pattern hook
 	const { pattern } = useCreateNameFilterPattern(sessionId, settings?.props.nameFilter);
 	// call the select manager events hook
@@ -61,7 +61,7 @@ export function useSelection(sessionId: string, viewportId: string, settings?: I
 			// deselect all nodes
 			node.traverse(n => {
 				const interactionData = n.data.find(d => d instanceof InteractionData) as InteractionData;
-				if (interactionData)
+				if (interactionData && interactionData.interactionStates.select === true)
 					selectManager?.deselect(n);
 			});
 
@@ -75,14 +75,21 @@ export function useSelection(sessionId: string, viewportId: string, settings?: I
 					if (!outputApi) return;
 					if (outputApi.api.name !== parts[0]) return;
 
-					// if the node name matches the pattern, select the node
-					node.traverse(n => {
-						if (n.getPath().endsWith(parts.slice(1).join("."))) {
-							const interactionData = n.data.find(d => d instanceof InteractionData) as InteractionData;
-							if (interactionData) 
-								selectManager?.select({ distance: i, point: vec3.create(), node: n });
-						}
-					});
+					if(parts.length === 1) {
+						// special case if only the output name is given
+						const interactionData = node.data.find(d => d instanceof InteractionData) as InteractionData;
+						if (interactionData) 
+							selectManager?.select({ distance: i, point: vec3.create(), node });
+					} else {
+						// if the node name matches the pattern, select the node
+						node.traverse(n => {
+							if (n.getPath().endsWith(parts.slice(1).join("."))) {
+								const interactionData = n.data.find(d => d instanceof InteractionData) as InteractionData;
+								if (interactionData)
+									selectManager?.select({ distance: i, point: vec3.create(), node: n });
+							}
+						});
+					}
 				});
 			}
 		}

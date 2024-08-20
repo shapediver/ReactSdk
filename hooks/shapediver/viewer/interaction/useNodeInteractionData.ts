@@ -45,7 +45,11 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 		if (patterns && interactionSettings) {
 			for (const pattern of patterns) {
 				const nodes: ITreeNode[] = [];
-				gatherNodesForPattern(node, pattern, 0, nodes);
+				if(pattern.length === 0) {
+					nodes.push(node);
+				} else {
+					gatherNodesForPattern(node, pattern, 0, nodes);
+				}
 				nodes.forEach(node => {
 					addInteractionData(node, interactionSettings);
 				});

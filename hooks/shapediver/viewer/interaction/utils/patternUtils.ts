@@ -1,4 +1,4 @@
-import { IOutputApi, ITreeNode, OutputApiData } from '@shapediver/viewer';
+import { IOutputApi, ITreeNode, OutputApiData } from "@shapediver/viewer";
 
 /**
  * The type for the name filter pattern.
@@ -77,23 +77,16 @@ export const processPattern = (nameFilter: string[], outputIdsToNamesMapping: { 
 		[key: string]: string[][];
 	} = {};
 
-	// create an object where the key is the output name and the value is an array of the output Ids
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const outputNamesToIdsMapping = Object.entries(outputIdsToNamesMapping).reduce((acc, [id, name]) => {
-		if (!acc[name]) acc[name] = [];
-		acc[name].push(id);
-
-		return acc;
-	}, {} as { [key: string]: string[] });
-
 	// we iterate over the name filter array
 	// we store the result with the output ID as the key and an array of patterns as the value
 	for (let i = 0; i < nameFilter.length; i++) {
 		const parts = nameFilter[i].split(".");
 		const outputName = parts[0];
 
+		// replace the "*" with ".*" to create a regex pattern
+		const outputNameRegex = new RegExp(`^${outputName.replace(/\*/g, ".*")}$`);
 		// find the output Ids that match the output name
-		const outputIds = outputNamesToIdsMapping[outputName] ?? [];
+		const outputIds = Object.entries(outputIdsToNamesMapping).filter(([, name]) => outputNameRegex.test(name)).map(([id]) => id);
 
 		// we iterate over the output mappings
 		for (const outputId of outputIds) {
@@ -188,9 +181,14 @@ export const processNodes = (patterns: NameFilterPattern = {}, nodes: ITreeNode[
 
 		// check if the path matches the pattern and return the first match
 		for (const pattern of patterns[outputApi.id] ?? []) {
-			// create a regex pattern from the pattern array, join the array with dot
-			const match = originalNames.join(".").match(pattern.join("\\."));
-			if (match) return outputApi.name + "." + match[0];
+			if(pattern.length === 0) {
+				// special case, just the output name was provided
+				return outputApi.name;
+			} else {
+				// create a regex pattern from the pattern array, join the array with dot
+				const match = originalNames.join(".").match(pattern.join("\\."));
+				if (match) return outputApi.name + "." + match[0];
+			}
 		}
 	};
 
