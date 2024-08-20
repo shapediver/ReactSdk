@@ -22,6 +22,45 @@ import { IOutputApi, ITreeNode, OutputApiData } from "@shapediver/viewer";
 export type NameFilterPattern = { [key: string]: string[][] };
 
 /**
+ * The black list of node names that should be ignored.
+ * 
+ * These node names will be ignored when checking the node names.
+ * These names are used in the ShapeDiver GH plugin for certain operations.
+ */
+const nodeNameBlackList = ["TransformZUpToYUp", "no_transformations"];
+
+/**
+ * Check if the node matches the pattern and add interaction data if it does.
+ * 
+ * For each pattern, the scene tree is traversed to find the nodes that match the pattern.
+ * We check hierarchically if the node names match the pattern parts.
+ * If a node (and it's parents) match the full pattern, we add the interaction data to the node.
+ * 
+ * @param node The node to check.
+ * @param pattern The pattern to check.
+ * @param count The current count of the pattern.
+ * @param result The result array. 
+ */
+export const gatherNodesForPattern = (node: ITreeNode, pattern: string[], count: number, result: ITreeNode[] = []): void => {
+	// if there is no original name or the node name is in the black list, ignore the node
+	if (!node.originalName || nodeNameBlackList.includes(node.originalName)) {
+		for (const child of node.children) {
+			gatherNodesForPattern(child, pattern, 0, result);
+		}
+	}
+	// if the original name matches the pattern, check the children
+	else if (node.originalName && new RegExp(`^${pattern[count]}$`).test(node.originalName)) {
+		if (count === pattern.length - 1) {
+			result.push(node);
+		} else {
+			for (const child of node.children) {
+				gatherNodesForPattern(child, pattern, count + 1, result);
+			}
+		}
+	}
+};
+
+/**
  * Process the nameFilter and update the pattern.
  * 
  * The name filter is an array of strings where each string is a pattern to match the node names.
@@ -38,26 +77,19 @@ export const processPattern = (nameFilter: string[], outputIdsToNamesMapping: { 
 		[key: string]: string[][];
 	} = {};
 
-	// create an object where the key is the output name and the value is an array of the output Ids
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const outputNamesToIdsMapping = Object.entries(outputIdsToNamesMapping).reduce((acc, [id, name]) => {
-		if (!acc[name]) acc[name] = [];
-		acc[name].push(id);
-
-		return acc;
-	}, {} as { [key: string]: string[] });
-
 	// we iterate over the name filter array
 	// we store the result with the output ID as the key and an array of patterns as the value
 	for (let i = 0; i < nameFilter.length; i++) {
 		const parts = nameFilter[i].split(".");
 		const outputName = parts[0];
-		
+
+		// replace the "*" with ".*" to create a regex pattern
+		const outputNameRegex = new RegExp(`^${outputName.replace(/\*/g, ".*")}$`);
 		// find the output Ids that match the output name
-		const outputIds = outputNamesToIdsMapping[outputName] ?? [];
-		
+		const outputIds = Object.entries(outputIdsToNamesMapping).filter(([, name]) => outputNameRegex.test(name)).map(([id]) => id);
+
 		// we iterate over the output mappings
-		for(const outputId of outputIds) {
+		for (const outputId of outputIds) {
 			// create a regex pattern from the other parts of the array
 			// replace all "*" with ".*"
 			const patternArray = parts.slice(1).map(part => part.replace(/\*/g, ".*"));
@@ -69,6 +101,53 @@ export const processPattern = (nameFilter: string[], outputIdsToNamesMapping: { 
 	}
 
 	return pattern;
+};
+
+/**
+ * Traverse the node hierarchy up to find the output API data.
+ * Return the node that contains the output API data and the output API.
+ * 
+ * @param node The node to start the search from.
+ * @returns The node that contains the output API data and the output API.
+ */
+const findOutputApiAndNode = (node: ITreeNode): {
+	node: ITreeNode,
+	outputApi: IOutputApi
+} | undefined => {
+	let tempNode = node;
+	while (tempNode && tempNode.parent) {
+		// find the output API data in the node
+		const outputApiData = tempNode.data.find((data) => data instanceof OutputApiData) as OutputApiData | undefined;
+		if (outputApiData) {
+			return {
+				node: tempNode,
+				outputApi: outputApiData.api
+			};
+		}
+		tempNode = tempNode.parent;
+	}
+};
+
+/**
+ * Get the original names of the node hierarchy.
+ * 
+ * We traverse the parent nodes and get the original names of the nodes.
+ * We ignore the names that are in the black list.
+ * 
+ * @param node The node to start the search from.
+ * @returns The original names of the node hierarchy.
+ */
+const getOriginalNames = (node: ITreeNode): string[] => {
+	const names: string[] = [];
+	let tempNode: ITreeNode | undefined = node;
+	while (tempNode) {
+		if (!tempNode.originalName) break;
+		if (!nodeNameBlackList.includes(tempNode.originalName))
+			names.push(tempNode.originalName);
+		tempNode = tempNode.parent;
+	}
+
+	return names.reverse();
 };
 
 /**
@@ -84,33 +163,6 @@ export const processPattern = (nameFilter: string[], outputIdsToNamesMapping: { 
  * @returns The names of the nodes that match the pattern.
  */
 export const processNodes = (patterns: NameFilterPattern = {}, nodes: ITreeNode[] = []): string[] => {
-
-	/**
-	 * Traverse the node hierarchy up to find the output API data.
-	 * Return the node that contains the output API data and the output API.
-	 * 
-	 * @param node The node to start the search from.
-	 * @returns The node that contains the output API data and the output API.
-	 */
-	const findOutputApiAndNode = (node: ITreeNode): {
-		node: ITreeNode,
-		outputApi: IOutputApi
-	} | undefined => {
-		let tempNode = node;
-		while (tempNode && tempNode.parent) {
-			// find the output API data in the node
-			const outputApiData = tempNode.data.find((data) => data instanceof OutputApiData) as OutputApiData | undefined;
-			if (outputApiData) {
-				return {
-					node: tempNode,
-					outputApi: outputApiData.api
-				};
-			}
-			tempNode = tempNode.parent;
-		}
-	};
-
-
 	/**
 	 * Get the output and the node name from the node.
 	 * First, we find the output API and the node that contains the output API data.
@@ -122,15 +174,21 @@ export const processNodes = (patterns: NameFilterPattern = {}, nodes: ITreeNode[
 	const getOutputAndNodeNameFromNode = (node: ITreeNode): string | undefined => {
 		const outputApiAndNode = findOutputApiAndNode(node);
 		if (!outputApiAndNode) return;
-		const { node: outputNode, outputApi} = outputApiAndNode;
+		const { outputApi } = outputApiAndNode;
 
-		// replace the output node path from the node path to get the path relative to the output node
-		const path = node.getPath().replace(outputNode.getPath(), "");
+		// create an array of the names of the node hierarchy, only consisting of original names
+		const originalNames = getOriginalNames(node);
+
 		// check if the path matches the pattern and return the first match
-		for(const pattern of patterns[outputApi.id] ?? []) {
-			// create a regex pattern from the pattern array, join the array with dot
-			const match = path.match(pattern.join("\\."));
-			if (match) return outputApi.name + "." + match[0];
+		for (const pattern of patterns[outputApi.id] ?? []) {
+			if(pattern.length === 0) {
+				// special case, just the output name was provided
+				return outputApi.name;
+			} else {
+				// create a regex pattern from the pattern array, join the array with dot
+				const match = originalNames.join(".").match(pattern.join("\\."));
+				if (match) return outputApi.name + "." + match[0];
+			}
 		}
 	};
 
