@@ -20,7 +20,14 @@ export function useSelection(sessionId: string, viewportId: string, settings?: I
 	/**
 	 * The selected node names.
 	 */
-    selectedNodes: string[],
+    selectedNodeNames: string[],
+	/**
+	 * Set the selected node names.
+	 * 
+	 * @param names 
+	 * @returns 
+	 */
+	setSelectedNodeNames: (names: string[]) => void,
 	/**
 	 * Callback function to reset the selected node names.
 	 * 
@@ -46,7 +53,7 @@ export function useSelection(sessionId: string, viewportId: string, settings?: I
 	// call the process pattern hook
 	const { pattern } = useCreateNameFilterPattern(sessionId, settings?.props.nameFilter);
 	// call the select manager events hook
-	const { selectedNodeNames, resetSelectedNodeNames } = useSelectManagerEvents(pattern);
+	const { selectedNodeNames, setSelectedNodeNames, resetSelectedNodeNames } = useSelectManagerEvents(pattern);
 
 	/**
 	 * Callback function for the node interaction.
@@ -103,7 +110,8 @@ export function useSelection(sessionId: string, viewportId: string, settings?: I
 	}
 
 	return {
-		selectedNodes: selectedNodeNames,
+		selectedNodeNames,
+		setSelectedNodeNames,
 		resetSelectedNodeNames
 	};
 }
