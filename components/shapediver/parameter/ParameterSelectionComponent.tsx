@@ -1,4 +1,4 @@
-import { Button, Group, Loader, Text } from "@mantine/core";
+import { Button, Group, Loader, Space, Stack, Text } from "@mantine/core";
 import React, { useCallback, useEffect, useState } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
@@ -49,7 +49,7 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 		setAcceptableValue(acceptable);
 
 		// case where the confirm/cancel buttons are not needed
-		if(minimumSelection === maximumSelection && acceptable) {
+		if (minimumSelection === maximumSelection && acceptable) {
 			setSelectionActive(false);
 			const parameterValue: SelectionParameterValue = { names: selectedNodeNames };
 			actions.setUiValue(JSON.stringify(parameterValue));
@@ -100,46 +100,44 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 	 * 
 	 */
 	const contentActive =
-		<>
+		<Stack>
 			<Button justify="space-between" fullWidth h="100%" disabled={disabled}
 				rightSection={<Loader type="dots" />}
-				bg={""}
-				onClick={abortSelection}>
-				<Group justify="space-between" w="100%" pt={"sm"} pb={"sm"}>
-					<Group style={{ flexDirection: "column" }} align="left">
-						<Text style={{ textAlign: "left" }} size="sm" fw={500}>
-							Currently selected: {selectedNodeNames.length}
-						</Text>
-						<Group>
-							<Text size="sm" fw={400} fs="italic">
-								{ minimumSelection === maximumSelection ? 
-									`Select ${minimumSelection} object${minimumSelection > 1 ? "s" : ""}` :
-									`Select between ${minimumSelection} and ${maximumSelection} objects`
-								}
-							</Text>
-						</Group>
-					</Group>
-				</Group>
+				onClick={abortSelection}
+			>
+				<Stack>
+					<Space />
+					<Text size="sm" fw={500} ta="left">
+						Currently selected: {selectedNodeNames.length}
+					</Text>
+					<Text size="sm" fw={400} fs="italic" ta="left">
+						{ minimumSelection === maximumSelection ? 
+							`Select ${minimumSelection} object${minimumSelection > 1 ? "s" : ""}` :
+							`Select between ${minimumSelection} and ${maximumSelection} objects`
+						}
+					</Text>
+					<Space />
+				</Stack>
 			</Button>
 			{minimumSelection !== maximumSelection &&
-				<Group justify="space-between" w="100%">
+				<Group justify="space-between" w="100%" wrap="nowrap">
 					<Button
-						w="35%"
+						fullWidth={true}
 						disabled={!acceptableValue}
-						bg={acceptableValue ? "blue" : ""}
+						variant="filled"
 						onClick={changeValue}
 					>
 						<Text>Confirm</Text>
 					</Button>
 					<Button
-						w="35%"
-						bg={"red"}
+						fullWidth={true}
+						variant={"light"}
 						onClick={abortSelection}>
 						<Text>Cancel</Text>
 					</Button>
 				</Group>
 			}
-		</>;
+		</Stack>;
 
 
 	/**
@@ -149,25 +147,20 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 	 * Within the button, the number of selected nodes is displayed.
 	 */
 	const contentInactive =
-		<Button justify="space-between" fullWidth h="100%" disabled={disabled}
+		<Button justify="space-between" fullWidth={true} disabled={disabled}
 			rightSection={<Icon type={IconTypeEnum.IconHandFinger} />}
-			bg={selectedNodeNames.length === 0 ? "orange" : "blue"}
+			variant={selectedNodeNames.length === 0 ? "light" : "filled"}
 			onClick={() => setSelectionActive(true)}>
-			<Group justify="space-between" w="100%" pt={"sm"} pb={"sm"}>
-				<Text size="sm" fw={500}>
+			<Text size="sm">
 					Start selection ({selectedNodeNames.length})
-				</Text>
-			</Group>
+			</Text>
 		</Button>;
 
 	return <>
-		<Group>
-			<ParameterLabelComponent {...props} cancel={onCancel} />
-			{
-				definition &&
-				selectionActive ? contentActive : contentInactive
-			}
-		</Group>
-		
+		<ParameterLabelComponent {...props} cancel={onCancel} />
+		{
+			definition &&
+			selectionActive ? contentActive : contentInactive
+		}
 	</>;
 }
