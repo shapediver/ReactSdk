@@ -12,7 +12,9 @@ const hoverManagers: { [key: string]: {
 } } = {};
 
 /**
- * Hook allowing to create a hover manager for a viewport.
+ * Hook providing hover managers for viewports. 
+ * Use the useNodeInteractionData hook to add interaction data to nodes of the
+ * scene tree and make them hoverable.
  * 
  * @param viewportId The ID of the viewport.
  * @param settings The settings for the hover manager. If the settings are not provided, the hover manager will not be created.
@@ -25,6 +27,8 @@ export function useHoverManager(viewportId: string, settings?: { color?: string 
 } {
 	// call the interaction engine hook
 	const { interactionEngine } = useInteractionEngine(viewportId);
+
+	// TODO define a state for the hover manager (see select manager)
 
 	// use an effect to create the hover manager
 	useEffect(() => {

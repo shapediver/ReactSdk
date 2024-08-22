@@ -3,14 +3,17 @@ import { useEffect } from "react";
 import { useOutput } from "./useOutput";
 
 /**
+ * A callback that is executed whenever an output's node is to be replaced due to an update of the output's content. 
+ * Provides the new scene tree node and the old one, so that data can be carried over. 
+ * If the callback is a promise it will be awaited in the execution chain.
  * @see https://viewer.shapediver.com/v3/latest/api/interfaces/IOutputApi.html#updateCallback
  */
-type UpdateCallback = (newNode?: ITreeNode, oldNode?: ITreeNode) => Promise<void> | void;
+export type OutputUpdateCallbackType = (newNode?: ITreeNode, oldNode?: ITreeNode) => Promise<void> | void;
 
 /**
  * Output update callbacks by (session id and output id or name), and callback id.
  */
-type OutputUpdateCallbacks = { [key: string]: { [key: string]: UpdateCallback } };
+type OutputUpdateCallbacks = { [key: string]: { [key: string]: OutputUpdateCallbackType } };
 
 /** 
  * Callbacks to use for IOutputApi.updateCallback
@@ -18,7 +21,8 @@ type OutputUpdateCallbacks = { [key: string]: { [key: string]: UpdateCallback } 
 const updateCallbacks : OutputUpdateCallbacks = {};
 	
 /**
- * Hook providing access to outputs by id or name, and allowing to register a callback for updates.
+ * Hook providing access to outputs by id or name, and allowing to register a callback for updates. 
+ * Note that the callback will NOT be called when registering or deregistering it. 
  * 
  * @see https://viewer.shapediver.com/v3/latest/api/interfaces/IOutputApi.html
  * 
@@ -28,7 +32,12 @@ const updateCallbacks : OutputUpdateCallbacks = {};
  * @param outputIdOrName 
  * @returns 
  */
-export function useOutputUpdateCallback(sessionId: string, outputIdOrName: string, callbackId: string, updateCallback: UpdateCallback) : {
+export function useOutputUpdateCallback(
+	sessionId: string, 
+	outputIdOrName: string, 
+	callbackId: string, 
+	updateCallback: OutputUpdateCallbackType
+) : {
 	/**
 	 * API of the output
 	 * @see https://viewer.shapediver.com/v3/latest/api/interfaces/IOutputApi.html

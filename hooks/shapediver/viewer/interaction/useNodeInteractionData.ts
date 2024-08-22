@@ -1,13 +1,15 @@
-import { gatherNodesForPattern } from "./utils/patternUtils";
-import { IInteractionData, InteractionData } from "@shapediver/viewer.features.interaction";
+import { gatherNodesForPattern, NodeNameFilterPattern } from "./utils/patternUtils";
+import { InteractionData } from "@shapediver/viewer.features.interaction";
 import { IOutputApi, ITreeNode } from "@shapediver/viewer";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { useOutputNode } from "../useOutputNode";
+import { OutputUpdateCallbackType } from "../useOutputUpdateCallback";
 
 // #region Functions (1)
 
 /**
- * Hook adding interaction data to the nodes of an output.
+ * Hook for managing interaction data for the nodes of an output. 
+ * Use this hook for defining which nodes are selectable, hoverable, or draggable. 
  * 
  * @see https://viewer.shapediver.com/v3/latest/api/features/interaction/interfaces/IInteractionData.html
  * 
@@ -15,13 +17,23 @@ import { useOutputNode } from "../useOutputNode";
  * 
  * @param sessionId The ID of the session.
  * @param outputIdOrName The ID or name of the output.
- * @param patterns The patterns to match the node names.
+ * @param patterns The patterns for matching the node names of the given output
  * @param interactionSettings The settings for the interaction data.
- * @param additionalUpdateCallback Additional callback function to update the nodes.
+ * @param additionalUpdateCallback Additional callback function to update the nodes, 
+ * which will be invoked after the interaction data has been added to the nodes.
+ * This function will also be called on registration and deregistration.
+ *   * deregistration: The call will not include a new node
+ *   * registration: The call will not include an old node
  * 
  * @returns 
  */
-export function useNodeInteractionData(sessionId: string, outputIdOrName: string, patterns?: string[][], interactionSettings?: { select?: boolean, hover?: boolean, drag?: boolean }, additionalUpdateCallback?: (newNode?: ITreeNode, oldNode?: ITreeNode) => Promise<void> | void): {
+export function useNodeInteractionData(
+	sessionId: string, 
+	outputIdOrName: string, 
+	patterns: NodeNameFilterPattern[], 
+	interactionSettings: { select?: boolean, hover?: boolean, drag?: boolean }, 
+	additionalUpdateCallback?: OutputUpdateCallbackType
+): {
 	/**
 	 * API of the output
 	 * @see https://viewer.shapediver.com/v3/latest/api/interfaces/IOutputApi.html
@@ -33,70 +45,53 @@ export function useNodeInteractionData(sessionId: string, outputIdOrName: string
 	 */
 	outputNode: ITreeNode | undefined
 } {
+	
 	/**
-	 * Callback function to add interaction data to the nodes of the output.
+	 * Output update callback for adding interaction data. 
 	 * 
 	 * @param node
 	 */
-	const callback = useCallback((node?: ITreeNode) => {
-		if (!node) return;
-
-		// if there are patterns, begin the check
-		if (patterns && interactionSettings) {
-			for (const pattern of patterns) {
-				const nodes: ITreeNode[] = [];
-				if(pattern.length === 0) {
-					nodes.push(node);
-				} else {
-					gatherNodesForPattern(node, pattern, 0, nodes);
+	const callback = useCallback((newNode?: ITreeNode, oldNode?: ITreeNode) => {
+		
+		// remove interaction data on deregistration
+		if (oldNode && !newNode) {
+			oldNode.traverse(node => {
+				for (const data of node.data) {
+					if (data instanceof InteractionData) {
+						oldNode.removeData(data);
+						node.updateVersion();
+					}
 				}
-				nodes.forEach(node => {
-					addInteractionData(node, interactionSettings);
-				});
+			});
+		}
+
+		if (newNode) {
+			const nodes: {[nodeId: string]: ITreeNode} = {};
+			for (const pattern of patterns) {
+				if (pattern.length === 0) {
+					nodes[newNode.id] = newNode;
+				} else {
+					gatherNodesForPattern(newNode, pattern, nodes);
+				}
 			}
+			Object.values(nodes).forEach(node => {
+				addInteractionData(node, interactionSettings);
+			});
 		}
 
 		// call the additional update callback
-		if (additionalUpdateCallback)
-			additionalUpdateCallback(node);
+		additionalUpdateCallback?.(newNode, oldNode);
+
 	}, [patterns, interactionSettings, additionalUpdateCallback]);
 
 	// define the node update callback
 	const { outputApi, outputNode } = useOutputNode(sessionId, outputIdOrName, callback);
-
-	useEffect(() => {
-		// call the callback with the output node
-		callback(outputNode);
-
-		return () => {
-			// remove the interaction data from the nodes
-			for (const id in nodesWithInteractionData) {
-				const { node, data } = nodesWithInteractionData[id];
-				node.removeData(data);
-				node.updateVersion();
-			}
-			// clear the dictionary
-			Object.keys(nodesWithInteractionData).forEach(key => delete nodesWithInteractionData[key]);
-		};
-
-	}, [patterns, interactionSettings, additionalUpdateCallback, callback, outputNode]);
 
 	return {
 		outputApi,
 		outputNode
 	};
 }
-
-// #endregion Functions (1)
-
-// #region Variables (2)
-
-/**
- * Dictionary to store the nodes with interaction data.
- * 
- * We need to store the nodes with interaction data to be able to remove the interaction data when the hook is unmounted.
- */
-const nodesWithInteractionData: { [key: string]: { node: ITreeNode, data: IInteractionData } } = {};
 
 /**
  * Add interaction data to the node.
@@ -108,17 +103,20 @@ const nodesWithInteractionData: { [key: string]: { node: ITreeNode, data: IInter
  * @param interactionDataSettings 
  */
 const addInteractionData = (node: ITreeNode, interactionDataSettings: { select?: boolean, hover?: boolean, drag?: boolean }) => {
-	// remove the interaction data if it already exists
-	if (nodesWithInteractionData[node.id]) {
-		nodesWithInteractionData[node.id].node.removeData(nodesWithInteractionData[node.id].data);
-		delete nodesWithInteractionData[node.id];
+	
+	// remove existing interaction data
+	// TODO to be discussed how to improve this and allow parallel interaction data
+	for (const data of node.data) {
+		if (data instanceof InteractionData) {
+			console.warn(`Node ${node.id} already has interaction data with id ${data.id}, removing it.`);
+			node.removeData(data);
+		}
 	}
 
 	// add the interaction data to the node
 	const interactionData = new InteractionData(interactionDataSettings);
 	node.addData(interactionData);
 	node.updateVersion();
-	nodesWithInteractionData[node.id] = { node, data: interactionData };
 };
 
-// #endregion Variables (2)
+// #endregion Functions (1)
