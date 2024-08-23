@@ -70,8 +70,13 @@ export function useSelection(
 
 	return {
 		selectedNodeNames,
-		setSelectedNodeNames,
-		resetSelectedNodeNames
+		/** 
+		 * TODO we might extend setSelectedNodeNames and resetSelectedNodeNames 
+		 * and call restoreSelection. Given the current implementation of 
+		 * ParameterSelectionComponent, this is not necessary.
+		 */
+		setSelectedNodeNames, 
+		resetSelectedNodeNames 
 	};
 }
 

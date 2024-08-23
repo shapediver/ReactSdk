@@ -118,6 +118,7 @@ export function useSelectManagerEvents(
 			// We ignore the event if it's not based on an event triggered by the UI.
 			if (!multiSelectEvent.event) return;
 
+			// TODO: refactor this to use a store instead of calling mantine notifications directly
 			notifications.show({
 				title: "Maximum number of objects has already been selected",
 				message: `Expected ${(multiSelectEvent.manager as MultiSelectManager).maximumNodes} objects, but selected ${multiSelectEvent.nodes.length + 1} objects instead.`
