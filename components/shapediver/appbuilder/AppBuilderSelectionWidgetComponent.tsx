@@ -50,15 +50,15 @@ export default function AppBuilderSelectionWidgetComponent({ interactionSettings
 		parameterRef.current = parameter;
 	}, [parameter]);
 
-	const { selectedNodes } = useSelection(sessionId, viewportId || VIEWPORT_ID, selectionActive ? settings : undefined);
+	const { selectedNodeNames } = useSelection(sessionId, viewportId || VIEWPORT_ID, settings!, selectionActive);
 
 	useEffect(() => {
-		if (parameterRef.current && selectedNodes) {
-			const parameterValue: SelectionParameterValue = { names: selectedNodes };
+		if (parameterRef.current && selectedNodeNames) {
+			const parameterValue: SelectionParameterValue = { names: selectedNodeNames };
 			parameterRef.current.actions.setUiValue(JSON.stringify(parameterValue));
 			parameterRef.current.actions.execute(true);
 		}
-	}, [selectedNodes]);
+	}, [selectedNodeNames]);
 
 	// define the parameter names for the selection
 	const enum PARAMETER_NAMES {
