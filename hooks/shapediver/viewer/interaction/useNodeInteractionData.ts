@@ -1,9 +1,8 @@
 import { gatherNodesForPattern, NodeNameFilterPattern } from "./utils/patternUtils";
-import { InteractionData } from "@shapediver/viewer.features.interaction";
+import { InteractionData, MultiSelectManager, SelectManager } from "@shapediver/viewer.features.interaction";
 import { IOutputApi, ITreeNode } from "@shapediver/viewer";
 import { useCallback } from "react";
 import { useOutputNode } from "../useOutputNode";
-import { OutputUpdateCallbackType } from "../useOutputUpdateCallback";
 
 // #region Functions (1)
 
@@ -19,11 +18,8 @@ import { OutputUpdateCallbackType } from "../useOutputUpdateCallback";
  * @param outputIdOrName The ID or name of the output.
  * @param patterns The patterns for matching the node names of the given output
  * @param interactionSettings The settings for the interaction data.
- * @param additionalUpdateCallback Additional callback function to update the nodes, 
- * which will be invoked after the interaction data has been added to the nodes.
- * This function will also be called on registration and deregistration.
- *   * deregistration: The call will not include a new node
- *   * registration: The call will not include an old node
+ * @param selectManager The select manager to be used for selection.
+ * If not provided, the selection will not be possible, but the interaction data will be added.
  * 
  * @returns 
  */
@@ -31,8 +27,8 @@ export function useNodeInteractionData(
 	sessionId: string, 
 	outputIdOrName: string, 
 	patterns: NodeNameFilterPattern[], 
-	interactionSettings: { select?: boolean, hover?: boolean, drag?: boolean }, 
-	additionalUpdateCallback?: OutputUpdateCallbackType
+	interactionSettings: { select?: boolean, hover?: boolean, drag?: boolean },
+	selectManager?: SelectManager | MultiSelectManager
 ): {
 	/**
 	 * API of the output
@@ -51,14 +47,15 @@ export function useNodeInteractionData(
 	 * 
 	 * @param node
 	 */
-	const callback = useCallback((newNode?: ITreeNode, oldNode?: ITreeNode) => {
-		
+	const callback = useCallback((newNode?: ITreeNode, oldNode?: ITreeNode) => {		
 		// remove interaction data on deregistration
-		if (oldNode && !newNode) {
+		if (oldNode) {
 			oldNode.traverse(node => {
 				for (const data of node.data) {
 					if (data instanceof InteractionData) {
-						oldNode.removeData(data);
+						if (data.interactionStates.select === true)
+							selectManager?.deselect(node);
+						node.removeData(data);
 						node.updateVersion();
 					}
 				}
@@ -79,10 +76,7 @@ export function useNodeInteractionData(
 			});
 		}
 
-		// call the additional update callback
-		additionalUpdateCallback?.(newNode, oldNode);
-
-	}, [patterns, interactionSettings, additionalUpdateCallback]);
+	}, [patterns, interactionSettings, selectManager]);
 
 	// define the node update callback
 	const { outputApi, outputNode } = useOutputNode(sessionId, outputIdOrName, callback);

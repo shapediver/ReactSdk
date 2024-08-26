@@ -53,21 +53,16 @@ export function useSelection(
 	for (const outputId in outputs) {
 		// add interaction data
 		if (!patterns[outputId]) patterns[outputId] = [];
-		const { outputNode } = useNodeInteractionData(sessionId, outputId, patterns[outputId], interactionSettings);
+		const { outputNode } = useNodeInteractionData(sessionId, outputId, patterns[outputId], interactionSettings, selectManager);
 		// in case selection becomes active or the output node changes, restore the selection status
 		useEffect(() => {
-			if (outputNode && selectManager) 
+			if (outputNode && selectManager)
 				restoreSelection(outputNode, selectManager, selectedNodeNames);
 		}, [outputNode, selectManager]);
 	}
 
 	return {
 		selectedNodeNames,
-		/** 
-		 * TODO we might extend setSelectedNodeNames and resetSelectedNodeNames 
-		 * and call restoreSelection. Given the current implementation of 
-		 * ParameterSelectionComponent, this is not necessary.
-		 */
 		setSelectedNodeNames, 
 		resetSelectedNodeNames 
 	};
@@ -85,13 +80,6 @@ const restoreSelection = (node: ITreeNode, mgr: SelectManager | MultiSelectManag
 	// the node must have an OutputApiData object
 	const apiData = node.data.find(d => d instanceof OutputApiData) as OutputApiData;
 	if (!apiData) return;
-
-	// deselect all child nodes FIXME do we really need to do this?
-	node.traverse(n => {
-		const interactionData = n.data.find(d => d instanceof InteractionData) as InteractionData;
-		if (interactionData && interactionData.interactionStates.select === true)
-			mgr.deselect(n);
-	});
 
 	// select child nodes based on selectedNodeNames
 	selectedNodeNames.forEach((name) => {
