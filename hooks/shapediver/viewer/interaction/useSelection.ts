@@ -1,4 +1,4 @@
-import { ISelectionParameterSettings, ITreeNode, OutputApiData } from "@shapediver/viewer";
+import { ISelectionParameterProps, ITreeNode, OutputApiData } from "@shapediver/viewer";
 import { InteractionData, MultiSelectManager, SelectManager } from "@shapediver/viewer.features.interaction";
 import { useEffect, useMemo } from "react";
 import { vec3 } from "gl-matrix";
@@ -12,18 +12,12 @@ import { useNodeInteractionData } from "./useNodeInteractionData";
 // #region Functions (1)
 
 /**
- * Settings for the selection behavior. 
- * TODO: This is a placeholder for an interface to be exported from the viewer.
- */
-export interface _ISelectionParameterSettings { type: "selection", props: ISelectionParameterSettings }
-
-/**
  * Hook providing stateful object selection for a viewport and session. 
  * This wraps lover level hooks for the select manager, hover manager, and node interaction data.
  * 
  * @param sessionId ID of the session for which objects shall be selected.
  * @param viewportId ID of the viewport for which selection shall be enabled. 
- * @param settings Settings to be used. This includes name filters, and properties for the behavior of the selection.
+ * @param selectionProps Parameter properties to be used. This includes name filters, and properties for the behavior of the selection.
  * @param activate Set this to true to activate selection. If false, preparations are made but no selection is possible.
  * @param initialSelectedNodeNames The initial selected node names (used to initialize the selection state).
  * 					Note that this initial state is not checked against the filter pattern. 
@@ -31,17 +25,16 @@ export interface _ISelectionParameterSettings { type: "selection", props: ISelec
 export function useSelection(
 	sessionId: string, 
 	viewportId: string, 
-	settings: _ISelectionParameterSettings,
+	selectionProps: ISelectionParameterProps,
 	activate: boolean,
 	initialSelectedNodeNames?: string[]
 ): ISelectionState {
 	
 	// call the select manager hook
-	const selectionProps = settings.props;
 	const { selectManager } = useSelectManager(viewportId, activate ? selectionProps : undefined);
 
 	// call the hover manager hook
-	const hoverSettings = useMemo(() => { return { color: selectionProps.hoverColor }; }, [selectionProps]);
+	const hoverSettings = useMemo(() => { return { hoverColor: selectionProps.hoverColor }; }, [selectionProps]);
 	useHoverManager(viewportId, activate ? hoverSettings : undefined);
 	
 	// convert the user-defined name filters to filter patterns, and subscribe to selection events

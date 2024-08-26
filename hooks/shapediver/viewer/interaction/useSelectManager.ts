@@ -1,4 +1,4 @@
-import { ISelectionParameterSettings, MaterialStandardData } from "@shapediver/viewer";
+import { ISelectionParameterProps, MaterialStandardData } from "@shapediver/viewer";
 import { SelectManager, MultiSelectManager, InteractionEngine } from "@shapediver/viewer.features.interaction";
 import { useEffect, useState } from "react";
 import { useInteractionEngine } from "./useInteractionEngine";
@@ -40,7 +40,7 @@ const cleanUpSelectManager = (viewportId: string, interactionEngine?: Interactio
  * @param viewportId The ID of the viewport.
  * @param settings The settings for the select manager. If the settings are not provided, the select manager will not be created.
  */
-export function useSelectManager(viewportId: string, settings?: Pick<ISelectionParameterSettings, "minimumSelection" | "maximumSelection" | "selectionColor">): {
+export function useSelectManager(viewportId: string, settings?: Pick<ISelectionParameterProps, "minimumSelection" | "maximumSelection" | "selectionColor">): {
 	/**
 	 * The select manager that was created for the viewport.
 	 * Depending on the settings, this can be a select manager or a multi select manager.

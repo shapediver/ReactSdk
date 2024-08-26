@@ -50,7 +50,7 @@ export default function AppBuilderSelectionWidgetComponent({ interactionSettings
 		parameterRef.current = parameter;
 	}, [parameter]);
 
-	const { selectedNodeNames } = useSelection(sessionId, viewportId || VIEWPORT_ID, settings!, selectionActive);
+	const { selectedNodeNames } = useSelection(sessionId, viewportId || VIEWPORT_ID, settings!.props, selectionActive);
 
 	useEffect(() => {
 		if (parameterRef.current && selectedNodeNames) {

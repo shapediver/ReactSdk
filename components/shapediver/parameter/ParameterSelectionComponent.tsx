@@ -3,9 +3,9 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
-import { ISelectionParameterSettings, SelectionParameterValue } from "@shapediver/viewer";
+import { ISelectionParameterProps, SelectionParameterValue } from "@shapediver/viewer";
 import { useShapeDiverStoreViewer } from "../../../store/useShapeDiverStoreViewer";
-import { _ISelectionParameterSettings, useSelection } from "../../../hooks/shapediver/viewer/interaction/useSelection";
+import { useSelection } from "../../../hooks/shapediver/viewer/interaction/useSelection";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import Icon from "../../ui/Icon";
 
@@ -39,7 +39,7 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 	const sessionApi = useShapeDiverStoreViewer(state => { return state.sessions[props.sessionId]; });
 	const parameterApi = sessionApi?.getParameterByName(props.parameterId)[0];
 
-	const selectionProps = parameterApi.settings?.props as ISelectionParameterSettings;
+	const selectionProps = parameterApi.settings?.props as ISelectionParameterProps;
 	const minimumSelection = selectionProps?.minimumSelection ?? 1;
 	const maximumSelection = selectionProps?.maximumSelection ?? 1;
 
@@ -59,7 +59,7 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 	const { selectedNodeNames, setSelectedNodeNames } = useSelection(
 		props.sessionId, 
 		VIEWPORT_ID, 
-		definition.settings as _ISelectionParameterSettings,
+		selectionProps,
 		selectionActive,
 		parseNames(value)
 	);
