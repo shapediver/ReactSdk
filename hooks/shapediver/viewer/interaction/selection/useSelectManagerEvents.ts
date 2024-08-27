@@ -2,23 +2,23 @@ import { notifications } from "@mantine/notifications";
 import { addListener, EVENTTYPE_INTERACTION, IEvent, removeListener } from "@shapediver/viewer";
 import { InteractionEventResponseMapping, MultiSelectManager } from "@shapediver/viewer.features.interaction";
 import { useState, useCallback, useEffect } from "react";
-import { OutputNodeNameFilterPatterns, matchNodesWithPatterns } from "./utils/patternUtils";
+import { OutputNodeNameFilterPatterns, matchNodesWithPatterns } from "../utils/patternUtils";
 
 // #region Functions (1)
 
 /** State of selected node names and corresponding actions. */
 export interface ISelectionState {
 	/**
-	 * The selected node names.
+	 * The selected nodes.
 	 */
     selectedNodeNames: string[],
 	/**
-	 * Set the selected node names.
+	 * Set the selected nodes.
 	 * 
-	 * @param names 
+	 * @param selectedNodes 
 	 * @returns 
 	 */
-	setSelectedNodeNames: (names: string[]) => void,
+	setSelectedNodeNames: (selectedNodes: string[]) => void,
 	/**
 	 * Callback function to reset (clear) the selected node names.
 	 * 
@@ -145,3 +145,22 @@ export function useSelectManagerEvents(
 }
 
 // #endregion Functions (1)
+
+// #region Variables (1)
+
+// const createSelectedNodesArray = (selected: ITreeNode[], pattern: NameFilterPattern) => {
+// 	const nodeNames = processNodes(pattern, selected);
+
+// 	// create a new array with objects that have the name and the node
+// 	const newSelectedNodes = [];
+// 	for (let i = 0; i < selected.length; i++) {
+// 		newSelectedNodes.push({
+// 			name: nodeNames[i],
+// 			node: selected[i]
+// 		});
+// 	}
+
+// 	return newSelectedNodes;
+// };
+
+// #endregion Variables (1)

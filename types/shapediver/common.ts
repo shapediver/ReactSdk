@@ -22,6 +22,9 @@ export interface IShapeDiverParamOrExportDefinition {
 
     /** The type of parameter or export. */
     readonly type: string;
+
+    /** The settings of the parameter or export. */
+    readonly settings?: any;
 }
 
 /**

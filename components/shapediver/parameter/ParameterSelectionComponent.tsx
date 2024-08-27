@@ -5,7 +5,7 @@ import { PropsParameter } from "../../../types/components/shapediver/propsParame
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
 import { ISelectionParameterProps, SelectionParameterValue } from "@shapediver/viewer";
 import { useShapeDiverStoreViewer } from "../../../store/useShapeDiverStoreViewer";
-import { useSelection } from "../../../hooks/shapediver/viewer/interaction/useSelection";
+import { useSelection } from "../../../hooks/shapediver/viewer/interaction/selection/useSelection";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import Icon from "../../ui/Icon";
 
