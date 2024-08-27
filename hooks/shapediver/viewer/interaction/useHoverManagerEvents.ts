@@ -1,7 +1,7 @@
 import { addListener, EVENTTYPE_INTERACTION, IEvent, removeListener } from "@shapediver/viewer";
 import { InteractionEventResponseMapping } from "@shapediver/viewer.features.interaction";
 import { useState, useEffect } from "react";
-import { NameFilterPattern, processNodes } from "./utils/patternUtils";
+import { OutputNodeNameFilterPatterns, matchNodesWithPatterns } from "./utils/patternUtils";
 
 // #region Functions (1)
 
@@ -10,7 +10,7 @@ import { NameFilterPattern, processNodes } from "./utils/patternUtils";
  * 
  * @param pattern The pattern to match the hovered nodes.
  */
-export function useHoverManagerEvents(pattern: NameFilterPattern): {
+export function useHoverManagerEvents(pattern: OutputNodeNameFilterPatterns): {
 	/**
 	 * The hovered node names.
 	 */
@@ -32,7 +32,7 @@ export function useHoverManagerEvents(pattern: NameFilterPattern): {
 			if (!hoverEvent.event) return;
 
 			const hovered = [hoverEvent.node];
-			const nodeNames = processNodes(pattern, hovered);
+			const nodeNames = matchNodesWithPatterns(pattern, hovered);
 			setHoveredNodeNames(nodeNames);
 		});
 

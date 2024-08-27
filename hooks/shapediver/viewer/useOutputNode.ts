@@ -1,17 +1,16 @@
 import { IOutputApi, ITreeNode } from "@shapediver/viewer";
 import { useCallback, useEffect, useId, useState } from "react";
-import { useOutputUpdateCallback } from "./useOutputUpdateCallback";
+import { OutputUpdateCallbackType, useOutputUpdateCallback } from "./useOutputUpdateCallback";
 import { useOutput } from "./useOutput";
-
-/**
- * 
- */
-type UpdateCallback = (newNode?: ITreeNode, oldNode?: ITreeNode) => Promise<void> | void;
 
 /**
  * Hook providing access to outputs by id or name, 
  * allowing to register a callback for updates of the output, 
- * and providing the scene tree node of the output.
+ * and providing the scene tree node of the output. 
+ * Note that the callback will also be called when registering or deregistering it. 
+ * This happens if the callback changes, or the output changes.  
+ *   * deregistration: The call will not include a new node
+ *   * registration: The call will not include an old node
  * 
  * @see https://viewer.shapediver.com/v3/latest/api/interfaces/IOutputApi.html
  * 
@@ -25,7 +24,7 @@ type UpdateCallback = (newNode?: ITreeNode, oldNode?: ITreeNode) => Promise<void
  *                 The very last call will not include a new node.
  * @returns 
  */
-export function useOutputNode(sessionId: string, outputIdOrName: string, callback?: UpdateCallback) : {
+export function useOutputNode(sessionId: string, outputIdOrName: string, callback?: OutputUpdateCallbackType) : {
 	/**
 	 * API of the output
 	 * @see https://viewer.shapediver.com/v3/latest/api/interfaces/IOutputApi.html
@@ -58,7 +57,7 @@ export function useOutputNode(sessionId: string, outputIdOrName: string, callbac
 		return () => {
 			cb(undefined, outputApi?.node);
 		};
-	}, [outputApi]);
+	}, [outputApi, cb]);
 
 	return {
 		outputApi,

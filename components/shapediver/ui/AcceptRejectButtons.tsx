@@ -1,6 +1,6 @@
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterChanges } from "../../../hooks/shapediver/parameters/useParameterChanges";
-import { Button, Group } from "@mantine/core";
+import { Button, Group, Text } from "@mantine/core";
 import React from "react";
 import Icon from "../../ui/Icon";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
@@ -38,16 +38,18 @@ export default function AcceptRejectButtons({ parameters }: Props) {
 				leftSection={<Icon type={IconTypeEnum.Check} />}
 				onClick={acceptChanges}
 				disabled={disableChangeControls}
+				variant="light"
 			>
-				Accept
+				<Text size="md">Accept</Text>
 			</Button>
 			<Button
 				fullWidth={true}
 				leftSection={<Icon type={IconTypeEnum.X} />}
 				onClick={rejectChanges}
 				disabled={disableChangeControls}
+				variant="light"
 			>
-				Reject
+				<Text size="md">Reject</Text>
 			</Button>
 		</Group>
 	</>;

@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect, useState } from "react";
-import { BoxProps, Tabs, Tooltip } from "@mantine/core";
+import { BoxProps, Stack, Tabs, Tooltip } from "@mantine/core";
 import Icon from "./Icon";
 import { IconType } from "../../types/shapediver/icons";
 
@@ -66,7 +66,9 @@ export default function TabsComponent({defaultValue, tabs, ...rest}: ITabsCompon
 					key={index} 
 					value={name} 
 				>
-					{children}
+					<Stack>
+						{children}
+					</Stack>
 				</Tabs.Panel>;
 			})
 		}

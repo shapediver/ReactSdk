@@ -1,15 +1,32 @@
-import { Button, Group, Loader, Text } from "@mantine/core";
-import React, { useCallback, useEffect, useState } from "react";
+import { Button, Group, Loader, Space, Stack, Text } from "@mantine/core";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
-import { IInteractionParameterSettings, ISelectionParameterSettings, SelectionParameterValue } from "@shapediver/viewer";
+import { ISelectionParameterProps, SelectionParameterValue } from "@shapediver/viewer";
 import { useShapeDiverStoreViewer } from "../../../store/useShapeDiverStoreViewer";
 import { useSelection } from "../../../hooks/shapediver/viewer/interaction/useSelection";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import Icon from "../../ui/Icon";
 
 const VIEWPORT_ID = "viewport_1";
+
+/**
+ * Parse the value of a selection parameter and extract the selected node names.
+ * @param value 
+ * @returns 
+ */
+const parseNames = (value?: string): string[] => {
+	if (!value) return [];
+	try {
+		const parsed = JSON.parse(value);
+		
+		return parsed.names;
+	}
+	catch (e) {
+		return [];
+	}
+};
 
 /**
  * Functional component that creates a switch component for a selection parameter.
@@ -22,12 +39,11 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 	const sessionApi = useShapeDiverStoreViewer(state => { return state.sessions[props.sessionId]; });
 	const parameterApi = sessionApi?.getParameterByName(props.parameterId)[0];
 
-	const selectionProps = parameterApi.settings?.props as ISelectionParameterSettings;
+	const selectionProps = parameterApi.settings?.props as ISelectionParameterProps;
 	const minimumSelection = selectionProps?.minimumSelection ?? 1;
 	const maximumSelection = selectionProps?.maximumSelection ?? 1;
 
 	const {
-		actions,
 		definition,
 		handleChange,
 		onCancel,
@@ -36,58 +52,58 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 		state
 	} = useParameterComponentCommons<string>(props);
 	
-	// state for the selection application
+	// is the selection active or not? 
+	// TODO: avoid multiple parallel selections
 	const [selectionActive, setSelectionActive] = useState<boolean>(false);
-	// state for if the current value can be accepted
-	const [acceptableValue, setAcceptableValue] = useState<boolean>(false);
+	
+	const { selectedNodeNames, setSelectedNodeNames } = useSelection(
+		props.sessionId, 
+		VIEWPORT_ID, 
+		selectionProps,
+		selectionActive,
+		parseNames(value)
+	);
 
-	const { selectedNodeNames, setSelectedNodeNames } = useSelection(props.sessionId, VIEWPORT_ID, selectionActive ? definition.settings as IInteractionParameterSettings : undefined);
-
-	useEffect(() => {
-		// check if the current value is acceptable
-		const acceptable = selectedNodeNames.length >= minimumSelection && selectedNodeNames.length <= maximumSelection;
-		setAcceptableValue(acceptable);
-
-		// case where the confirm/cancel buttons are not needed
-		if(minimumSelection === maximumSelection && acceptable) {
-			setSelectionActive(false);
-			const parameterValue: SelectionParameterValue = { names: selectedNodeNames };
-			actions.setUiValue(JSON.stringify(parameterValue));
-			actions.execute(!props.acceptRejectMode);
-		}
-	}, [selectedNodeNames]);
-
-	useEffect(() => {
-		setSelectionActive(false);
-		setSelectedNodeNames(state.execValue ? JSON.parse(state.execValue).names : []);
-	}, [state.execValue]);
-
-	useEffect(() => {
-		setSelectionActive(false);
-		setSelectedNodeNames(value ? JSON.parse(value).names : []);
-	}, [value]);
+	// check if the current selection is within the constraints
+	const acceptable = selectedNodeNames.length >= minimumSelection && selectedNodeNames.length <= maximumSelection;
+	const acceptImmediately = minimumSelection === maximumSelection && acceptable;
 
 	/**
 	 * Callback function to change the value of the parameter.
-	 * This function is called when the selection is confirmed.
+	 * This function is called when the selection is confirmed (by the user, or automatically).
 	 * It also ends the selection process.
 	 */
-	const changeValue = useCallback(() => {
-		const parameterValue: SelectionParameterValue = { names: selectedNodeNames };
-		handleChange(JSON.stringify(parameterValue));
+	const changeValue = useCallback((names: string[]) => {
 		setSelectionActive(false);
-	}, [selectedNodeNames]);
+		const parameterValue: SelectionParameterValue = { names };
+		handleChange(JSON.stringify(parameterValue));
+	}, []);
+	
+	// check whether the selection should be accepted immediately
+	useEffect(() => {
+		if (acceptImmediately)
+			changeValue(selectedNodeNames);
+	}, [acceptImmediately, selectedNodeNames]);
 
 	/**
 	 * Callback function to reset the selected node names.
-	 * This function is called when the selection is aborted.
+	 * This function is called when the selection is aborted by the user.
 	 * It also ends the selection process.
 	 */
-	const abortSelection = useCallback(() => {
+	const resetSelection = useCallback((val: string) => {
 		setSelectionActive(false);
-		const lastValue = value ? JSON.parse(value).names : [];
-		setSelectedNodeNames(lastValue);
-	}, [selectionActive]);
+		setSelectedNodeNames(parseNames(val));
+	}, []);
+
+	// react to changes of the uiValue and update the selection state if necessary
+	useEffect(() => {
+		const names = parseNames(state.uiValue);
+		// compare names to selectedNodeNames
+		if (names.length !== selectedNodeNames.length || !names.every((n, i) => n === selectedNodeNames[i])) {
+			setSelectionActive(false);
+			setSelectedNodeNames(names);
+		}
+	}, [state.uiValue]); 
 
 	/**
 	 * The content of the parameter when it is active.
@@ -100,46 +116,44 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 	 * 
 	 */
 	const contentActive =
-		<>
+		<Stack>
 			<Button justify="space-between" fullWidth h="100%" disabled={disabled}
 				rightSection={<Loader type="dots" />}
-				bg={""}
-				onClick={abortSelection}>
-				<Group justify="space-between" w="100%" pt={"sm"} pb={"sm"}>
-					<Group style={{ flexDirection: "column" }} align="left">
-						<Text style={{ textAlign: "left" }} size="sm" fw={500}>
-							Currently selected: {selectedNodeNames.length}
-						</Text>
-						<Group>
-							<Text size="sm" fw={400} fs="italic">
-								{ minimumSelection === maximumSelection ? 
-									`Select ${minimumSelection} object${minimumSelection > 1 ? "s" : ""}` :
-									`Select between ${minimumSelection} and ${maximumSelection} objects`
-								}
-							</Text>
-						</Group>
-					</Group>
-				</Group>
+				onClick={() => resetSelection(value)}
+			>
+				<Stack>
+					<Space />
+					<Text size="sm" fw={500} ta="left">
+						Currently selected: {selectedNodeNames.length}
+					</Text>
+					<Text size="sm" fw={400} fs="italic" ta="left">
+						{ minimumSelection === maximumSelection ? 
+							`Select ${minimumSelection} object${minimumSelection > 1 ? "s" : ""}` :
+							`Select between ${minimumSelection} and ${maximumSelection} objects`
+						}
+					</Text>
+					<Space />
+				</Stack>
 			</Button>
 			{minimumSelection !== maximumSelection &&
-				<Group justify="space-between" w="100%">
+				<Group justify="space-between" w="100%" wrap="nowrap">
 					<Button
-						w="35%"
-						disabled={!acceptableValue}
-						bg={acceptableValue ? "blue" : ""}
-						onClick={changeValue}
+						fullWidth={true}
+						disabled={!acceptable}
+						variant="filled"
+						onClick={() => changeValue(selectedNodeNames)}
 					>
 						<Text>Confirm</Text>
 					</Button>
 					<Button
-						w="35%"
-						bg={"red"}
-						onClick={abortSelection}>
+						fullWidth={true}
+						variant={"light"}
+						onClick={() => resetSelection(value)}>
 						<Text>Cancel</Text>
 					</Button>
 				</Group>
 			}
-		</>;
+		</Stack>;
 
 
 	/**
@@ -149,25 +163,26 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 	 * Within the button, the number of selected nodes is displayed.
 	 */
 	const contentInactive =
-		<Button justify="space-between" fullWidth h="100%" disabled={disabled}
+		<Button justify="space-between" fullWidth={true} disabled={disabled}
 			rightSection={<Icon type={IconTypeEnum.IconHandFinger} />}
-			bg={selectedNodeNames.length === 0 ? "orange" : "blue"}
+			variant={selectedNodeNames.length === 0 ? "light" : "filled"}
 			onClick={() => setSelectionActive(true)}>
-			<Group justify="space-between" w="100%" pt={"sm"} pb={"sm"}>
-				<Text size="sm" fw={500}>
+			<Text size="sm">
 					Start selection ({selectedNodeNames.length})
-				</Text>
-			</Group>
+			</Text>
 		</Button>;
 
+	// extend the onCancel callback to reset the selected node names.
+	const _onCancel = useMemo(() => onCancel ? () =>{
+		resetSelection(state.execValue);
+		onCancel?.();
+	} : undefined, [onCancel]);
+
 	return <>
-		<Group>
-			<ParameterLabelComponent {...props} cancel={onCancel} />
-			{
-				definition &&
-				selectionActive ? contentActive : contentInactive
-			}
-		</Group>
-		
+		<ParameterLabelComponent {...props} cancel={_onCancel} />
+		{
+			definition &&
+			selectionActive ? contentActive : contentInactive
+		}
 	</>;
 }

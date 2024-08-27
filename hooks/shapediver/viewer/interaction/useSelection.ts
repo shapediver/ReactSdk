@@ -1,8 +1,8 @@
-import { IInteractionParameterSettings, isInteractionSelectionParameterSettings, ITreeNode, OutputApiData } from "@shapediver/viewer";
-import { InteractionData } from "@shapediver/viewer.features.interaction";
-import { useCallback, useMemo } from "react";
+import { ISelectionParameterProps, ITreeNode, OutputApiData } from "@shapediver/viewer";
+import { InteractionData, MultiSelectManager, SelectManager } from "@shapediver/viewer.features.interaction";
+import { useEffect, useMemo } from "react";
 import { vec3 } from "gl-matrix";
-import { useSelectManagerEvents } from "./useSelectManagerEvents";
+import { ISelectionState, useSelectManagerEvents } from "./useSelectManagerEvents";
 import { useSelectManager } from "./useSelectManager";
 import { useHoverManager } from "./useHoverManager";
 import { useCreateNameFilterPattern } from "./useCreateNameFilterPattern";
@@ -12,108 +12,97 @@ import { useNodeInteractionData } from "./useNodeInteractionData";
 // #region Functions (1)
 
 /**
- * Hook allowing to create a selection manager for a viewport.
+ * Hook providing stateful object selection for a viewport and session. 
+ * This wraps lover level hooks for the select manager, hover manager, and node interaction data.
  * 
- * @param viewportId 
+ * @param sessionId ID of the session for which objects shall be selected.
+ * @param viewportId ID of the viewport for which selection shall be enabled. 
+ * @param selectionProps Parameter properties to be used. This includes name filters, and properties for the behavior of the selection.
+ * @param activate Set this to true to activate selection. If false, preparations are made but no selection is possible.
+ * @param initialSelectedNodeNames The initial selected node names (used to initialize the selection state).
+ * 					Note that this initial state is not checked against the filter pattern. 
  */
-export function useSelection(sessionId: string, viewportId: string, settings?: IInteractionParameterSettings): {
-	/**
-	 * The selected node names.
-	 */
-    selectedNodeNames: string[],
-	/**
-	 * Set the selected node names.
-	 * 
-	 * @param names 
-	 * @returns 
-	 */
-	setSelectedNodeNames: (names: string[]) => void,
-	/**
-	 * Callback function to reset the selected node names.
-	 * 
-	 * @returns 
-	 */
-    resetSelectedNodeNames: () => void
-} {
-	// get the session API
-	const sessionApi = useShapeDiverStoreViewer(state => { return state.sessions[sessionId]; });
-
-	// check if the settings are selection settings
-	const selectionSettings = isInteractionSelectionParameterSettings(settings) ? settings.props : undefined;
-	// create the hover settings
-	const hoverSettings = useMemo(() => { 
-		return settings ? { color: settings?.props.hoverColor } : undefined; 
-	}, [settings]);
-
-	// call the select manager hook
-	const { selectManager } = useSelectManager(viewportId, selectionSettings);
-	// call the hover manager hook
-	useHoverManager(viewportId, hoverSettings);
+export function useSelection(
+	sessionId: string, 
+	viewportId: string, 
+	selectionProps: ISelectionParameterProps,
+	activate: boolean,
+	initialSelectedNodeNames?: string[]
+): ISelectionState {
 	
-	// call the process pattern hook
-	const { pattern } = useCreateNameFilterPattern(sessionId, settings?.props.nameFilter);
-	// call the select manager events hook
-	const { selectedNodeNames, setSelectedNodeNames, resetSelectedNodeNames } = useSelectManagerEvents(pattern);
+	// call the select manager hook
+	const { selectManager } = useSelectManager(viewportId, activate ? selectionProps : undefined);
 
-	/**
-	 * Callback function for the node interaction.
-	 * Allows to select nodes based on the selected node names.
-	 * Deselects all nodes before selecting the new ones.
-	 * 
-	 * @param node
-	 */
-	const callback = useCallback((node?: ITreeNode) => {
-		if (!node) return;
-		if (selectManager && settings) {
-			// deselect all nodes
-			node.traverse(n => {
-				const interactionData = n.data.find(d => d instanceof InteractionData) as InteractionData;
-				if (interactionData && interactionData.interactionStates.select === true)
-					selectManager?.deselect(n);
-			});
-
-			// select the nodes based on the selected node names
-			if (selectedNodeNames) {
-				selectedNodeNames.forEach((nodeName, i) => {
-					const parts = nodeName.split(".");
-
-					// check if the node name matches the pattern
-					const outputApi = node.data.find(d => d instanceof OutputApiData) as OutputApiData;
-					if (!outputApi) return;
-					if (outputApi.api.name !== parts[0]) return;
-
-					if(parts.length === 1) {
-						// special case if only the output name is given
-						const interactionData = node.data.find(d => d instanceof InteractionData) as InteractionData;
-						if (interactionData) 
-							selectManager?.select({ distance: i, point: vec3.create(), node });
-					} else {
-						// if the node name matches the pattern, select the node
-						node.traverse(n => {
-							if (n.getPath().endsWith(parts.slice(1).join("."))) {
-								const interactionData = n.data.find(d => d instanceof InteractionData) as InteractionData;
-								if (interactionData)
-									selectManager?.select({ distance: i, point: vec3.create(), node: n });
-							}
-						});
-					}
-				});
-			}
-		}
-	}, [selectedNodeNames, selectManager, settings]);
+	// call the hover manager hook
+	const hoverSettings = useMemo(() => { return { hoverColor: selectionProps.hoverColor }; }, [selectionProps]);
+	useHoverManager(viewportId, activate ? hoverSettings : undefined);
+	
+	// convert the user-defined name filters to filter patterns, and subscribe to selection events
+	const { patterns } = useCreateNameFilterPattern(sessionId, selectionProps.nameFilter);
+	const { selectedNodeNames, setSelectedNodeNames, resetSelectedNodeNames } = useSelectManagerEvents(patterns, initialSelectedNodeNames);
 
 	// add interaction data for each output, even if it is not in the pattern
 	// this is necessary to keep the number of hooks constant
-	for (const outputId in sessionApi.outputs) {
-		if (!pattern[outputId]) pattern[outputId] = [];
-		useNodeInteractionData(sessionId, outputId, pattern[outputId], { select: !!selectionSettings, hover: settings?.props.hover}, callback);
+	// TODO to work around this, we would need a hook similar to useOutputUpdateCallback, 
+	// but for all outputs (or the session), e.g. useSessionOutputsUpdateCallback
+	const interactionSettings = useMemo(
+		() => { return { select: true, hover: selectionProps.hover }; },
+		[selectionProps]
+	);
+	const outputs = useShapeDiverStoreViewer(state => { return state.sessions[sessionId].outputs; });
+	for (const outputId in outputs) {
+		// add interaction data
+		if (!patterns[outputId]) patterns[outputId] = [];
+		const { outputNode } = useNodeInteractionData(sessionId, outputId, patterns[outputId], interactionSettings, selectManager);
+		// in case selection becomes active or the output node changes, restore the selection status
+		useEffect(() => {
+			if (outputNode && selectManager)
+				restoreSelection(outputNode, selectManager, selectedNodeNames);
+		}, [outputNode, selectManager]);
 	}
 
 	return {
 		selectedNodeNames,
-		setSelectedNodeNames,
-		resetSelectedNodeNames
+		setSelectedNodeNames, 
+		resetSelectedNodeNames 
 	};
 }
+
+/**
+ * Restore selection status
+ * @param node 
+ * @param mgr 
+ * @param selectedNodeNames 
+ * @returns 
+ */
+const restoreSelection = (node: ITreeNode, mgr: SelectManager | MultiSelectManager, selectedNodeNames: string[]) => {
+	
+	// the node must have an OutputApiData object
+	const apiData = node.data.find(d => d instanceof OutputApiData) as OutputApiData;
+	if (!apiData) return;
+
+	// select child nodes based on selectedNodeNames
+	selectedNodeNames.forEach((name) => {
+	
+		const parts = name.split(".");
+		if (apiData.api.name !== parts[0]) return;
+
+		if (parts.length === 1) {
+			// special case if only the output name is given
+			const interactionData = node.data.find(d => d instanceof InteractionData) as InteractionData;
+			if (interactionData) 
+				mgr.select({ distance: 1, point: vec3.create(), node: node });
+		} else {
+			// if the node name matches the pattern, select the node
+			node.traverse(n => {
+				if (n.getPath().endsWith(parts.slice(1).join("."))) {
+					const interactionData = n.data.find(d => d instanceof InteractionData) as InteractionData;
+					if (interactionData)
+						mgr.select({ distance: 1, point: vec3.create(), node: n });
+				}
+			});
+		}
+	});
+};
 
 // #endregion Functions (1)

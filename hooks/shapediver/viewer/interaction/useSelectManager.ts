@@ -1,6 +1,6 @@
-import { ISelectionParameterSettings, MaterialStandardData } from "@shapediver/viewer";
+import { ISelectionParameterProps, MaterialStandardData } from "@shapediver/viewer";
 import { SelectManager, MultiSelectManager, InteractionEngine } from "@shapediver/viewer.features.interaction";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useInteractionEngine } from "./useInteractionEngine";
 
 // #region Functions (1)
@@ -26,19 +26,21 @@ const cleanUpSelectManager = (viewportId: string, interactionEngine?: Interactio
 		} else if (selectManagers[viewportId].selectManager instanceof MultiSelectManager) {
 			(selectManagers[viewportId].selectManager as MultiSelectManager).deselectAll();
 		}
-		if(interactionEngine)
+		if (interactionEngine)
 			interactionEngine.removeInteractionManager(selectManagers[viewportId].token);
 		delete selectManagers[viewportId];
 	}
 };
 
 /**
- * Hook allowing to create a select manager for a viewport.
+ * Hook providing select managers for viewports.
+ * Use the useNodeInteractionData hook to add interaction data to nodes of the
+ * scene tree and make them selectable.
  * 
  * @param viewportId The ID of the viewport.
  * @param settings The settings for the select manager. If the settings are not provided, the select manager will not be created.
  */
-export function useSelectManager(viewportId: string, settings?: Pick<ISelectionParameterSettings, "minimumSelection" | "maximumSelection" | "selectionColor">): {
+export function useSelectManager(viewportId: string, settings?: Pick<ISelectionParameterProps, "minimumSelection" | "maximumSelection" | "selectionColor">): {
 	/**
 	 * The select manager that was created for the viewport.
 	 * Depending on the settings, this can be a select manager or a multi select manager.
@@ -48,9 +50,14 @@ export function useSelectManager(viewportId: string, settings?: Pick<ISelectionP
 	// call the interaction engine hook
 	const { interactionEngine } = useInteractionEngine(viewportId);
 
+	// define a state for the select manager
+	const [selectManager, setSelectManager] = useState<SelectManager | MultiSelectManager | undefined>(undefined);
+
 	// use an effect to create the select manager
 	useEffect(() => {
 		if (settings) {
+			let changed = false;
+
 			// whenever this output node changes, we want to create the interaction engine
 			const selectMultiple = (settings.minimumSelection !== undefined && settings.maximumSelection !== undefined) &&
 				settings.minimumSelection <= settings.maximumSelection && settings.maximumSelection > 1;
@@ -59,9 +66,11 @@ export function useSelectManager(viewportId: string, settings?: Pick<ISelectionP
 			// in this case we need to remove the old select manager and create a new one
 			if (selectManagers[viewportId] && selectManagers[viewportId].selectMultiple !== selectMultiple) {
 				cleanUpSelectManager(viewportId, interactionEngine);
+				changed = true;
 			}
 
 			if (interactionEngine) {
+				changed = true;
 				// depending on the settings, create a select manager or a multi select manager
 				if (selectMultiple) {
 					const selectManager = new MultiSelectManager();
@@ -81,18 +90,23 @@ export function useSelectManager(viewportId: string, settings?: Pick<ISelectionP
 					selectManagers[viewportId] = { selectManager, token, selectMultiple };
 				}
 			}
+
+			if (changed) {
+				setSelectManager(selectManagers[viewportId].selectManager);
+			}
 		}
 
 		return () => {
 			// clean up the select manager
 			if (selectManagers[viewportId]) {
 				cleanUpSelectManager(viewportId, interactionEngine);
+				setSelectManager(undefined);
 			}
 		};
 	}, [interactionEngine, settings]);
 
 	return {
-		selectManager: selectManagers[viewportId]?.selectManager
+		selectManager
 	};
 }
 

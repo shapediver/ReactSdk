@@ -2,16 +2,12 @@ import { notifications } from "@mantine/notifications";
 import { addListener, EVENTTYPE_INTERACTION, IEvent, removeListener } from "@shapediver/viewer";
 import { InteractionEventResponseMapping, MultiSelectManager } from "@shapediver/viewer.features.interaction";
 import { useState, useCallback, useEffect } from "react";
-import { NameFilterPattern, processNodes } from "./utils/patternUtils";
+import { OutputNodeNameFilterPatterns, matchNodesWithPatterns } from "./utils/patternUtils";
 
 // #region Functions (1)
 
-/**
- * Hook allowing to create the select manager events.
- * 
- * @param pattern The pattern to match the hovered nodes.
- */
-export function useSelectManagerEvents(pattern: NameFilterPattern): {
+/** State of selected node names and corresponding actions. */
+export interface ISelectionState {
 	/**
 	 * The selected node names.
 	 */
@@ -24,14 +20,27 @@ export function useSelectManagerEvents(pattern: NameFilterPattern): {
 	 */
 	setSelectedNodeNames: (names: string[]) => void,
 	/**
-	 * Callback function to reset the selected node names.
+	 * Callback function to reset (clear) the selected node names.
 	 * 
 	 * @returns 
 	 */
     resetSelectedNodeNames: () => void
-} {
+}
+/**
+ * This hook registers to selection events and provides a state of selected node names
+ * according to the provided filter pattern.
+ * 
+ * @param patterns The pattern to match the hovered nodes.
+ * @param initialSelectedNodeNames The initial selected node names (used to initialize the selection state).
+ * 					Note that this initial state is not checked against the filter pattern.
+ */
+export function useSelectManagerEvents(
+	patterns: OutputNodeNameFilterPatterns, 
+	initialSelectedNodeNames?: string[]
+): ISelectionState {
+
 	// state for the selected nodes
-	const [selectedNodeNames, setSelectedNodeNames] = useState<string[]>([]);
+	const [selectedNodeNames, setSelectedNodeNames] = useState<string[]>(initialSelectedNodeNames ?? []);
 	const resetSelectedNodeNames = useCallback(() => setSelectedNodeNames([]), []);
 
 	// register an event handler and listen for output updates
@@ -47,7 +56,7 @@ export function useSelectManagerEvents(pattern: NameFilterPattern): {
 			if (!selectEvent.event) return;
 
 			const selected = [selectEvent.node];
-			const nodeNames = processNodes(pattern, selected);
+			const nodeNames = matchNodesWithPatterns(patterns, selected);
 			setSelectedNodeNames(nodeNames);
 		});
 
@@ -79,7 +88,7 @@ export function useSelectManagerEvents(pattern: NameFilterPattern): {
 			if (multiSelectEvent.nodes.length > (multiSelectEvent.manager as MultiSelectManager).maximumNodes) return;
 
 			const selected = multiSelectEvent.nodes;
-			const nodeNames = processNodes(pattern, selected);
+			const nodeNames = matchNodesWithPatterns(patterns, selected);
 			setSelectedNodeNames(nodeNames);
 		});
 
@@ -95,7 +104,7 @@ export function useSelectManagerEvents(pattern: NameFilterPattern): {
 
 			// remove the node from the selected nodes
 			const selected = multiSelectEvent.nodes;
-			const nodeNames = processNodes(pattern, selected);
+			const nodeNames = matchNodesWithPatterns(patterns, selected);
 			setSelectedNodeNames(nodeNames);
 		});
 
@@ -109,6 +118,7 @@ export function useSelectManagerEvents(pattern: NameFilterPattern): {
 			// We ignore the event if it's not based on an event triggered by the UI.
 			if (!multiSelectEvent.event) return;
 
+			// TODO: refactor this to use a store instead of calling mantine notifications directly
 			notifications.show({
 				title: "Maximum number of objects has already been selected",
 				message: `Expected ${(multiSelectEvent.manager as MultiSelectManager).maximumNodes} objects, but selected ${multiSelectEvent.nodes.length + 1} objects instead.`
@@ -125,7 +135,7 @@ export function useSelectManagerEvents(pattern: NameFilterPattern): {
 			removeListener(tokenMultiSelectOff);
 			removeListener(tokenMaximumMultiSelect);
 		};
-	}, [pattern]);
+	}, [patterns]);
 
 	return {
 		selectedNodeNames,
