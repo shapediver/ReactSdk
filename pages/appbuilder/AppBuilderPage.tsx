@@ -137,7 +137,7 @@ export default function AppBuilderPage(props: Partial<Props>) {
 
 	// for now we only make use of the first session in the settings
 	const sessionDto = settings ? settings.sessions[0] : undefined;
-	const { sessionId, error: appBuilderError, hasAppBuilderOutput, appBuilderData } = useSessionWithAppBuilder(sessionDto, settings?.appBuilderOverride);
+	const { sessionId, sessionApi, error: appBuilderError, hasAppBuilderOutput, appBuilderData } = useSessionWithAppBuilder(sessionDto, settings?.appBuilderOverride);
 	const error = settingsError ?? appBuilderError;
 	
 	// get props for fallback parameters
@@ -168,7 +168,7 @@ export default function AppBuilderPage(props: Partial<Props>) {
 		containers.right = <AppBuilderFallbackContainerComponent parameters={parameterProps} exports={exportProps}/>;
 	}
 
-	const show = Object.values(containers).some((c) => c !== undefined) || !showFallbackContainers;
+	const show = !!sessionApi;
 	
 	const showMarkdown = !(settings && hasSession) // no settings or no session
 		&& !loading // not loading
@@ -186,7 +186,7 @@ export default function AppBuilderPage(props: Partial<Props>) {
 			</MarkdownWidgetComponent>
 		</AlertPage> :
 			error ? <AlertPage title="Error">{error.message}</AlertPage> :
-				loading ? <LoaderPage /> :
+				loading || !show ? <LoaderPage /> : // TODO smooth transition between loading and showing
 					show ? <AppBuilderTemplateSelector
 						top={containers.top}
 						left={containers.left}
