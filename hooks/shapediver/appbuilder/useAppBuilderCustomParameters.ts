@@ -44,7 +44,7 @@ export function useAppBuilderCustomParameters(props: Props) {
 		console.debug("Custom parameter value changes", values, "New state", customParameterValues.current);
 		if (appBuilderParam && appBuilderParam.definition.type === PARAMETER_TYPE.STRING) {
 			appBuilderParam.actions.setUiValue(JSON.stringify(customParameterValues.current));
-			appBuilderParam.actions.execute().then(resolve).catch(reject);
+			appBuilderParam.actions.execute(true).then(resolve).catch(reject);
 		}
 		else {
 			console.warn(`Parameter "${CUSTOM_DATA_INPUT_NAME}" not found or not of type 'String'!`);

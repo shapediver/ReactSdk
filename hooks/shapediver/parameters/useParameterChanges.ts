@@ -20,6 +20,7 @@ export function useParameterChanges(parameters: PropsParameter[]) {
 	
 			return acc;
 		}, [] as IParameterChanges[])
+		.sort((a, b) => a.priority - b.priority)
 	);
 		
 	return parameterChanges;

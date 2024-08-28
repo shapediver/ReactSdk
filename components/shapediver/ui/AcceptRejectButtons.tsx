@@ -24,8 +24,10 @@ export default function AcceptRejectButtons({ parameters }: Props) {
 	// if there are changes that are currently being executed
 	const disableChangeControls = parameterChanges.length === 0 ||
 		parameterChanges.some(c => c.executing);
-	const acceptChanges = () => {
-		parameterChanges.forEach(c => c.accept());
+	const acceptChanges = async () => {
+		for (let index = 0; index < parameterChanges.length; index++) {
+			await parameterChanges[index].accept();
+		}
 	};
 	const rejectChanges = () => {
 		parameterChanges.forEach(c => c.reject());

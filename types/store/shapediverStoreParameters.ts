@@ -31,11 +31,17 @@ export interface IParameterChanges {
 	/** Promise allowing to wait for pending changes */
 	wait: Promise<void>;
 	/** Accept the changes, this resolves wait */
-	accept: () => void;
+	accept: () => Promise<void>;
 	/** Reject the changes, this rejects wait */
 	reject: () => void;
 	/** True if changes are currently being executed */
 	executing: boolean;
+	/** 
+	 * Priority of pending changes. 
+	 * This is used to determine the order of accepting changes in case 
+	 * of multiple pending change objects.
+	 */
+	priority: number;
 }
 
 export interface IParameterChangesPerSession { [sessionId: string]: IParameterChanges}
@@ -190,9 +196,10 @@ export interface IShapeDiverStoreParameters {
 	 * Get or add pending parameter changes for a given session id.
 	 * @param sessionId 
 	 * @param executor 
+	 * @param priority 
 	 * @returns 
 	 */
-	getChanges: (sessionId: string, executor: IGenericParameterExecutor) => IParameterChanges,
+	getChanges: (sessionId: string, executor: IGenericParameterExecutor, priority: number) => IParameterChanges,
 
 	/**
 	 * Remove pending parameter changes for a given session id.

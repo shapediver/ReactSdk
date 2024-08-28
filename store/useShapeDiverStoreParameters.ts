@@ -330,17 +330,18 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 		}), false, "removeChanges");
 	},
 
-	getChanges: (sessionId: string, executor: IGenericParameterExecutor) : IParameterChanges => {
+	getChanges: (sessionId: string, executor: IGenericParameterExecutor, priority: number) : IParameterChanges => {
 		const { parameterChanges, removeChanges } = get();
 		if ( parameterChanges[sessionId] )
 			return parameterChanges[sessionId];
 
 		const changes: IParameterChanges = {
 			values: {},
-			accept: () => undefined,
+			accept: () => Promise.resolve(),
 			reject: () => undefined,
 			wait: Promise.resolve(),
 			executing: false,
+			priority,
 		};
 	
 		changes.wait = new Promise((resolve, reject) => {
@@ -420,7 +421,7 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 						const acceptRejectMode = acceptRejectModeSelector(param);
 						acc[paramId] = createParameterStore(createParameterExecutor(sessionId, 
 							{ definition: mapParameterDefinition(param), isValid: (value, throwError) => param.isValid(value, throwError) }, 
-							() => getChanges(sessionId, executor)
+							() => getChanges(sessionId, executor, 0)
 						), acceptRejectMode, param.value);
 
 						return acc;
@@ -457,7 +458,7 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 						const paramId = def.definition.id;
 						const acceptRejectMode = acceptRejectModeSelector(def.definition);
 						acc[paramId] = createParameterStore(createParameterExecutor(sessionId, def, 
-							() => getChanges(sessionId, executor)
+							() => getChanges(sessionId, executor, -1)
 						), acceptRejectMode);
 
 						return acc;
@@ -485,7 +486,7 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 			else {
 				const acceptRejectMode = acceptRejectModeSelector(def.definition);
 				parameterStores[paramId] = createParameterStore(createParameterExecutor(sessionId, def, 
-					() => getChanges(sessionId, executor)
+					() => getChanges(sessionId, executor, -1)
 				), acceptRejectMode);
 				hasChanges = true;
 			}
