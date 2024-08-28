@@ -9,16 +9,16 @@ import { OutputNodeNameFilterPatterns, matchNodesWithPatterns } from "../utils/p
 /** State of selected node names and corresponding actions. */
 export interface ISelectionState {
 	/**
-	 * The selected nodes.
+	 * The selected node names.
 	 */
     selectedNodeNames: string[],
 	/**
-	 * Set the selected nodes.
+	 * Set the selected node names.
 	 * 
-	 * @param selectedNodes 
+	 * @param names 
 	 * @returns 
 	 */
-	setSelectedNodeNames: (selectedNodes: string[]) => void,
+	setSelectedNodeNames: (names: string[]) => void,
 	/**
 	 * Callback function to reset (clear) the selected node names.
 	 * 
@@ -145,22 +145,3 @@ export function useSelectManagerEvents(
 }
 
 // #endregion Functions (1)
-
-// #region Variables (1)
-
-// const createSelectedNodesArray = (selected: ITreeNode[], pattern: NameFilterPattern) => {
-// 	const nodeNames = processNodes(pattern, selected);
-
-// 	// create a new array with objects that have the name and the node
-// 	const newSelectedNodes = [];
-// 	for (let i = 0; i < selected.length; i++) {
-// 		newSelectedNodes.push({
-// 			name: nodeNames[i],
-// 			node: selected[i]
-// 		});
-// 	}
-
-// 	return newSelectedNodes;
-// };
-
-// #endregion Variables (1)

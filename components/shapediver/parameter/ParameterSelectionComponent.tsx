@@ -4,7 +4,6 @@ import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
 import { ISelectionParameterProps, SelectionParameterValue } from "@shapediver/viewer";
-import { useShapeDiverStoreViewer } from "../../../store/useShapeDiverStoreViewer";
 import { useSelection } from "../../../hooks/shapediver/viewer/interaction/selection/useSelection";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import Icon from "../../ui/Icon";
@@ -34,15 +33,6 @@ const parseNames = (value?: string): string[] => {
  * @returns
  */
 export default function ParameterSelectionComponent(props: PropsParameter) {
-
-	// get the parameter API as we might have to overwrite the acceptRejectMode
-	const sessionApi = useShapeDiverStoreViewer(state => { return state.sessions[props.sessionId]; });
-	const parameterApi = sessionApi?.getParameterByName(props.parameterId)[0];
-
-	const selectionProps = parameterApi.settings?.props as ISelectionParameterProps;
-	const minimumSelection = selectionProps?.minimumSelection ?? 1;
-	const maximumSelection = selectionProps?.maximumSelection ?? 1;
-
 	const {
 		definition,
 		handleChange,
@@ -51,6 +41,10 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 		value,
 		state
 	} = useParameterComponentCommons<string>(props);
+
+	const selectionProps = definition.settings?.props as ISelectionParameterProps;
+	const minimumSelection = selectionProps?.minimumSelection ?? 1;
+	const maximumSelection = selectionProps?.maximumSelection ?? 1;
 	
 	// is the selection active or not? 
 	// TODO: avoid multiple parallel selections

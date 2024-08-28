@@ -1,14 +1,31 @@
-import { Button, Group, Loader, Text } from "@mantine/core";
-import React, { useCallback, useState } from "react";
+import { Button, Group, Loader, Space, Stack, Text } from "@mantine/core";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
-import { IInteractionParameterSettings, GumballParameterValue } from "@shapediver/viewer";
+import { GumballParameterValue, IGumballParameterProps } from "@shapediver/viewer";
 import { useGumball } from "../../../hooks/shapediver/viewer/interaction/gumball/useGumball";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import Icon from "../../ui/Icon";
 
 const VIEWPORT_ID = "viewport_1";
+
+/**
+ * Parse the value of a gumball parameter and extract the transformed node names.
+ * @param value 
+ * @returns 
+ */
+const parseTransformation = (value?: string): { name: string, transformation: number[] }[] => {
+	if (!value) return [];
+	try {
+		const parsed = JSON.parse(value);
+
+		return parsed.names.map((name: string, index: number) => { return { name: name, transformation: parsed.transformation[index] }; });
+	}
+	catch (e) {
+		return [];
+	}
+};
 
 /**
  * Functional component that creates a switch component for a gumball parameter.
@@ -21,38 +38,63 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 		handleChange,
 		onCancel,
 		disabled,
-		value
+		value,
+		state
 	} = useParameterComponentCommons<string>(props);
+
+	const gumballProps = definition.settings?.props as IGumballParameterProps;
 
 	// state for the gumball application
 	const [gumballActive, setGumballActive] = useState<boolean>(false);
 
 	// get the transformed nodes and the selected nods
-	const { transformedNodes, setTransformedNodes, setSelectedNodes } = useGumball(props.sessionId, VIEWPORT_ID, gumballActive ? definition.settings as IInteractionParameterSettings : undefined);
+	const { transformedNodeNames, setTransformedNodeNames, setSelectedNodeNames, restoreTransformedNodeNames } = useGumball(
+		props.sessionId, 
+		VIEWPORT_ID, 
+		gumballProps,
+		gumballActive,
+		parseTransformation(value)
+	);
 
 	/**
 	 * Callback function to change the value of the parameter.
 	 * This function is called when the gumball interaction is confirmed.
 	 * It also ends the gumball interaction process and resets the selected nodes.
 	 */
-	const changeValue = useCallback(() => {
-		const parameterValue: GumballParameterValue = { names: transformedNodes.map(node => node.name), transformations: transformedNodes.map(node => node.transformation) };
-		handleChange(JSON.stringify(parameterValue), 0);
+	const changeValue = useCallback((transformedNodeNames: { name: string, transformation: number[] }[]) => {
 		setGumballActive(false);
-		setSelectedNodes([]);
-	}, [transformedNodes]);
+		const parameterValue: GumballParameterValue = { 
+			names: transformedNodeNames.map(node => node.name), 
+			transformations: transformedNodeNames.map(node => node.transformation) 
+		};
+		handleChange(JSON.stringify(parameterValue));
+		setSelectedNodeNames([]);
+	}, []);
 
 	/**
 	 * Callback function to reset the transformed nodes.
-	 * This function is called when the gumball interaction is aborted.
-	 * It also ends the gumball interaction process and resets the selected nodes.
+	 * This function is called when the gumball interaction is aborted by the user.
+	 * It also ends the gumball.
 	 */
-	const abortGumball = useCallback(() => {
+	const resetTransformation = useCallback((val: string) => {
+		restoreTransformedNodeNames(parseTransformation(val), transformedNodeNames);
 		setGumballActive(false);
-		setSelectedNodes([]);
-		const parsedValue = value ? JSON.parse(value).names : [];
-		setTransformedNodes(value ? parsedValue.names.map((name: string, index: number) => { return { name: name, transformation: parsedValue.transformations[index] }; }) : []);
-	}, [gumballActive]);
+		setSelectedNodeNames([]);
+	}, [transformedNodeNames]);
+
+	// react to changes of the uiValue and update the gumball state if necessary
+	useEffect(() => {
+		const parsed = parseTransformation(state.uiValue);
+		// compare names to selectedNodeNames
+		if (parsed.length !== transformedNodeNames.length || 
+			!parsed.every((n, i) => n === transformedNodeNames[i]) ||
+			!parsed.every((n, i) => n.transformation.every((t, j) => t === transformedNodeNames[i].transformation[j]))
+		) {
+			setGumballActive(false);
+			setTransformedNodeNames(parsed);
+			setSelectedNodeNames([]);
+		}
+	}, [state.uiValue]); 
 
 	/**
 	 * The content of the parameter when it is active.
@@ -64,40 +106,40 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 	 * 
 	 */
 	const contentActive =
-		<>
+		<Stack>
 			<Button justify="space-between" fullWidth h="100%" disabled={disabled}
 				rightSection={<Loader type="dots" />}
-				bg={""}
-				onClick={abortGumball}>
-				<Group justify="space-between" w="100%" pt={"sm"} pb={"sm"}>
-					<Group style={{ flexDirection: "column" }} align="left">
-						<Text style={{ textAlign: "left" }} size="sm" fw={500}>
-							Currently transformed objects: {transformedNodes.length}
-						</Text>
-						<Group>
-							<Text size="sm" fw={400} fs="italic">
-								Select objects to transform
-							</Text>
-						</Group>
-					</Group>
-				</Group>
+				onClick={() => resetTransformation(value)}
+			>
+				<Stack>
+					<Space />
+					<Text size="sm" fw={500} ta="left">
+						Currently transformed: {transformedNodeNames.length}
+					</Text>
+					<Text size="sm" fw={400} fs="italic" ta="left">
+						Select objects to transform
+					</Text>
+					<Space />
+				</Stack>
 			</Button>
-			<Group justify="space-between" w="100%">
+
+			<Group justify="space-between" w="100%" wrap="nowrap">
 				<Button
-					w="35%"
-					bg={"blue"}
-					onClick={changeValue}
+					disabled={transformedNodeNames.length === 0}
+					fullWidth={true}
+					variant="filled"
+					onClick={() => changeValue(transformedNodeNames)}
 				>
 					<Text>Confirm</Text>
 				</Button>
 				<Button
-					w="35%"
-					bg={"red"}
-					onClick={abortGumball}>
+					fullWidth={true}
+					variant={"light"}
+					onClick={() => resetTransformation(value)}>
 					<Text>Cancel</Text>
 				</Button>
 			</Group>
-		</>;
+		</Stack>;
 
 
 	/**
@@ -107,25 +149,26 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 	 * Within the button, the number of transformed nodes is displayed.
 	 */
 	const contentInactive =
-		<Button justify="space-between" fullWidth h="100%" disabled={disabled}
+		<Button justify="space-between" fullWidth={true} disabled={disabled}
 			rightSection={<Icon type={IconTypeEnum.IconHandFinger} />}
-			bg={"blue"}
+			variant={transformedNodeNames.length === 0 ? "light" : "filled"}
 			onClick={() => setGumballActive(true)}>
-			<Group justify="space-between" w="100%" pt={"sm"} pb={"sm"}>
-				<Text size="sm" fw={500}>
-					Start gumball
-				</Text>
-			</Group>
+			<Text size="sm">
+				Start gumball
+			</Text>
 		</Button>;
 
-	return <>
-		<Group>
-			<ParameterLabelComponent {...props} cancel={onCancel} />
-			{
-				definition &&
-					gumballActive ? contentActive : contentInactive
-			}
-		</Group>
+	// extend the onCancel callback to reset the transformed nodes.
+	const _onCancel = useMemo(() => onCancel ? () =>{
+		resetTransformation(state.execValue);
+		onCancel?.();
+	} : undefined, [onCancel]);
 
+	return <>
+		<ParameterLabelComponent {...props} cancel={_onCancel} />
+		{
+			definition &&
+				gumballActive ? contentActive : contentInactive
+		}
 	</>;
 }

@@ -1,7 +1,6 @@
 import {
 	addListener,
 	EVENTTYPE_GUMBALL,
-	ITreeNode,
 	removeListener
 } from "@shapediver/viewer";
 import { GumballEventResponseMapping } from "@shapediver/viewer.features.gumball";
@@ -14,21 +13,28 @@ import { useEffect, useState } from "react";
  * In this event handler, the transformed nodes are updated.
  * 
  * @param selectedNodes The selected nodes.
+ * @param initialTransformedNodeNames The initial transformed node names (used to initialize the selection state).
+ * 					Note that this initial state is not checked against the filter pattern. 
  */
-export function useGumballEvents(selectedNodes: { name: string, node: ITreeNode }[]): {
+export function useGumballEvents(
+	selectedNodeNames: string[],
+	initialTransformedNodeNames?: { name: string, transformation: number[] }[]
+): {
     /**
      * The transformed nodes.
      */
-    transformedNodes: { name: string, transformation: number[] }[],
+    transformedNodeNames: { name: string, transformation: number[] }[],
     /**
      * Set the transformed nodes.
      * 
      * @param nodes 
      * @returns 
      */
-    setTransformedNodes: (nodes: { name: string, transformation: number[] }[]) => void
+    setTransformedNodeNames: (nodes: { name: string, transformation: number[] }[]) => void
 } {
-	const [transformedNodes, setTransformedNodes] = useState<{ name: string, transformation: number[] }[]>([]);
+
+	// state for the transformed nodes
+	const [transformedNodeNames, setTransformedNodeNames] = useState<{ name: string, transformation: number[] }[]>(initialTransformedNodeNames ?? []);
 
 	// register an event handler and listen for output updates
 	useEffect(() => {
@@ -36,24 +42,25 @@ export function useGumballEvents(selectedNodes: { name: string, node: ITreeNode 
 			const gumballEvent = e as GumballEventResponseMapping[EVENTTYPE_GUMBALL.MATRIX_CHANGED];
 
 			// Create a new array to avoid mutating the state directly
-			const newTransformedNodes = [...transformedNodes];
+			const newTransformedNodeNames = [...transformedNodeNames];
 
 			for (let i = 0; i < gumballEvent.nodes.length; i++) {
 				const node = gumballEvent.nodes[i];
 				const transformation = gumballEvent.transformations[i];
 
 				// search for the node in the selected nodes
-				selectedNodes.forEach((value) => {
-					if (value.node === node) {
+				selectedNodeNames.forEach((name) => {
+					const parts = name.split(".");
+					if (node.getPath().endsWith(parts.slice(1).join("."))) {
 
 						// determine if the node is already in the transformed nodes array
 						// if not add it, otherwise update the transformation
-						const index = newTransformedNodes.findIndex(tn => tn.name === value.name);
+						const index = newTransformedNodeNames.findIndex(tn => tn.name === name);
 						if (index !== -1) {
-							newTransformedNodes[index].transformation = Array.from(transformation);
+							newTransformedNodeNames[index].transformation = Array.from(transformation);
 						} else {
-							newTransformedNodes.push({
-								name: value.name,
+							newTransformedNodeNames.push({
+								name: name,
 								transformation: Array.from(transformation)
 							});
 						}
@@ -62,18 +69,20 @@ export function useGumballEvents(selectedNodes: { name: string, node: ITreeNode 
 			}
 
 			// Set the new array
-			setTransformedNodes(newTransformedNodes);
-
+			setTransformedNodeNames(newTransformedNodeNames);
 		});
 
+		/**
+		 * Remove the event listeners when the component is unmounted.
+		 */
 		return () => {
 			removeListener(token);
 		};
-	}, [selectedNodes, transformedNodes]);
+	}, [selectedNodeNames]);
 
 	return {
-		transformedNodes,
-		setTransformedNodes
+		transformedNodeNames,
+		setTransformedNodeNames
 	};
 }
 
