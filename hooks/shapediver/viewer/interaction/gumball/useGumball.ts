@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { Gumball } from "@shapediver/viewer.features.gumball";
+import { Gumball, updateGumballTransformation } from "@shapediver/viewer.features.gumball";
 import { IGumballParameterProps, ISelectionParameterProps, ISessionApi, ITreeNode } from "@shapediver/viewer";
 import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
 import { useSelection } from "../selection/useSelection";
@@ -119,32 +119,13 @@ export function useGumball(
 		const nodes = getNodesByName(sessionApi, oldTransformedNodeNames.map(tn => tn.name));
 
 		nodes.forEach(tn => {
-
-			/**
-			 * @alex most of this code will move into the viewer
-			 * the adapting of transformations should be done there
-			 */
-
+			// get the new transformation matrix (if it exists)
 			const newTransformation = newTransformedNodeNames.find(nt => nt.name === tn.name);
-			if (newTransformation) {
-				const transformIndex = tn.node.transformations.findIndex(t => t.id === "SD_gumball_matrix");
-				if(transformIndex !== -1) {
-					tn.node.transformations[transformIndex].matrix = mat4.fromValues(...(newTransformation.transformation as [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number]));
-					tn.node.updateVersion();
-				} else {
-					tn.node.transformations.push({
-						id: "SD_gumball_matrix",
-						matrix: mat4.fromValues(...(newTransformation.transformation as [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number]))
-					});
-					tn.node.updateVersion();
-				}
-			} else {
-				const transformIndex = tn.node.transformations.findIndex(t => t.id === "SD_gumball_matrix");
-				if(transformIndex !== -1) {
-					tn.node.transformations.splice(transformIndex, 1);
-					tn.node.updateVersion();
-				}
-			}
+			const transformationMatrix = newTransformation ? mat4.fromValues(...(newTransformation.transformation as [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number])) : undefined;
+
+			// update the gumball transformation
+			// in case the transformation matrix is undefined, the transformation will be reset
+			updateGumballTransformation(tn.node, transformationMatrix);
 		});
 
 		setTransformedNodeNames(newTransformedNodeNames);
