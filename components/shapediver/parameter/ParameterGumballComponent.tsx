@@ -67,7 +67,7 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 			names: transformedNodeNames.map(node => node.name), 
 			transformations: transformedNodeNames.map(node => node.transformation) 
 		};
-		handleChange(JSON.stringify(parameterValue));
+		handleChange(JSON.stringify(parameterValue), 0);
 		setSelectedNodeNames([]);
 	}, []);
 

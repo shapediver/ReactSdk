@@ -70,7 +70,7 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 	const changeValue = useCallback((names: string[]) => {
 		setSelectionActive(false);
 		const parameterValue: SelectionParameterValue = { names };
-		handleChange(JSON.stringify(parameterValue));
+		handleChange(JSON.stringify(parameterValue), 0);
 	}, []);
 	
 	// check whether the selection should be accepted immediately
