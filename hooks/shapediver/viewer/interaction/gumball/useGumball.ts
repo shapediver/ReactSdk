@@ -90,7 +90,7 @@ export function useGumball(
 	// use an effect to create the gumball whenever the selected node names change
 	useEffect(() => {
 		if (viewportApi) {
-			// whenever this output node changes, we want to create the interaction engine
+			// whenever the selected node names change, create a new gumball
 			const nodes = getNodesByName(sessionApi, selectedNodeNames);
 			const gumball = new Gumball(viewportApi, Object.values(nodes).map(n => n.node));
 			gumballRef.current = gumball;
@@ -115,7 +115,7 @@ export function useGumball(
 	 * @param oldTransformedNodeNames The old transformed node names.
 	 * @returns
 	 */
-	const restoreTransformedNodeNames = useCallback((newTransformedNodeNames: { name: string, transformation: number[] }[], oldTransformedNodeNames: { name: string, transformation: number[] }[]) => {
+	const restoreTransformedNodeNames = useCallback((newTransformedNodeNames: { name: string, transformation: number[] }[], oldTransformedNodeNames: { name: string }[]) => {
 		const nodes = getNodesByName(sessionApi, oldTransformedNodeNames.map(tn => tn.name));
 
 		nodes.forEach(tn => {

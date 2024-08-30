@@ -4,7 +4,8 @@ import {
 	removeListener
 } from "@shapediver/viewer";
 import { GumballEventResponseMapping } from "@shapediver/viewer.features.gumball";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { getNodeData } from "../utils/patternUtils";
 
 // #region Functions (1)
 
@@ -33,8 +34,15 @@ export function useGumballEvents(
     setTransformedNodeNames: (nodes: { name: string, transformation: number[] }[]) => void
 } {
 
-	// state for the transformed nodes
+	// state for the transformed node names
 	const [transformedNodeNames, setTransformedNodeNames] = useState<{ name: string, transformation: number[] }[]>(initialTransformedNodeNames ?? []);
+	// create a reference to the transformed node names
+	const transformedNodeNamesRef = useRef(transformedNodeNames);
+
+	// update the reference when the state changes
+	useEffect(() => {
+		transformedNodeNamesRef.current = transformedNodeNames;
+	}, [transformedNodeNames]);
 
 	// register an event handler and listen for output updates
 	useEffect(() => {
@@ -42,7 +50,7 @@ export function useGumballEvents(
 			const gumballEvent = e as GumballEventResponseMapping[EVENTTYPE_GUMBALL.MATRIX_CHANGED];
 
 			// Create a new array to avoid mutating the state directly
-			const newTransformedNodeNames = [...transformedNodeNames];
+			const newTransformedNodeNames = [...transformedNodeNamesRef.current];
 
 			for (let i = 0; i < gumballEvent.nodes.length; i++) {
 				const node = gumballEvent.nodes[i];
@@ -51,7 +59,12 @@ export function useGumballEvents(
 				// search for the node in the selected nodes
 				selectedNodeNames.forEach((name) => {
 					const parts = name.split(".");
-					if (node.getPath().endsWith(parts.slice(1).join("."))) {
+
+					// get the node data to compare the output name
+					const nodeData = getNodeData(node);
+
+					// check if the node path matches the selected node name
+					if (nodeData && nodeData.outputName === parts[0] && node.getPath().endsWith(parts.slice(1).join("."))) {
 
 						// determine if the node is already in the transformed nodes array
 						// if not add it, otherwise update the transformation
