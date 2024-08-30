@@ -1,9 +1,11 @@
 import { IAppBuilder } from "../../../types/shapediver/appbuilder";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useParameterStateless } from "../parameters/useParameterStateless";
 import { useDefineGenericParameters } from "../parameters/useDefineGenericParameters";
 import { ISessionApi, PARAMETER_TYPE } from "@shapediver/viewer";
-import { IAcceptRejectModeSelector } from "../../../types/store/shapediverStoreParameters";
+import { IAcceptRejectModeSelector, IGenericParameterExecutor } from "../../../types/store/shapediverStoreParameters";
+import { useShapeDiverStoreParameters } from "../../../store/useShapeDiverStoreParameters";
+import { useShallow } from "zustand/react/shallow";
 
 /** Prefix used to register custom parameters */
 const CUSTOM_SESSION_ID_POSTFIX = "_appbuilder";
@@ -32,25 +34,83 @@ export function useAppBuilderCustomParameters(props: Props) {
 	const sessionId = sessionApi?.id ?? "";
 	const sessionIdAppBuilder = sessionId + CUSTOM_SESSION_ID_POSTFIX;
 
-	// values of the custom parameters
+	// default values and current values of the custom parameters
+	const defaultCustomParameterValues = useRef<{ [key: string]: any }>({});
 	const customParameterValues = useRef<{ [key: string]: any }>({});
+
+	// define a callback which returns the current state of custom parameter values
+	const getCustomParameterValues = useCallback(() => {
+		// We want to set the value of the "AppBuilder" to a JSON string 
+		// of the current custom parameter values. Values for all currently
+		// defined custom parameters shall be included in the JSON string.
+		// Therefore we need to merge the default values with the current values.
+		const customValues = { ...defaultCustomParameterValues.current };
+		Object.keys(customValues).forEach(id => {
+			if (id in customParameterValues.current)
+				customValues[id] = customParameterValues.current[id];
+		});
+		// remove leftover values from custom parameters that have been removed
+		Object.keys(customParameterValues.current).forEach(id => {
+			if (!(id in customValues))
+				delete customParameterValues.current[id];
+		});
+
+		return customValues;
+	}, []);
 	
-	// App Builder parameter (used for sending values of custom parameters to the model)
+	// "AppBuilder" parameter (used for sending values of custom parameters to the model)
 	const appBuilderParam = useParameterStateless<string>(sessionId, CUSTOM_DATA_INPUT_NAME);
 
+	// prepare for adding pre-execution hook, which will set the value of the parameter named "AppBuilder"
+	// to a JSON string of the current custom parameter values
+	const { setPreExecutionHook, removePreExecutionHook } = useShapeDiverStoreParameters(
+		useShallow(state => 
+			({ setPreExecutionHook: state.setPreExecutionHook, removePreExecutionHook: state.removePreExecutionHook }))
+	);
+
+	// set the default values of the custom parameters whenever the 
+	// custom parameter definitions change
+	useEffect(() => {
+		if (appBuilderData?.parameters) {
+			appBuilderData.parameters.forEach(p => {
+				defaultCustomParameterValues.current[p.id] = p.defval;
+			});
+		}
+		
+		return () => { 
+			defaultCustomParameterValues.current = {};
+		};
+	}, [appBuilderData]);
+
 	// executor function for changes of custom parameter values
-	const executor = useCallback((values: { [key: string]: any }) => new Promise((resolve, reject) => {
+	const executor = useCallback<IGenericParameterExecutor>(async (values: { [key: string]: any }) => {
 		Object.keys(values).forEach(key => customParameterValues.current[key] = values[key]);
-		console.debug("Custom parameter value changes", values, "New state", customParameterValues.current);
 		if (appBuilderParam && appBuilderParam.definition.type === PARAMETER_TYPE.STRING) {
-			appBuilderParam.actions.setUiValue(JSON.stringify(customParameterValues.current));
-			appBuilderParam.actions.execute(true).then(resolve).catch(reject);
+			// strictly speaking there would be no need to set the value of the parameter, 
+			// as it is set by the pre-execution hook
+			appBuilderParam.actions.setUiValue(JSON.stringify(getCustomParameterValues()));
+			await appBuilderParam.actions.execute(true);
 		}
 		else {
 			console.warn(`Parameter "${CUSTOM_DATA_INPUT_NAME}" not found or not of type 'String'!`);
-			resolve(values);
 		}
-	}), [appBuilderParam]);
+	}, [appBuilderParam]);
+
+	// register the pre-execution hook
+	useEffect(() => {
+		if (appBuilderParam) {
+			if (appBuilderParam.definition.type !== PARAMETER_TYPE.STRING)
+				console.warn(`Ignoring parameter "${CUSTOM_DATA_INPUT_NAME}" whose type is ${appBuilderParam.definition.type} instead of 'String'!`);
+			else
+				setPreExecutionHook(sessionId, async (values) => {
+					values[appBuilderParam.definition.id] = JSON.stringify(getCustomParameterValues());
+			
+					return values;
+				});
+		}
+		
+		return () => removePreExecutionHook(sessionId);
+	}, [appBuilderParam]);
 
 	// define custom parameters and an execution callback for them
 	useDefineGenericParameters(sessionIdAppBuilder, 
