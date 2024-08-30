@@ -8,7 +8,7 @@ import { useId } from "@mantine/hooks";
 import { useParameterStateless } from "../../../hooks/shapediver/parameters/useParameterStateless";
 import { useSessionPropsParameter } from "../../../hooks/shapediver/parameters/useSessionPropsParameter";
 import { isInteractionSelectionParameterSettings, SelectionParameterValue } from "@shapediver/viewer";
-import { useSelection } from "../../../hooks/shapediver/viewer/interaction/useSelection";
+import { useSelection } from "../../../hooks/shapediver/viewer/interaction/selection/useSelection";
 
 const VIEWPORT_ID = "viewport_1";
 

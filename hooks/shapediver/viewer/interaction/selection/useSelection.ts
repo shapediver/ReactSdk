@@ -5,9 +5,9 @@ import { vec3 } from "gl-matrix";
 import { ISelectionState, useSelectManagerEvents } from "./useSelectManagerEvents";
 import { useSelectManager } from "./useSelectManager";
 import { useHoverManager } from "./useHoverManager";
-import { useCreateNameFilterPattern } from "./useCreateNameFilterPattern";
-import { useShapeDiverStoreViewer } from "../../../../store/useShapeDiverStoreViewer";
-import { useNodeInteractionData } from "./useNodeInteractionData";
+import { useCreateNameFilterPattern } from "../useCreateNameFilterPattern";
+import { useShapeDiverStoreViewer } from "../../../../../store/useShapeDiverStoreViewer";
+import { useNodeInteractionData } from "../useNodeInteractionData";
 
 // #region Functions (1)
 

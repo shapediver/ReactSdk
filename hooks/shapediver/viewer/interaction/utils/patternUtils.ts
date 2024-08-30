@@ -125,7 +125,7 @@ export const convertUserDefinedNameFilters = (
  * @param node The node to start the upwards traversal from.
  * @returns
  */
-const getNodeData = (node: ITreeNode): {
+export const getNodeData = (node: ITreeNode): {
 	outputId: string,
 	outputName: string, 
 	originalName: string

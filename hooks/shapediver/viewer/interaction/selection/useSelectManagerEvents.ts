@@ -2,7 +2,7 @@ import { notifications } from "@mantine/notifications";
 import { addListener, EVENTTYPE_INTERACTION, IEvent, removeListener } from "@shapediver/viewer";
 import { InteractionEventResponseMapping, MultiSelectManager } from "@shapediver/viewer.features.interaction";
 import { useState, useCallback, useEffect } from "react";
-import { OutputNodeNameFilterPatterns, matchNodesWithPatterns } from "./utils/patternUtils";
+import { OutputNodeNameFilterPatterns, matchNodesWithPatterns } from "../utils/patternUtils";
 
 // #region Functions (1)
 
