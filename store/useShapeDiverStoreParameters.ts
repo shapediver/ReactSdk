@@ -15,6 +15,7 @@ import {
 	IParameterStore,
 	IParameterStores,
 	IParameterStoresPerSession,
+	IPreExecutionHook,
 	IShapeDiverStoreParameters
 } from "../types/store/shapediverStoreParameters";
 import { IShapeDiverExport, IShapeDiverExportDefinition } from "../types/shapediver/export";
@@ -54,10 +55,14 @@ function createParameterExecutor<T>(sessionId: string, param: IGenericParameterD
 				changes.values[paramId] = uiValue;
 				if (forceImmediate)
 					setTimeout(changes.accept, 0);
-				await changes.wait;
-				console.debug(`Executed change of parameter ${paramId} to ${uiValue}`);
+				const values = await changes.wait;
+				const value = paramId in values ? values[paramId] : uiValue;
+				if (value !== uiValue) 
+					console.debug(`Executed change of parameter ${paramId} to ${value} instead of ${uiValue} (overridden by pre-execution hook)`);
+				else
+					console.debug(`Executed change of parameter ${paramId} to ${uiValue}`);
 				
-				return uiValue;
+				return value;
 			}
 			catch (e)// TODO provide possibility to react to exception
 			{
@@ -310,6 +315,7 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 	parameterChanges: {},
 	defaultExports: {},
 	defaultExportResponses: {},
+	preExecutionHooks: {},
 
 	removeChanges: (sessionId: string) => {
 		const { parameterChanges } = get();
@@ -330,7 +336,12 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 		}), false, "removeChanges");
 	},
 
-	getChanges: (sessionId: string, executor: IGenericParameterExecutor, priority: number) : IParameterChanges => {
+	getChanges: (
+		sessionId: string, 
+		executor: IGenericParameterExecutor, 
+		priority: number, 
+		preExecutionHook?: IPreExecutionHook
+	) : IParameterChanges => {
 		const { parameterChanges, removeChanges } = get();
 		if ( parameterChanges[sessionId] )
 			return parameterChanges[sessionId];
@@ -339,7 +350,7 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 			values: {},
 			accept: () => Promise.resolve(),
 			reject: () => undefined,
-			wait: Promise.resolve(),
+			wait: Promise.resolve({}),
 			executing: false,
 			priority,
 		};
@@ -348,7 +359,8 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 			changes.accept = async () => {
 				try {
 					// get executor promise, but don't wait for it yet
-					const promise = executor(changes.values, sessionId);
+					const amendedValues = preExecutionHook ? await preExecutionHook(changes.values, sessionId) : changes.values;
+					const promise = executor(amendedValues, sessionId);
 					// set "executing" mode
 					set((_state) => ({
 						parameterChanges: {
@@ -361,7 +373,7 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 					}), false, "executeChanges");
 					// wait for execution
 					await promise;
-					resolve();
+					resolve(amendedValues);
 				} 
 				catch (e: any)
 				{
@@ -421,7 +433,11 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 						const acceptRejectMode = acceptRejectModeSelector(param);
 						acc[paramId] = createParameterStore(createParameterExecutor(sessionId, 
 							{ definition: mapParameterDefinition(param), isValid: (value, throwError) => param.isValid(value, throwError) }, 
-							() => getChanges(sessionId, executor, 0)
+							() => {
+								const { preExecutionHooks } = get();
+								
+								return getChanges(sessionId, executor, 0, preExecutionHooks[sessionId]);
+							}
 						), acceptRejectMode, param.value);
 
 						return acc;
@@ -603,6 +619,39 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 				...{ [sessionId]: newDefaultExportResponses }
 			}
 		}), false, "deregisterDefaultExport");
+	},
+
+	setPreExecutionHook: (sessionId: string, hook: IPreExecutionHook) => {
+		if (!sessionId) return;
+
+		const { preExecutionHooks } = get();
+		if (sessionId in preExecutionHooks)
+			console.warn(`Pre-execution hook for session ${sessionId} already exists, overwriting it.`);
+		
+		set((_state) => ({
+			preExecutionHooks: {
+				..._state.preExecutionHooks,
+				...{ [sessionId]: hook }
+			}
+		}), false, "setPreExecutionHook");
+	},
+
+	removePreExecutionHook: (sessionId: string) => {
+		if (!sessionId) return;
+
+		const { preExecutionHooks } = get();
+		if (!preExecutionHooks[sessionId])
+			return;
+
+		const hooks: { [key: string]: IPreExecutionHook } = {};
+		Object.keys(preExecutionHooks).forEach(id => {
+			if (id !== sessionId)
+				hooks[id] = preExecutionHooks[id];
+		});
+
+		set(() => ({
+			preExecutionHooks: hooks
+		}), false, "removePreExecutionHook");
 	},
 
 }

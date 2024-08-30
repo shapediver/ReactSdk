@@ -46,7 +46,7 @@ export function useParameterComponentCommons<T>(
 	 */
 	const onCancel = useMemo( () => acceptRejectMode && state.dirty && !changes?.executing ? 
 		() => handleChange(state.execValue, 0) : undefined,
-		[acceptRejectMode, state.dirty, changes?.executing, state.execValue] );
+	[acceptRejectMode, state.dirty, changes?.executing, state.execValue] );
 
 	/** 
 	 * disable the component in case 

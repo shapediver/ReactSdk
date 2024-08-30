@@ -28,8 +28,13 @@ export type IExportResponsesPerSession = { [sessionId: string]: IExportResponse 
 export interface IParameterChanges {
 	/** The parameter values to change */
 	values: { [parameterId: string]: any };
-	/** Promise allowing to wait for pending changes */
-	wait: Promise<void>;
+	/** 
+	 * Promise allowing to wait for pending changes.
+	 * The returned values are the ones that have been executed, 
+	 * which might differ from the values that have been set, 
+	 * because they might have been overridden by a pre-execution hook.
+	 */
+	wait: Promise<{ [parameterId: string]: any }>;
 	/** Accept the changes, this resolves wait */
 	accept: () => Promise<void>;
 	/** Reject the changes, this rejects wait */
@@ -72,6 +77,17 @@ export interface IGenericParameterDefinition {
 export type IGenericParameterExecutor = (values: { [key: string]: any }, sessionId: string) => Promise<unknown|void>;
 
 /**
+ * Hook to be executed before executor. 
+ * This can be used to override or retrieve parameter values immediately before execution.
+ */
+export type IPreExecutionHook = (values: { [key: string]: any }, sessionId: string) => Promise<{ [key: string]: any }>;
+
+/**
+ * Executor function override per session.
+ */
+export interface IPreExecutionHookPerSession { [sessionId: string]: IPreExecutionHook}
+
+/**
  * Selector for deciding whether a parameter should use accept/reject mode or immediate execution.
  */
 export type IAcceptRejectModeSelector = (param: IShapeDiverParameterDefinition) => boolean;
@@ -89,27 +105,32 @@ export interface IShapeDiverStoreParameters {
 	/**
 	 * Parameter stores.
 	 */
-	parameterStores: IParameterStoresPerSession;
+	readonly parameterStores: IParameterStoresPerSession;
 
 	/**
 	 * Export stores.
 	 */
-	exportStores: IExportStoresPerSession;
+	readonly exportStores: IExportStoresPerSession;
 
 	/**
 	 * Pending parameter changes.
 	 */
-	parameterChanges: IParameterChangesPerSession;
+	readonly parameterChanges: IParameterChangesPerSession;
 
 	/**
 	 * Default exports.
 	 */
-	defaultExports: IDefaultExportsPerSession;
+	readonly defaultExports: IDefaultExportsPerSession;
 
 	/**
 	 * Responses to default exports.
 	 */
-	defaultExportResponses: IExportResponsesPerSession;
+	readonly defaultExportResponses: IExportResponsesPerSession;
+
+	/**
+	 * Pre-execution hooks per session.
+	 */
+	readonly preExecutionHooks: IPreExecutionHookPerSession;
 
 	/**
 	 * Add parameter and export stores for all parameters and exports of the session.
@@ -120,7 +141,7 @@ export interface IShapeDiverStoreParameters {
 	 * @param token Token (JWT) that was used when creating the session. If provided, it will be used for export downloads. Optional.
 	 * @returns
 	 */
-	addSession: (session: ISessionApi, acceptRejectMode: boolean | IAcceptRejectModeSelector, token?: string) => void,
+	readonly addSession: (session: ISessionApi, acceptRejectMode: boolean | IAcceptRejectModeSelector, token?: string) => void,
 
 	/**
 	 * Add generic parameters. 
@@ -132,7 +153,7 @@ export interface IShapeDiverStoreParameters {
 	 * @param executor Executor of parameter changes.
 	 * @returns 
 	 */
-	addGeneric: (
+	readonly addGeneric: (
 		sessionId: string, 
 		acceptRejectMode: boolean | IAcceptRejectModeSelector, 
 		definitions: IGenericParameterDefinition | IGenericParameterDefinition[], 
@@ -147,7 +168,7 @@ export interface IShapeDiverStoreParameters {
 	 * @param executor Executor of parameter changes.
 	 * @returns 
 	 */
-	syncGeneric: (
+	readonly syncGeneric: (
 		sessionId: string, 
 		acceptRejectMode: boolean | IAcceptRejectModeSelector, 
 		definitions: IGenericParameterDefinition | IGenericParameterDefinition[], 
@@ -160,14 +181,14 @@ export interface IShapeDiverStoreParameters {
 	 * @param parameters
 	 * @returns
 	 */
-	removeSession: (sessionId: string) => void,
+	readonly removeSession: (sessionId: string) => void,
 
 	/**
 	 * Get all parameter stores for a given session id.
 	 * @param sessionId
 	 * @returns
 	 */
-	getParameters: (sessionId: string) => IParameterStores;
+	readonly getParameters: (sessionId: string) => IParameterStores;
 
 	/**
 	 * Get a single parameter store by parameter id or name.
@@ -175,14 +196,14 @@ export interface IShapeDiverStoreParameters {
 	 * @param paramId
 	 * @returns
 	 */
-	getParameter: (sessionId: string, paramId: string) => IParameterStore | undefined;
+	readonly getParameter: (sessionId: string, paramId: string) => IParameterStore | undefined;
 
 	/**
 	 * Get all export stores for a given session id.
 	 * @param sessionId
 	 * @returns
 	 */
-	getExports: (sessionId: string) => IExportStores;
+	readonly getExports: (sessionId: string) => IExportStores;
 
 	/**
 	 * Get a single export store by export id or name.
@@ -190,23 +211,29 @@ export interface IShapeDiverStoreParameters {
 	 * @param exportId
 	 * @returns
 	 */
-	getExport: (sessionId: string, exportId: string) => IExportStore | undefined;
+	readonly getExport: (sessionId: string, exportId: string) => IExportStore | undefined;
 
 	/**
 	 * Get or add pending parameter changes for a given session id.
 	 * @param sessionId 
 	 * @param executor 
 	 * @param priority 
+	 * @param preExecutionHook 
 	 * @returns 
 	 */
-	getChanges: (sessionId: string, executor: IGenericParameterExecutor, priority: number) => IParameterChanges,
+	readonly getChanges: (
+		sessionId: string, 
+		executor: IGenericParameterExecutor, 
+		priority: number,
+		preExecutionHook?: IPreExecutionHook
+	) => IParameterChanges,
 
 	/**
 	 * Remove pending parameter changes for a given session id.
 	 * @param sessionId 
 	 * @returns 
 	 */
-	removeChanges: (sessionId: string) => void,
+	readonly removeChanges: (sessionId: string) => void,
 
 	/**
 	 * Register a default export for a given session id. The given export
@@ -215,7 +242,7 @@ export interface IShapeDiverStoreParameters {
 	 * @param exportId 
 	 * @returns 
 	 */
-	registerDefaultExport: (sessionId: string, exportId: string | string[]) => void,
+	readonly registerDefaultExport: (sessionId: string, exportId: string | string[]) => void,
 
 	/**
 	 * Deregister a default export for a given session id.
@@ -223,5 +250,20 @@ export interface IShapeDiverStoreParameters {
 	 * @param exportId 
 	 * @returns 
 	 */
-	deregisterDefaultExport: (sessionId: string, exportId: string | string[]) => void,
+	readonly deregisterDefaultExport: (sessionId: string, exportId: string | string[]) => void,
+
+	/**
+	 * Register a pre-execution hook for a session id.
+	 * @param sessionId 
+	 * @param hook 
+	 * @returns 
+	 */
+	readonly setPreExecutionHook: (sessionId: string, hook: IPreExecutionHook) => void,
+
+	/**
+	 * Remove a pre-execution hook for a session id.
+	 * @param sessionId 
+	 * @returns 
+	 */
+	readonly removePreExecutionHook: (sessionId: string) => void,
 }
