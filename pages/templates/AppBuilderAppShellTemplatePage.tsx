@@ -6,14 +6,7 @@ import { useIsLandscape } from "../../hooks/ui/useIsLandscape";
 import { AppShellSize } from "@mantine/core/lib/components/AppShell/AppShell.types";
 import AppBuilderContainerWrapper from "./AppBuilderContainerWrapper";
 import { createGridLayout } from "../../utils/misc/layout";
-
-interface Props {
-	top?: React.ReactNode;
-	left?: React.ReactNode;
-	children?: React.ReactNode;
-	right?: React.ReactNode;
-	bottom?: React.ReactNode;
-}
+import { IAppBuilderTemplatePageProps } from "../../types/pages/appbuildertemplates";
 
 interface StyleProps {
 	/** Height of the header (responsive) */
@@ -57,7 +50,7 @@ const ROWS = 3;
  * @param  
  * @returns 
  */
-export default function AppBuilderAppShellTemplatePage(props: Props & Partial<StyleProps>) {
+export default function AppBuilderAppShellTemplatePage(props: IAppBuilderTemplatePageProps & Partial<StyleProps>) {
 
 	const {
 		top = undefined,
@@ -123,17 +116,17 @@ export default function AppBuilderAppShellTemplatePage(props: Props & Partial<St
 					<Group h="100%" justify="space-between" wrap="nowrap" px="xs" >
 						{ hasNavbarContent ? <Burger opened={opened} onClick={toggle} hiddenFrom={navbarBreakpoint} size="sm" /> : undefined }
 						<AppBuilderContainerWrapper orientation="horizontal" name="top">
-							{ top }
+							{ top?.node }
 						</AppBuilderContainerWrapper>
 					</Group>
 				</AppShell.Header>
 				<AppShell.Navbar hidden={!opened} className={classes.appShellMainNavbar}>
 					<AppBuilderContainerWrapper orientation="vertical" name="left">
-						{ left }
+						{ left?.node }
 					</AppBuilderContainerWrapper>
 					{
 						!bottom ? undefined : showBottomInGrid ? undefined : <AppBuilderContainerWrapper orientation="vertical" name="bottom">
-							{ bottom }
+							{ bottom.node }
 						</AppBuilderContainerWrapper>
 					}
 				</AppShell.Navbar>
@@ -150,15 +143,15 @@ export default function AppBuilderAppShellTemplatePage(props: Props & Partial<St
 							className={`${isLandscape ? classes.appShellGridAreaRight : classes.appShellGridAreaBottomPortrait}`}
 						>
 							<AppBuilderContainerWrapper orientation="vertical" name="right">
-								{ right }
+								{ right.node }
 							</AppBuilderContainerWrapper>
 						</section>
 					}
 					{ bottom && showBottomInGrid ? <section
 						className={classes.appShellGridAreaBottom}
 					>
-						<AppBuilderContainerWrapper orientation="horizontal" name="bottom">
-							{ bottom }
+						<AppBuilderContainerWrapper orientation={bottom.hints?.preferVertical ? "vertical" : "horizontal"} name="bottom">
+							{ bottom.node }
 						</AppBuilderContainerWrapper>
 					</section> : undefined
 					}
