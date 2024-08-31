@@ -3,14 +3,7 @@ import classes from "./AppBuilderGridTemplatePage.module.css";
 import { MantineThemeComponent, useProps } from "@mantine/core";
 import AppBuilderContainerWrapper from "./AppBuilderContainerWrapper";
 import { createGridLayout } from "../../utils/misc/layout";
-
-interface Props {
-	top?: React.ReactNode;
-	left?: React.ReactNode;
-	children?: React.ReactNode;
-	right?: React.ReactNode;
-	bottom?: React.ReactNode;
-}
+import { IAppBuilderTemplatePageProps } from "../../types/pages/appbuildertemplates";
 
 interface StyleProps {
 	/** top background color */
@@ -61,7 +54,7 @@ export function AppBuilderGridTemplatePageThemeProps(props: AppBuilderGridTempla
  * @param props 
  * @returns 
  */
-export default function AppBuilderGridTemplatePage(props: Props & Partial<StyleProps>) {
+export default function AppBuilderGridTemplatePage(props: IAppBuilderTemplatePageProps & Partial<StyleProps>) {
 
 	const {
 		top = undefined,
@@ -119,16 +112,16 @@ export default function AppBuilderGridTemplatePage(props: Props & Partial<StyleP
 			<section ref={rootRef} className={`${classes.appBuilderTemplatePage} viewer-fullscreen-area`} style={rootStyle}>
 
 				{ top ? <section className={classes.appBuilderTemplatePageTop} style={{background: bgTop}}>
-					<AppBuilderContainerWrapper orientation="horizontal" name="top">{top}</AppBuilderContainerWrapper></section> : undefined }
+					<AppBuilderContainerWrapper orientation="horizontal" name="top">{top.node}</AppBuilderContainerWrapper></section> : undefined }
 
 				{ left ? <section className={classes.appBuilderTemplatePageLeft} style={{background: bgLeft}}>
-					<AppBuilderContainerWrapper orientation="vertical" name="left">{left}</AppBuilderContainerWrapper></section> : undefined }
+					<AppBuilderContainerWrapper orientation="vertical" name="left">{left.node}</AppBuilderContainerWrapper></section> : undefined }
 
 				{ right ? <section className={classes.appBuilderTemplatePageRight} style={{background: bgRight}}>
-					<AppBuilderContainerWrapper orientation="vertical" name="right">{right}</AppBuilderContainerWrapper></section> : undefined }
+					<AppBuilderContainerWrapper orientation="vertical" name="right">{right.node}</AppBuilderContainerWrapper></section> : undefined }
 
 				{ bottom ? <section className={classes.appBuilderTemplatePageBottom} style={{background: bgBottom}}>
-					<AppBuilderContainerWrapper orientation="horizontal" name="bottom">{bottom}</AppBuilderContainerWrapper></section> : undefined }
+					<AppBuilderContainerWrapper orientation="horizontal" name="bottom">{bottom.node}</AppBuilderContainerWrapper></section> : undefined }
 				
 				<section
 					className={classes.appBuilderTemplatePageMain}

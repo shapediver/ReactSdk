@@ -4,23 +4,16 @@ import AppBuilderAppShellTemplatePage from "./AppBuilderAppShellTemplatePage";
 import AppBuilderGridTemplatePage from "./AppBuilderGridTemplatePage";
 import classes from "./AppBuilderTemplateSelector.module.css";
 import { AppBuilderTemplateContext } from "../../context/AppBuilderContext";
+import { IAppBuilderTemplatePageProps } from "../../types/pages/appbuildertemplates";
 
 export type AppBuilderTemplateType = "grid" | "appshell"
 
-type TemplateMapType = Record<AppBuilderTemplateType, (props: Props) => ReactElement>;
+type TemplateMapType = Record<AppBuilderTemplateType, (props: IAppBuilderTemplatePageProps) => ReactElement>;
 
 const templateMap: TemplateMapType = {
 	"appshell": AppBuilderAppShellTemplatePage,
 	"grid": AppBuilderGridTemplatePage,
 };
-
-interface Props {
-	top?: React.ReactNode;
-	left?: React.ReactNode;
-	right?: React.ReactNode;
-	bottom?: React.ReactNode;
-	children?: React.ReactNode;
-}
 
 interface StyleProps {
 	/** template to use */
@@ -46,7 +39,7 @@ const showContainer = (toggleState: boolean | undefined): boolean => toggleState
 
 const buttonVariant = (toggleState: boolean | undefined) => toggleState === undefined ? "outline" : toggleState ? "filled" : "light";
 
-export default function AppBuilderTemplateSelector(props: Props & Partial<StyleProps>) {
+export default function AppBuilderTemplateSelector(props: IAppBuilderTemplatePageProps & Partial<StyleProps>) {
 
 	// style properties
 	const { 

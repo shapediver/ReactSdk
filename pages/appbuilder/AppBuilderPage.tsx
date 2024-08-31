@@ -1,5 +1,5 @@
 import ViewportComponent from "../../components/shapediver/viewport/ViewportComponent";
-import React, { ReactElement } from "react";
+import React, {} from "react";
 import ViewportOverlayWrapper from "../../components/shapediver/viewport/ViewportOverlayWrapper";
 import ViewportIcons from "../../components/shapediver/viewport/ViewportIcons";
 import useAppBuilderSettings from "../../hooks/shapediver/appbuilder/useAppBuilderSettings";
@@ -16,6 +16,7 @@ import LoaderPage from "../misc/LoaderPage";
 import MarkdownWidgetComponent from "../../components/shapediver/ui/MarkdownWidgetComponent";
 import AppBuilderTemplateSelector from "../templates/AppBuilderTemplateSelector";
 import { shouldUsePlatform } from "../../utils/platform/environment";
+import { IAppBuilderTemplatePageProps } from "../../types/pages/appbuildertemplates";
 
 const VIEWPORT_ID = "viewport_1";
 
@@ -145,7 +146,7 @@ export default function AppBuilderPage(props: Partial<Props>) {
 	const exportProps = useSessionPropsExport(sessionId);
 
 	// create UI elements for containers
-	const containers: { top?: ReactElement, bottom?: ReactElement, left?: ReactElement, right?: ReactElement } = {
+	const containers: IAppBuilderTemplatePageProps = {
 		top: undefined,
 		bottom: undefined,
 		left: undefined,
@@ -157,7 +158,9 @@ export default function AppBuilderPage(props: Partial<Props>) {
 
 	if (appBuilderData?.containers) {
 		appBuilderData.containers.forEach((container) => {
-			containers[container.name] = <AppBuilderContainerComponent sessionId={sessionId} {...container}/>;
+			containers[container.name] = {
+				node: <AppBuilderContainerComponent sessionId={sessionId} {...container}/>
+			};		
 		});
 	}
 	else if ( !hasAppBuilderOutput 
@@ -165,7 +168,9 @@ export default function AppBuilderPage(props: Partial<Props>) {
 		&& showFallbackContainers
 	)
 	{
-		containers.right = <AppBuilderFallbackContainerComponent parameters={parameterProps} exports={exportProps}/>;
+		containers.right = {
+			node: <AppBuilderFallbackContainerComponent parameters={parameterProps} exports={exportProps}/>
+		};
 	}
 
 	const show = !!sessionApi;

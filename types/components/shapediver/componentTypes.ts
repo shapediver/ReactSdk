@@ -14,20 +14,15 @@ import { IShapeDiverParamOrExportDefinition } from "../../shapediver/common";
 import { PropsParameter } from "./propsParameter";
 import { ReactElement } from "react";
 
+type ComponentsMapValueType = {
+	/** Parameter component */
+	c: (props: PropsParameter) => ReactElement,
+	/** Defines whether extra bottom padding is required */
+	extraBottomPadding: boolean,
+}
+
 type ComponentsMapType = {
-	[key: string]: {
-		/** Parameter component */
-		c: (props: PropsParameter) => ReactElement,
-		/** Defines whether extra bottom padding is required */
-		extraBottomPadding: boolean,
-	} | {
-		[key: string]: {
-			/** Parameter component */
-			c: (props: PropsParameter) => ReactElement,
-			/** Defines whether extra bottom padding is required */
-			extraBottomPadding: boolean,
-		}
-	}
+	[key: string]: ComponentsMapValueType 
 };
 
 const parameterComponentsMap: ComponentsMapType = {
@@ -40,31 +35,30 @@ const parameterComponentsMap: ComponentsMapType = {
 	[PARAMETER_TYPE.STRINGLIST]: {c: ParameterSelectComponent, extraBottomPadding: false},
 	[PARAMETER_TYPE.COLOR]: {c: ParameterColorComponent, extraBottomPadding: false},
 	[PARAMETER_TYPE.FILE]: {c: ParameterFileInputComponent, extraBottomPadding: false},
-	[PARAMETER_TYPE.INTERACTION]: {
-		"selection": {c: ParameterSelectionComponent, extraBottomPadding: true},
-		"gumball": {c: ParameterGumballComponent, extraBottomPadding: true},
-	}
+};
+
+const interactionParameterComponentsMap: ComponentsMapType = {
+	"selection": {c: ParameterSelectionComponent, extraBottomPadding: true},
+	"gumball": {c: ParameterGumballComponent, extraBottomPadding: true},
 };
 
 export const getParameterComponent = (definition: IShapeDiverParamOrExportDefinition) => {
-	const type = definition.type as keyof typeof parameterComponentsMap;
-	const component = parameterComponentsMap[type];
+	const type = definition.type;
+	const component = type === PARAMETER_TYPE.INTERACTION ? 
+		interactionParameterComponentsMap[definition.settings?.type] : 
+		parameterComponentsMap[type];
 
-	if (!component) {
+
+	if (component) {
 		return {
-			component: ParameterLabelComponent,
-			extraBottomPadding: false,
+			component: component.c,
+			extraBottomPadding: component.extraBottomPadding,
 		};
 	}
 
-	// Check if the component is nested or not
-	const finalComponent = typeof component === "object" && "c" in component
-		? component
-		: component[definition.settings?.type as string];
-
 	return {
-		component: finalComponent?.c || ParameterLabelComponent,
-		extraBottomPadding: finalComponent?.extraBottomPadding ?? false,
+		component: ParameterLabelComponent,
+		extraBottomPadding: false,
 	};
 };
 
