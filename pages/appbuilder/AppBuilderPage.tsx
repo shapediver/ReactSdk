@@ -10,13 +10,13 @@ import AppBuilderContainerComponent from "../../components/shapediver/appbuilder
 import AppBuilderFallbackContainerComponent
 	from "../../components/shapediver/appbuilder/AppBuilderFallbackContainerComponent";
 import AlertPage from "../misc/AlertPage";
-import { IAppBuilderSettingsSession } from "../../types/shapediver/appbuilder";
+import { IAppBuilderContainer, IAppBuilderSettingsSession } from "../../types/shapediver/appbuilder";
 import useDefaultSessionDto from "../../hooks/shapediver/useDefaultSessionDto";
 import LoaderPage from "../misc/LoaderPage";
 import MarkdownWidgetComponent from "../../components/shapediver/ui/MarkdownWidgetComponent";
 import AppBuilderTemplateSelector from "../templates/AppBuilderTemplateSelector";
 import { shouldUsePlatform } from "../../utils/platform/environment";
-import { IAppBuilderTemplatePageProps } from "../../types/pages/appbuildertemplates";
+import { IAppBuilderTemplatePageContainerHints, IAppBuilderTemplatePageProps } from "../../types/pages/appbuildertemplates";
 
 const VIEWPORT_ID = "viewport_1";
 
@@ -124,6 +124,20 @@ interface Props extends IAppBuilderSettingsSession {
 }
 
 /**
+ * Create rendering hints for the container.
+ * @param container 
+ * @returns 
+ */
+const createContainerHints = (container: IAppBuilderContainer) : IAppBuilderTemplatePageContainerHints | undefined => {
+	// if the bottom container contains tabs, prefer vertical layout
+	if (container.name === "bottom" && container.tabs && container.tabs.length > 0) {
+		return {
+			preferVertical: true
+		};
+	}
+};
+
+/**
  * Function that creates the web app page.
  *
  * @returns
@@ -159,7 +173,8 @@ export default function AppBuilderPage(props: Partial<Props>) {
 	if (appBuilderData?.containers) {
 		appBuilderData.containers.forEach((container) => {
 			containers[container.name] = {
-				node: <AppBuilderContainerComponent sessionId={sessionId} {...container}/>
+				node: <AppBuilderContainerComponent sessionId={sessionId} {...container}/>,
+				hints: createContainerHints(container)
 			};		
 		});
 	}
