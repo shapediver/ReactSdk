@@ -3,7 +3,7 @@ import ExportLabelComponent from "../../../components/shapediver/exports/ExportL
 import ParameterBooleanComponent from "../../../components/shapediver/parameter/ParameterBooleanComponent";
 import ParameterColorComponent from "../../../components/shapediver/parameter/ParameterColorComponent";
 import ParameterFileInputComponent from "../../../components/shapediver/parameter/ParameterFileInputComponent";
-import ParameterGumballComponent from "shared/components/shapediver/parameter/ParameterGumballComponent";
+import ParameterGumballComponent from "../../../components/shapediver/parameter/ParameterGumballComponent";
 import ParameterLabelComponent from "../../../components/shapediver/parameter/ParameterLabelComponent";
 import ParameterSelectComponent from "../../../components/shapediver/parameter/ParameterSelectComponent";
 import ParameterSelectionComponent from "../../../components/shapediver/parameter/ParameterSelectionComponent";

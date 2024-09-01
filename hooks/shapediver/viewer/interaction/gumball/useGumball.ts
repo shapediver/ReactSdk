@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Gumball, updateGumballTransformation } from "@shapediver/viewer.features.gumball";
 import { IGumballParameterProps, ISelectionParameterProps, ISessionApi, ITreeNode } from "@shapediver/viewer";
-import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
+import { useShapeDiverStoreViewer } from "../../../../../store/useShapeDiverStoreViewer";
 import { useSelection } from "../selection/useSelection";
 import { useGumballEvents } from "./useGumballEvents";
 import { mat4 } from "gl-matrix";
