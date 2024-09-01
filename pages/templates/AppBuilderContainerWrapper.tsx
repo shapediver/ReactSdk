@@ -1,8 +1,9 @@
 import React, { useContext } from "react";
-import { AppBuilderContainerContext, AppBuilderTemplateContext, IAppBuilderContainerContext } from "../../context/AppBuilderContext";
+import { AppBuilderContainerContext, AppBuilderTemplateContext } from "../../context/AppBuilderContext";
 import { MantineThemeComponent, MantineThemeOverride, MantineThemeProvider, useProps } from "@mantine/core";
 import AppBuilderVerticalContainer from "./AppBuilderVerticalContainer";
 import AppBuilderHorizontalContainer from "./AppBuilderHorizontalContainer";
+import { IAppBuilderContainerContext } from "../../types/context/AppBuilderContext";
 
 interface Props {
 	name: string,

@@ -1,8 +1,8 @@
-import { notifications } from "@mantine/notifications";
 import { addListener, EVENTTYPE_INTERACTION, IEvent, removeListener } from "@shapediver/viewer";
 import { InteractionEventResponseMapping, MultiSelectManager } from "@shapediver/viewer.features.interaction";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useContext } from "react";
 import { OutputNodeNameFilterPatterns, matchNodesWithPatterns } from "../utils/patternUtils";
+import { NotificationContext } from "../../../../../context/NotificationContext";
 
 // #region Functions (1)
 
@@ -42,6 +42,9 @@ export function useSelectManagerEvents(
 	// state for the selected nodes
 	const [selectedNodeNames, setSelectedNodeNames] = useState<string[]>(initialSelectedNodeNames ?? []);
 	const resetSelectedNodeNames = useCallback(() => setSelectedNodeNames([]), []);
+
+	// get notifications from the context
+	const notifications = useContext(NotificationContext);
 
 	// register an event handler and listen for output updates
 	useEffect(() => {
@@ -121,7 +124,7 @@ export function useSelectManagerEvents(
 			// TODO: refactor this to use a store instead of calling mantine notifications directly
 			notifications.show({
 				title: "Maximum number of objects has already been selected",
-				message: `Expected ${(multiSelectEvent.manager as MultiSelectManager).maximumNodes} objects, but selected ${multiSelectEvent.nodes.length + 1} objects instead.`
+				message: `Expected at most ${(multiSelectEvent.manager as MultiSelectManager).maximumNodes} objects, but ${multiSelectEvent.nodes.length + 1} were selected.`
 			});
 		});
 
