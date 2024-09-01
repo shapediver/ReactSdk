@@ -1,19 +1,32 @@
 import React, { useContext } from "react";
-import { Image, ImageProps, MantineThemeComponent, Paper, Anchor } from "@mantine/core";
+import { Image, ImageProps, MantineThemeComponent, Anchor } from "@mantine/core";
 import { IAppBuilderWidgetPropsAnchor } from "../../../types/shapediver/appbuilder";
 import { AppBuilderContainerContext } from "../../../context/AppBuilderContext";
 import { usePropsAppBuilder } from "../../../hooks/ui/usePropsAppBuilder";
+import classes from "./AppBuilderImage.module.css";
 
 interface Props extends IAppBuilderWidgetPropsAnchor {
 }
 
-type ImageStyleProps = Pick<ImageProps, "radius" | "fit">;
+type ImageStyleProps = Pick<ImageProps, "radius"> & { fit?: "contain" | "scale-down", withBorder?: boolean};
 
 type ImageNonStyleProps = Pick<ImageProps, "src"> & { alt?: string};
 
 const defaultStyleProps : Partial<ImageStyleProps> = {
 	radius: "md",
+	/** 
+     * Object-fit behavior to use for image widgets. This roughly follows the 
+     * behavior defined by https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit
+     * 
+     *   * contain: The image is scaled to maintain its aspect ratio and to fill 100% 
+     *              of the available width or height of the App Builder container
+     *              (depending on the orientation of the container).
+     * 
+     *   * scale-down: The image is sized as if the value were "contain", but the
+     *                 image will not be grown to more than 100% of its original size.
+     */
 	fit: "contain",
+	withBorder: false,
 };
 
 type AppBuilderImageThemePropsType = Partial<ImageStyleProps>;
@@ -27,28 +40,31 @@ export function AppBuilderImageThemeProps(props: AppBuilderImageThemePropsType):
 export default function AppBuilderImage(props: ImageNonStyleProps & ImageStyleProps & Props ) {
 	
 	const { anchor, target, ...rest } = props;
-	const { radius, fit } = usePropsAppBuilder("AppBuilderImage", defaultStyleProps, rest);
+	const { radius, fit, withBorder } = usePropsAppBuilder("AppBuilderImage", defaultStyleProps, rest);
 
 	const context = useContext(AppBuilderContainerContext);
 	const orientation = context.orientation;
-	
-	const componentImage = <Image
+	const contain = fit === "contain";
+
+	const element = <Image
 		{...rest}
 		fit={fit}
 		radius={radius}
-		h={orientation === "horizontal" ? "100%" : undefined}
-		w={orientation === "vertical" ? "100%" : undefined}
+		h={contain && orientation === "horizontal" ? "100%" : undefined}
+		w={contain && orientation === "vertical" ? "100%" : undefined}
+		mah={!contain && orientation === "horizontal" ? "100%" : undefined}
+		maw={!contain && orientation === "vertical" ? "100%" : undefined}
+		className={withBorder ? classes.imgBorder : undefined}
 	/>;
 
-	return <Paper
-		h={orientation === "horizontal" ? "100%" : undefined}
-		w={orientation === "vertical" ? "100%" : undefined}
-		radius={radius}
-		pt={0}
-		pr={0}
-		pb={0}
-		pl={0}
+	const elementWithAnchor = anchor ? <Anchor 
+		href={anchor} 
+		target={target}
+		display="contents"
 	>
-		{ anchor ? <Anchor href={anchor} target={target}>{componentImage}</Anchor> : componentImage }
-	</Paper>;
+		{element}
+	</Anchor> : element;
+
+	return elementWithAnchor;
+
 }
