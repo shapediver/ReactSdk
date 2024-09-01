@@ -242,6 +242,10 @@ export const useCustomTheme = (props: Props = {}) => {
 										justify: "left"
 									}
 								},
+								AppBuilderImage: AppBuilderImageThemeProps({
+									fit: "scale-down",
+									withBorder: false,
+								}),
 								AppBuilderTextWidgetComponent: AppBuilderTextWidgetThemeProps({
 									styles: { root: { overflow: "clip" }}
 								}),
@@ -271,6 +275,7 @@ export const useCustomTheme = (props: Props = {}) => {
 			AppBuilderImage: AppBuilderImageThemeProps({
 				// radius: "md",
 				// fit: "contain",
+				withBorder: true,
 			}),
 			/**
 			 * AppBuilderAppShellTemplatePage

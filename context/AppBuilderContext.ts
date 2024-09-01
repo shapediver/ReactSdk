@@ -3,8 +3,11 @@ import { createContext } from "react";
 /** Types of containers */
 export type AppBuilderContainerOrientationType = "unspecified" | "horizontal" | "vertical";
 
+/** Contextual information for App Builder containers. */
 export interface IAppBuilderContainerContext {
+    /** Orientation of the container. */
     orientation: AppBuilderContainerOrientationType,
+    /** Name of the container. */
     name: string,
 }
 

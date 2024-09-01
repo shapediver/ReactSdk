@@ -7,7 +7,7 @@ import AppBuilderHorizontalContainer from "./AppBuilderHorizontalContainer";
 interface Props {
 	name: string,
 	orientation: "vertical" | "horizontal",
-	children?: React.ReactNode;
+	children?: React.ReactNode,
 }
 
 /** Type for defining them overrides per Template name and AppBuilder container name */
@@ -36,7 +36,12 @@ export function AppBuilderPageThemeProps(props: AppBuilderContainerWrapperThemeP
  * @returns 
  */
 export default function AppBuilderContainerWrapper(props: Props & AppBuilderContainerWrapperThemePropsType) {
-	const { containerThemeOverrides: _themeOverrides, name, orientation, children } = props;
+	const { 
+		containerThemeOverrides: _themeOverrides, 
+		name, 
+		orientation, 
+		children 
+	} = props;
 
 	// style properties
 	const { 
