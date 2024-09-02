@@ -99,6 +99,8 @@ export const useShapeDiverStorePlatformModels = create<IShapeDiverStorePlatformM
 		const loadMore = useCallback(async () => {
 			if (!clientRef)	return;
 
+			const { queryCache } = get();
+
 			const userFilter = filterByUser ? 
 				{"user_id[=]": typeof filterByUser === "string" ? filterByUser : ((await getUser())?.id ?? "%")} 
 				: undefined;
