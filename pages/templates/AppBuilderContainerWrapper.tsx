@@ -3,7 +3,7 @@ import { AppBuilderContainerContext, AppBuilderTemplateContext } from "../../con
 import { MantineThemeComponent, MantineThemeOverride, MantineThemeProvider, useProps } from "@mantine/core";
 import AppBuilderVerticalContainer from "./AppBuilderVerticalContainer";
 import AppBuilderHorizontalContainer from "./AppBuilderHorizontalContainer";
-import { IAppBuilderContainerContext } from "../../types/context/AppBuilderContext";
+import { IAppBuilderContainerContext } from "../../types/context/appbuildercontext";
 
 interface Props {
 	name: string,
