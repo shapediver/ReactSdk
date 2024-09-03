@@ -5,7 +5,7 @@ import AppBuilderActionComponent from "./AppBuilderActionComponent";
 type Props = IAppBuilderActionPropsSetBrowserLocation;
 
 /**
- * Functional component for an "setBrowserLocation" action.
+ * Functional component for a "setBrowserLocation" action.
  *
  * @returns
  */
