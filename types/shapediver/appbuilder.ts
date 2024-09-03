@@ -40,8 +40,101 @@ export interface IAppBuilderExportRef {
 	overrides?: Pick<Partial<IAppBuilderExportDefinition>, "displayname" | "group" | "order" | "tooltip" | "hidden">
 }
 
+/** Types of actions */
+export type AppBuilderActionType = "addToCart" | "setParameterValue" | "setBrowserLocation";
+
+/** Common properties of App Builder actions. */
+export interface IAppBuilderActionPropsCommon {
+	/** Label (of the button etc). Optional, defaults to a value depending on the type of action. */
+	label?: string
+	/** Optional icon (of the button etc). */
+	icon?: IconType
+	/** Optional tooltip. */
+	tooltip?: string
+	// TODO: allow to define what should happen in case of success or error.
+}
+
+/** 
+ * Properties of an "addToCart" action. 
+ * This action triggers a corresponding message to the e-commerce system via the iframe API. 
+ * A response is awaited and the result is displayed to the user. 
+ */
+export interface IAppBuilderActionPropsAddToCart extends IAppBuilderActionPropsCommon {
+	/** 
+	 * Identifier of the product to add to the cart. 
+	 * Optional, defaults to the product defined by the context. 
+	 * Note that this productId is not necessarily the same as the id of the product 
+	 * in the e-commerce system. Translations of product identifiers can be done by 
+	 * the plug-in embedding App Builder in the respective e-commerce system. 
+	 */
+	productId?: string
+	/** Quantity of the product to add to the cart (number of units). Optional, defaults to 1. */
+	quantity?: number
+	/** Price of the product per unit. */
+	price?: number
+}
+
+/** Properties of a "setParameterValue" action. */
+export interface IAppBuilderActionPropsSetParameterValue extends IAppBuilderActionPropsCommon {
+	/** The parameter that should be set. */
+	parameter: Pick<IAppBuilderParameterRef, "name" | "sessionId">
+	/** Value to set. */
+	value: string
+}
+
+/** 
+ * Properties of a "setBrowserLocation" action.
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Location
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/open
+ */
+export interface IAppBuilderActionPropsSetBrowserLocation extends IAppBuilderActionPropsCommon {
+	/** 
+	 * href to set. 
+	 * If this is defined, pathname, search and hash are ignored. 
+	 */
+	href?: string
+	/** 
+	 * pathname to set (using the same current).
+	 * If this is defined, search and hash are ignored. 
+	 */
+	pathname?: string
+	/** 
+	 * search to set (using the current origin and pathname).
+	 * If this is defined, hash is ignored. 
+	 */
+	search?: string
+	/** 
+	 * hash to set (using the current origin, pathname and search).
+	 */
+	hash?: string
+	/** 
+	 * Optional target. If specified, window.open is used to open the location.
+	 * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/open
+	 */
+	target?: "_self" | "_blank" | "_parent" | "_top"
+}
+
+/** An App Builder action. */
+export interface IAppBuilderAction {
+	/** Type of the action. */
+	type: AppBuilderActionType
+	/** Properties of the action. */
+	props: IAppBuilderActionPropsAddToCart 
+		| IAppBuilderActionPropsSetParameterValue 
+		| IAppBuilderActionPropsSetBrowserLocation
+}
+
 /** Types of widgets */
-export type AppBuilderWidgetType = "accordion" | "text" | "image" | "roundChart" | "lineChart" | "areaChart" | "barChart" | "interaction";
+export type AppBuilderWidgetType = "accordion" 
+	| "text" 
+	| "image" 
+	| "roundChart" 
+	| "lineChart" 
+	| "areaChart" 
+	| "barChart" 
+	| "interaction"
+	| "actions"
+;
 
 /** 
  * Properties of a parameter and export accordion widget.
@@ -93,6 +186,12 @@ export interface IAppBuilderWidgetPropsInteraction {
 	parameter?: IAppBuilderParameterRef
 }
 
+/** Properties of a widget presenting actions. */
+export interface IAppBuilderWidgetPropsActions {
+	/** The actions. */
+	actions?: IAppBuilderAction[]
+}
+
 /** 
  * A widget.
  * 
@@ -105,7 +204,7 @@ export interface IAppBuilderWidgetPropsInteraction {
 export interface IAppBuilderWidget {
 	/** Type of the widget. */
 	type: AppBuilderWidgetType
-	/** Properties of the widget. Add properties of  */
+	/** Properties of the widget. */
 	props: IAppBuilderWidgetPropsAccordion 
 		| IAppBuilderWidgetPropsText 
 		| IAppBuilderWidgetPropsImage
@@ -114,6 +213,7 @@ export interface IAppBuilderWidget {
 		| IAppBuilderWidgetPropsAreaChart
 		| IAppBuilderWidgetPropsBarChart
 		| IAppBuilderWidgetPropsInteraction
+		| IAppBuilderWidgetPropsActions
 }
 
 /** 
@@ -205,6 +305,26 @@ export function isBarChartWidget(widget: IAppBuilderWidget): widget is { type: "
 /** assert widget type "interaction" */
 export function isInteractionWidget(widget: IAppBuilderWidget): widget is { type: "interaction", props: IAppBuilderWidgetPropsInteraction } {
 	return widget.type === "interaction";
+}
+
+/** assert widget type "actions" */
+export function isActionsWidget(widget: IAppBuilderWidget): widget is { type: "actions", props: IAppBuilderWidgetPropsActions } {
+	return widget.type === "actions";
+}
+
+/** assert action type "addToCart" */
+export function isAddToCartAction(action: IAppBuilderAction): action is { type: "addToCart", props: IAppBuilderActionPropsAddToCart } {
+	return action.type === "addToCart";
+}
+
+/** assert action type "setParameterValue" */
+export function isSetParameterValueAction(action: IAppBuilderAction): action is { type: "setParameterValue", props: IAppBuilderActionPropsSetParameterValue } {
+	return action.type === "setParameterValue";
+}
+
+/** assert action type "setBrowserLocation" */
+export function isSetBrowserLocationAction(action: IAppBuilderAction): action is { type: "setBrowserLocation", props: IAppBuilderActionPropsSetBrowserLocation } {
+	return action.type === "setBrowserLocation";
 }
 
 /**
