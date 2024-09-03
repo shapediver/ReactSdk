@@ -40,30 +40,35 @@ const NODE_NAME_BLACKLIST = ["TransformZUpToYUp", "no_transformations"];
  * @param node The node to start traversing from. Typically this is the node of an output of a ShapeDiver model.
  * @param pattern The hierarchical pattern to check for. 
  *                Each string of the pattern represents a regular expression for matching the node name.
+ * @param outputApiName The name of the output API to be used for the concatenated node name.
  * @param result The result object, matching nodes will be added here. 
  * @param count The current index into the pattern array.
  */
 export const gatherNodesForPattern = (
 	node: ITreeNode, 
 	pattern: NodeNameFilterPattern, 
-	result: { [nodeId: string]: ITreeNode }, 
+	outputApiName: string,
+	result: { [nodeId: string]: { node: ITreeNode, name: string } }, 
 	count: number = 0
 ): void => {
 	// if the node has no original name (was not given a name in Grasshopper) or 
 	// its name matches the black list, do not consider it for pattern matching
 	if (!node.originalName || NODE_NAME_BLACKLIST.includes(node.originalName)) {
 		for (const child of node.children) {
-			gatherNodesForPattern(child, pattern, result, count);
+			gatherNodesForPattern(child, pattern, outputApiName, result, count);
 		}
 	}
 	// if the original name matches the pattern, check the children
 	else if (node.originalName && new RegExp(`^${pattern[count]}$`).test(node.originalName)) {
 		if (count === pattern.length - 1) {
 			// we reached the end of the pattern, add the node to the result
-			result[node.id] = node;
+			result[node.id] = {
+				node,
+				name: outputApiName + "." + getNodeData(node)?.originalName || ""
+			};
 		} else {
 			for (const child of node.children) {
-				gatherNodesForPattern(child, pattern, result, count + 1);
+				gatherNodesForPattern(child, pattern, outputApiName, result, count + 1);
 			}
 		}
 	}
