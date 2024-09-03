@@ -1,6 +1,6 @@
 import { ISelectionParameterProps, ITreeNode, OutputApiData } from "@shapediver/viewer";
 import { InteractionData, MultiSelectManager, SelectManager } from "@shapediver/viewer.features.interaction";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { vec3 } from "gl-matrix";
 import { ISelectionState, useSelectManagerEvents } from "./useSelectManagerEvents";
 import { useSelectManager } from "./useSelectManager";
@@ -28,7 +28,12 @@ export function useSelection(
 	selectionProps: ISelectionParameterProps,
 	activate: boolean,
 	initialSelectedNodeNames?: string[]
-): ISelectionState {
+): ISelectionState & {
+	/**
+	 * The available node names in a dictionary for each output.
+	 */
+	availableNodeNames: { [key: string]: string[] }
+} {
 	
 	// call the select manager hook
 	const { selectManager } = useSelectManager(viewportId, activate ? selectionProps : undefined);
@@ -40,6 +45,9 @@ export function useSelection(
 	// convert the user-defined name filters to filter patterns, and subscribe to selection events
 	const { patterns } = useCreateNameFilterPattern(sessionId, selectionProps.nameFilter);
 	const { selectedNodeNames, setSelectedNodeNames, resetSelectedNodeNames } = useSelectManagerEvents(patterns, initialSelectedNodeNames);
+
+	// state for available node names
+	const [availableNodeNames, setAvailableNodeNames] = useState<{ [key: string]: string[]}>({});
 
 	// add interaction data for each output, even if it is not in the pattern
 	// this is necessary to keep the number of hooks constant
@@ -53,18 +61,26 @@ export function useSelection(
 	for (const outputId in outputs) {
 		// add interaction data
 		if (!patterns[outputId]) patterns[outputId] = [];
-		const { outputNode } = useNodeInteractionData(sessionId, outputId, patterns[outputId], interactionSettings, selectManager);
+		const { outputNode, availableNodeNames: availableNodeNamesForOutput } = useNodeInteractionData(sessionId, outputId, patterns[outputId], interactionSettings, selectManager);
 		// in case selection becomes active or the output node changes, restore the selection status
 		useEffect(() => {
 			if (outputNode && selectManager)
 				restoreSelection(outputNode, selectManager, selectedNodeNames);
 		}, [outputNode, selectManager]);
+
+		// update the available node names
+		useEffect(() => {
+			setAvailableNodeNames(prev => {
+				return { ...prev, [outputs[outputId].name]: availableNodeNamesForOutput };
+			});
+		}, [availableNodeNamesForOutput]);
 	}
 
 	return {
 		selectedNodeNames,
 		setSelectedNodeNames, 
-		resetSelectedNodeNames 
+		resetSelectedNodeNames,
+		availableNodeNames
 	};
 }
 

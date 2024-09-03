@@ -80,9 +80,15 @@ export function useGumball(
 	}, [gumballProps]);
 
 	// use the selection hook to get the selected node names
-	const { selectedNodeNames, setSelectedNodeNames } = useSelection(sessionId, viewportId, selectionSettings, activate);
+	const { selectedNodeNames, setSelectedNodeNames, availableNodeNames } = useSelection(sessionId, viewportId, selectionSettings, activate);
 	// use the gumball events hook to get the transformed node names
 	const { transformedNodeNames, setTransformedNodeNames } = useGumballEvents(selectedNodeNames, initialTransformedNodeNames);
+
+	// use an effect to set the selected node names to the first available node name if only one is available
+	useEffect(() => {
+		if(activate && Object.values(availableNodeNames).flat().length === 1)
+			setSelectedNodeNames([Object.values(availableNodeNames).flat()[0]]);
+	}, [availableNodeNames]);
 
 	// create a reference for the gumball
 	const gumballRef = useRef<Gumball | undefined>(undefined);

@@ -1,7 +1,7 @@
 import { gatherNodesForPattern, NodeNameFilterPattern } from "./utils/patternUtils";
 import { InteractionData, MultiSelectManager, SelectManager } from "@shapediver/viewer.features.interaction";
-import { IOutputApi, ITreeNode } from "@shapediver/viewer";
-import { useCallback } from "react";
+import { IOutputApi, ITreeNode, OutputApiData } from "@shapediver/viewer";
+import { useCallback, useState } from "react";
 import { useOutputNode } from "../useOutputNode";
 
 // #region Functions (1)
@@ -39,8 +39,14 @@ export function useNodeInteractionData(
 	 * Scene tree node of the output
 	 * @see https://viewer.shapediver.com/v3/latest/api/interfaces/IOutputApi.html#node
 	 */
-	outputNode: ITreeNode | undefined
+	outputNode: ITreeNode | undefined,
+	/**
+	 * The available node names for the given output and patterns.
+	 */
+	availableNodeNames: string[]
 } {
+
+	const [availableNodeNames, setAvailableNodeNames] = useState<string[]>([]);
 	
 	/**
 	 * Output update callback for adding interaction data. 
@@ -63,17 +69,29 @@ export function useNodeInteractionData(
 		}
 
 		if (newNode) {
-			const nodes: {[nodeId: string]: ITreeNode} = {};
+			const outputApiData = newNode.data.find((data) => data instanceof OutputApiData) as OutputApiData;
+
+			const availableNodes: {[nodeId: string]: { node: ITreeNode, name: string }} = {};
 			for (const pattern of patterns) {
 				if (pattern.length === 0) {
-					nodes[newNode.id] = newNode;
+					availableNodes[newNode.id] = {
+						node: newNode,
+						name: outputApiData.api.name
+					};
 				} else {
-					gatherNodesForPattern(newNode, pattern, nodes);
+					gatherNodesForPattern(newNode, pattern, outputApiData.api.name, availableNodes);
 				}
 			}
-			Object.values(nodes).forEach(node => {
-				addInteractionData(node, interactionSettings);
+			Object.values(availableNodes).forEach(availableNode => {
+				addInteractionData(availableNode.node, interactionSettings);
 			});
+
+			setAvailableNodeNames(Object.values(availableNodes).map(n => n.name));
+		}
+
+		// clear the available node names if the node is removed
+		if(oldNode && !newNode) {
+			setAvailableNodeNames([]);
 		}
 
 	}, [patterns, interactionSettings, selectManager]);
@@ -83,7 +101,8 @@ export function useNodeInteractionData(
 
 	return {
 		outputApi,
-		outputNode
+		outputNode,
+		availableNodeNames
 	};
 }
 
