@@ -62,6 +62,42 @@ const IAppBuilderExportRefSchema = z.object({
 	overrides: IAppBuilderExportOverridesSchema.optional(),
 });
 
+// Zod type definition for IAppBuilderActionPropsCommon
+const IAppBuilderActionPropsCommonSchema = z.object({
+	label: z.string().optional(),
+	icon: z.nativeEnum(IconTypeEnum).optional(),
+	tooltip: z.string().optional(),
+});
+
+// Zod type definition for IAppBuilderActionPropsAddToCart
+const IAppBuilderActionPropsAddToCartSchema = z.object({
+	productId: z.string().optional(),
+	quantity: z.number().optional(),
+	price: z.number().optional(),
+}).extend(IAppBuilderActionPropsCommonSchema.shape);
+
+// Zod type definition for IAppBuilderActionPropsSetParameterValue
+const IAppBuilderActionPropsSetParameterValueSchema = z.object({
+	parameter: IAppBuilderParameterRefSchema.pick({name: true, sessionId: true}),
+	value: z.string(),
+}).extend(IAppBuilderActionPropsCommonSchema.shape);
+
+// Zod type definition for IAppBuilderActionPropsSetBrowserLocation
+const IAppBuilderActionPropsSetBrowserLocationSchema = z.object({
+	href: z.string().optional(),
+	pathname: z.string().optional(),
+	search: z.string().optional(),
+	hash: z.string().optional(),
+	target: z.enum(["_self", "_blank", "_parent", "_top"]).optional(),
+}).extend(IAppBuilderActionPropsCommonSchema.shape);
+
+// Zod type definition for IAppBuilderAction
+const IAppBuilderActionSchema = z.discriminatedUnion("type", [
+	z.object({type: z.literal("addToCart"), props: IAppBuilderActionPropsAddToCartSchema}),
+	z.object({type: z.literal("setParameterValue"), props: IAppBuilderActionPropsSetParameterValueSchema}),
+	z.object({type: z.literal("setBrowserLocation"), props: IAppBuilderActionPropsSetBrowserLocationSchema}),
+]);
+
 // Zod type definition for IAppBuilderWidgetPropsCommon
 const IAppBuilderWidgetPropsCommonSchema = z.object({
 });
@@ -143,6 +179,11 @@ const IAppBuilderWidgetPropsInteractionSchema = z.object({
 	interactionSettings: IInteractionParameterJsonSchema,
 });
 
+// Zod type definition for IAppBuilderWidgetPropsActions
+const IAppBuilderWidgetPropsActionsSchema = z.object({
+	actions: z.array(IAppBuilderActionSchema),
+});
+
 // Zod type definition for IAppBuilderWidget
 const IAppBuilderWidgetSchema = z.discriminatedUnion("type", [
 	z.object({type: z.literal("accordion"), props: IAppBuilderWidgetPropsAccordionSchema}),
@@ -153,6 +194,7 @@ const IAppBuilderWidgetSchema = z.discriminatedUnion("type", [
 	z.object({type: z.literal("areaChart"), props: IAppBuilderWidgetPropsAreaChartSchema}),
 	z.object({type: z.literal("barChart"), props: IAppBuilderWidgetPropsBarChartSchema}),
 	z.object({type: z.literal("interaction"), props: IAppBuilderWidgetPropsInteractionSchema}),
+	z.object({type: z.literal("actions"), props: IAppBuilderWidgetPropsActionsSchema}),
 ]);
 
 // Zod type definition for IAppBuilderTab
