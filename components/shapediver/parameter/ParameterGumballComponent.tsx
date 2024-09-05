@@ -18,9 +18,12 @@ const VIEWPORT_ID = "viewport_1";
 const parseTransformation = (value?: string): { name: string, transformation: number[] }[] => {
 	if (!value) return [];
 	try {
-		const parsed = JSON.parse(value);
+		const parsed: {
+			names: string[],
+			transformations: number[][]
+		} = JSON.parse(value);
 
-		return parsed.names.map((name: string, index: number) => { return { name: name, transformation: parsed.transformation[index] }; });
+		return parsed.names.map((name, i) => ({ name, transformation: parsed.transformations[i] }));
 	}
 	catch (e) {
 		return [];
