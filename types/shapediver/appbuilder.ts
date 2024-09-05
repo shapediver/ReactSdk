@@ -94,7 +94,7 @@ export interface IAppBuilderActionPropsSetBrowserLocation extends IAppBuilderAct
 	 */
 	href?: string
 	/** 
-	 * pathname to set (using the same current).
+	 * pathname to set (using the current origin).
 	 * If this is defined, search and hash are ignored. 
 	 */
 	pathname?: string
