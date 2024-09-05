@@ -40,6 +40,14 @@ export interface IAppBuilderExportRef {
 	overrides?: Pick<Partial<IAppBuilderExportDefinition>, "displayname" | "group" | "order" | "tooltip" | "hidden">
 }
 
+/** Reference to an image */
+export interface IAppBuilderImageRef {
+	/** Optional reference to export which provides the image. */
+	export?: Pick<IAppBuilderExportRef, "name" | "sessionId">
+	/** URL to image. Can be a data URL including a base 64 encoded image. Takes precedence over export reference. */
+	href?: string
+}
+
 /** Types of actions */
 export type AppBuilderActionType = "addToCart" | "setParameterValue" | "setBrowserLocation";
 
@@ -68,10 +76,17 @@ export interface IAppBuilderActionPropsAddToCart extends IAppBuilderActionPropsC
 	 * the plug-in embedding App Builder in the respective e-commerce system. 
 	 */
 	productId?: string
-	/** Quantity of the product to add to the cart (number of units). Optional, defaults to 1. */
+	/** Quantity of the line item to add to the cart (number of units). Optional, defaults to 1. */
 	quantity?: number
 	/** Price of the product per unit. */
 	price?: number
+	/** Description to be used for the line item. */
+	description?: string
+	/** 
+	 * Optional image to be included when creating the model state for the line item.
+	 * In case no image is provided here, a screenshot of the model will be used.
+	 */
+	image?: Pick<IAppBuilderWidgetPropsImage, "export" | "href">
 }
 
 /** Properties of a "setParameterValue" action. */
@@ -169,13 +184,9 @@ export interface IAppBuilderWidgetPropsAnchor {
 }
 
 /** Properties of an image widget. */
-export interface IAppBuilderWidgetPropsImage extends IAppBuilderWidgetPropsAnchor {
+export interface IAppBuilderWidgetPropsImage extends IAppBuilderWidgetPropsAnchor, IAppBuilderImageRef {
 	/** Optional reference to alternate text which provides the image. */
 	alt?: string,
-	/** Optional reference to export which provides the image. */
-	export?: IAppBuilderExportRef
-	/** URL to image. Can be a data URL including a base 64 encoded image. Takes precedence over export reference. */
-	href?: string
 }
 
 /** Properties of an interaction widget. */

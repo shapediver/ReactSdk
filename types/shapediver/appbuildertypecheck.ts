@@ -62,6 +62,12 @@ const IAppBuilderExportRefSchema = z.object({
 	overrides: IAppBuilderExportOverridesSchema.optional(),
 });
 
+// Zod type definition for IAppBuilderImageRef
+const IAppBuilderImageRefSchema = z.object({
+	export: IAppBuilderExportRefSchema.pick({"name": true, "sessionId": true}).optional(),
+	href: z.string().optional(),
+});
+
 // Zod type definition for IAppBuilderActionPropsCommon
 const IAppBuilderActionPropsCommonSchema = z.object({
 	label: z.string().optional(),
@@ -74,6 +80,8 @@ const IAppBuilderActionPropsAddToCartSchema = z.object({
 	productId: z.string().optional(),
 	quantity: z.number().optional(),
 	price: z.number().optional(),
+	description: z.string().optional(),
+	image: IAppBuilderImageRefSchema.optional(),
 }).extend(IAppBuilderActionPropsCommonSchema.shape);
 
 // Zod type definition for IAppBuilderActionPropsSetParameterValue
@@ -119,10 +127,8 @@ const IAppBuilderWidgetPropsTextSchema = z.object({
 const IAppBuilderWidgetPropsImageSchema = z.object({
 	anchor: z.string().optional(),
 	alt: z.string().optional(),
-	href: z.string().optional(),
-	export: IAppBuilderExportRefSchema.optional(),
 	target: z.string().default("_blank"),
-}).extend(IAppBuilderWidgetPropsCommonSchema.shape);
+}).extend(IAppBuilderWidgetPropsCommonSchema.shape).extend(IAppBuilderImageRefSchema.shape);
 
 // Zod type definition for IAppBuilderWidgetPropsRoundChart
 const IAppBuilderWidgetPropsRoundChartSchema = z.object({
