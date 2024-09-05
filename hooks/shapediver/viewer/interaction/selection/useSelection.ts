@@ -1,6 +1,6 @@
 import { ISelectionParameterProps, ITreeNode, OutputApiData } from "@shapediver/viewer";
 import { InteractionData, MultiSelectManager, SelectManager } from "@shapediver/viewer.features.interaction";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { vec3 } from "gl-matrix";
 import { ISelectionState, useSelectManagerEvents } from "./useSelectManagerEvents";
 import { useSelectManager } from "./useSelectManager";
@@ -32,7 +32,14 @@ export function useSelection(
 	/**
 	 * The available node names in a dictionary for each output.
 	 */
-	availableNodeNames: { [key: string]: string[] }
+	availableNodeNames: { [key: string]: string[] },
+	/**
+	 * Set the selected node names and restore the selection status.
+	 * 
+	 * @param names The names of the nodes to be selected.
+	 * @returns 
+	 */
+	setSelectedNodeNamesAndRestoreSelection: (names: string[]) => void
 } {
 	
 	// call the select manager hook
@@ -76,11 +83,29 @@ export function useSelection(
 		}, [availableNodeNamesForOutput]);
 	}
 
+	/**
+	 * Set the selected node names and restore the selection status.
+	 * This function is used to set the selected node names and select the corresponding nodes.
+	 * 
+	 * Currently it is used in the special case where only one node is selectable in the useGumball hook.
+	 * 
+	 * @param names The names of the nodes to be selected.
+	 */
+	const setSelectedNodeNamesAndRestoreSelection = useCallback((names: string[]) => {
+		setSelectedNodeNames(names);
+		for (const outputId in outputs) {
+			const outputNode = outputs[outputId].node;
+			if (outputNode && selectManager)
+				restoreSelection(outputNode, selectManager, names);
+		}
+	}, [selectManager]);
+
 	return {
 		selectedNodeNames,
 		setSelectedNodeNames, 
 		resetSelectedNodeNames,
-		availableNodeNames
+		availableNodeNames,
+		setSelectedNodeNamesAndRestoreSelection
 	};
 }
 
