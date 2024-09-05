@@ -14,7 +14,8 @@ export interface IShapeDiverExportActions {
     /**
      * Request the export.
      *
-     * @param parameters Parameter values to be used for this export request. Map from parameter id to parameter value. The current value will be used for any parameter not specified.
+     * @param parameters Parameter values to be used for this export request. Map from parameter id to parameter value. 
+     *                   The currently executed value will be used for any parameter not specified. 
      *
      * @throws {@type ShapeDiverViewerError}
      */
