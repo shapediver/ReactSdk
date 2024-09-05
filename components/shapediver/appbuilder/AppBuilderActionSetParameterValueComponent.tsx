@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 import { IAppBuilderActionPropsSetParameterValue } from "../../../types/shapediver/appbuilder";
 import AppBuilderActionComponent from "./AppBuilderActionComponent";
 import { useParameterStateless } from "shared/hooks/shapediver/parameters/useParameterStateless";
@@ -6,6 +6,8 @@ import { useParameterStateless } from "shared/hooks/shapediver/parameters/usePar
 type Props = IAppBuilderActionPropsSetParameterValue & {
 	sessionId: string;
 };
+
+
 
 /**
  * Functional component for a "setParameterValue" action.
@@ -27,21 +29,17 @@ export default function AppBuilderActionSetParameterValueComponent(props: Props)
 	const parameter = useParameterStateless<string>(sessionId ?? sessionIdFromProps, name);
 
 	const onClick = useCallback(() => {
-		if (value === parameter?.state.uiValue)
+		if (!parameter?.actions.isUiValueDifferent(value))
 			return;
 		if (parameter?.actions.setUiValue(value))
 			parameter.actions.execute(true);
-	}, [parameter, value]);
+	}, [parameter?.state, parameter?.actions, value]);
 
-	const disabled = useMemo(() => {
-		return !parameter || parameter.state.dirty;
-	}, [parameter]);
-	
 	return <AppBuilderActionComponent 
 		label={label}
 		icon={icon}
 		tooltip={tooltip}
 		onClick={onClick}
-		disabled={disabled}
+		disabled={parameter?.state.dirty}
 	/>;
 }
