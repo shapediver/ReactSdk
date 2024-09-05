@@ -68,6 +68,11 @@ export interface IGenericParameterDefinition {
      * @param throwError if true, an error is thrown if validation does not pass (default: false)
      */
     isValid?: (value: any, throwError?: boolean) => boolean;
+
+	/**
+	 * Stringify the given value according to the parameter definition.
+	 */
+	stringify?: (value: any) => string;
 }
 
 /**

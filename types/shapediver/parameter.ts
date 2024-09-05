@@ -66,6 +66,13 @@ export interface IShapeDiverParameterActions<T> {
     isValid(value: any, throwError?: boolean): boolean;
 
     /**
+     * Check whether the given value is different from the current ui value.
+     * 
+     * @param value the value to evaluate
+     */
+    isUiValueDifferent(value: any): boolean;
+
+    /**
      * Resets the ui value to the default value.
      * Note: Does not call execute.
      */
@@ -142,6 +149,11 @@ export interface IShapeDiverParameterExecutor<T> {
      * @param throwError if true, an error is thrown if validation does not pass (default: false)
      */
     readonly isValid: (value: any, throwError?: boolean) => boolean;
+
+    /**
+	 * Stringify the given value according to the parameter definition.
+	 */
+	readonly stringify: (value: any) => string;
 
     /**
      * Definition of the parameter.

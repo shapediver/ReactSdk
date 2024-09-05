@@ -72,6 +72,7 @@ function createParameterExecutor<T>(sessionId: string, param: IGenericParameterD
 			}
 		},
 		isValid: (uiValue: T | string, throwError?: boolean) => param.isValid ? param.isValid(uiValue, throwError) : true,
+		stringify: (value: T | string) => param.stringify ? param.stringify(value) : value+"",
 		definition: param.definition
 	};
 }
@@ -178,6 +179,11 @@ function createParameterStore<T>(executor: IShapeDiverParameterExecutor<T>, acce
 			},
 			isValid: function (value: any, throwError?: boolean | undefined): boolean {
 				return executor.isValid(value, throwError);
+			},
+			isUiValueDifferent: function (value: any): boolean {
+				const { state: { uiValue } } = get();
+				
+				return executor.stringify(value) !== executor.stringify(uiValue); 
 			},
 			resetToDefaultValue: function (): void {
 				const definition = get().definition;
@@ -432,7 +438,11 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 						const param = session.parameters[paramId];
 						const acceptRejectMode = acceptRejectModeSelector(param);
 						acc[paramId] = createParameterStore(createParameterExecutor(sessionId, 
-							{ definition: mapParameterDefinition(param), isValid: (value, throwError) => param.isValid(value, throwError) }, 
+							{ 
+								definition: mapParameterDefinition(param), 
+								isValid: (value, throwError) => param.isValid(value, throwError),
+								// stringify: (value) => param.stringify(value) // TODO: remove comment once stringify accepts an optional value
+							}, 
 							() => {
 								const { preExecutionHooks } = get();
 								
