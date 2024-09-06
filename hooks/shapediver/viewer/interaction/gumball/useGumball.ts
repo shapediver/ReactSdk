@@ -41,7 +41,14 @@ export interface IGumballState {
 	 * @param oldTransformedNodeNames 
 	 * @returns 
 	 */
-	restoreTransformedNodeNames: (newTransformedNodeNames: { name: string, transformation: number[] }[], oldTransformedNodeNames: { name: string, transformation: number[] }[]) => void,
+	restoreTransformedNodeNames: (newTransformedNodeNames: { name: string, transformation: number[] }[], oldTransformedNodeNames: { name: string }[]) => void,
+	/**
+	 * Clear the transformed nodes.
+	 * 
+	 * @param transformedNodeNames
+	 * @returns 
+	 */
+	clearTransformedNodeNames: (transformedNodeNames: { name: string, transformation: number[] }[]) => void,
 }
 
 /**
@@ -139,12 +146,32 @@ export function useGumball(
 
 	}, [sessionApi]);
 
+	/**
+	 * Clear the transformed nodes.
+	 * 
+	 * This function is used to clear the transformation of the transformed nodes.
+	 * This means that the transformation of the nodes is reset to the identity matrix.
+	 * 
+	 * @param transformedNodesNames The transformed node names.
+	 * @returns
+	 */
+	const clearTransformedNodeNames = useCallback((transformedNodesNames: { name: string}[]) => {
+		const nodes = getNodesByName(sessionApi, transformedNodesNames.map(tn => tn.name));
+
+		nodes.forEach(tn => {
+			updateGumballTransformation(tn.node, mat4.create());
+		});
+
+		setTransformedNodeNames([]);
+	}, [sessionApi]);
+
 	return {
 		transformedNodeNames,
 		setTransformedNodeNames,
 		selectedNodeNames,
 		setSelectedNodeNames,
-		restoreTransformedNodeNames
+		restoreTransformedNodeNames,
+		clearTransformedNodeNames
 	};
 }
 
