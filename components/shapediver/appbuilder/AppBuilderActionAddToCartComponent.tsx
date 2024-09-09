@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useCallback, useContext } from "react";
 import { IAppBuilderActionPropsAddToCart } from "../../../types/shapediver/appbuilder";
 import AppBuilderActionComponent from "./AppBuilderActionComponent";
+import { ECommerceApiSingleton } from "../../../modules/ecommerce/singleton";
+import { NotificationContext } from "../../../context/NotificationContext";
 
 type Props = IAppBuilderActionPropsAddToCart;
 
@@ -12,7 +14,9 @@ type Props = IAppBuilderActionPropsAddToCart;
 export default function AppBuilderActionAddToCartComponent(props: Props) {
 	
 	const { label = "Add to cart", icon, tooltip } = props;
-	
+
+	const notifications = useContext(NotificationContext);
+
 	/**
 	 * TODO: Implement the action
 	 * 
@@ -25,9 +29,16 @@ export default function AppBuilderActionAddToCartComponent(props: Props) {
 	 * 
 	 */
 
+	const onClick = useCallback(async () => {
+		const api = await ECommerceApiSingleton;
+		const result = await api.addItemToCart({});
+		notifications.show({message: `Item added to cart: ${result.id}`});
+	}, []);
+
 	return <AppBuilderActionComponent 
 		label={label}
 		icon={icon}
 		tooltip={tooltip}
+		onClick={onClick}
 	/>;
 }
