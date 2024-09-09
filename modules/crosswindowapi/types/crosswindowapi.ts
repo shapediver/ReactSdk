@@ -57,11 +57,26 @@ export interface ICrossWindowApi {
 	/**
 	 * Resolved once the peer is ready.
 	 * Rejected if the peer does not respond within the timeout.
-	 * Not defined if the peer was not awaited for.
 	 */
 	readonly peerIsReady: Promise<ICrossWindowPeerInfo>
+
+	/**
+	 * Sends a handshake message to the peer window and waits for a response.
+	 * In order to succeed, the handshake must be initiated by the peer 
+	 * using the same type.
+	 * 
+	 * @param type 
+	 */
+	handshake(type: string, timeout?: number): Promise<ICrossWindowPeerInfo>
 }
 
+/**
+ * Options for creating a cross window API.
+ */
+export interface ICrossWindowApiOptions {
+	timeout?: number;
+	debug?: boolean;
+}
 
 /**
  * Factory for creating a cross window API.
@@ -71,12 +86,12 @@ export interface ICrossWindowFactory {
 	/**
 	 * Creates an API for communicating with the parent window.
 	 */
-	getParentApi(name: string, peerName: string, timeout?: number): Promise<ICrossWindowApi>
+	getParentApi(name: string, peerName: string, options?: ICrossWindowApiOptions): Promise<ICrossWindowApi>
 
 	/**
 	 * Creates an API for communicating with the given peer window.
 	 * @param window 
 	 */
-	getWindowApi(window: Window, name: string, peerName: string, timeout?: number): Promise<ICrossWindowApi>
+	getWindowApi(window: Window, name: string, peerName: string, options?: ICrossWindowApiOptions): Promise<ICrossWindowApi>
 
 }
