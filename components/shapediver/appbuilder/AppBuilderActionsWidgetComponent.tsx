@@ -39,7 +39,7 @@ export default function AppBuilderActionsWidgetComponent(props: Props & AppBuild
 
 	const actionComponents = actions.map((action, i) => {
 		if (isAddToCartAction(action))
-			return <AppBuilderActionAddToCartComponent key={i} {...action.props} />;
+			return <AppBuilderActionAddToCartComponent key={i} sessionId={sessionId} {...action.props} />;
 		else if (isSetParameterValueAction(action))
 			return <AppBuilderActionSetParameterValueComponent key={i} sessionId={sessionId} {...action.props} />;
 		else if (isSetBrowserLocationAction(action))

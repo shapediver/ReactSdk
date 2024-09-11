@@ -8,6 +8,19 @@ import { ICrossWindowApiOptions, ICrossWindowPeerInfo } from "../../crosswindowa
  * 
  */
 export interface IAddItemToCartData {
+
+    /** 
+         * Identifier of the product to add to the cart. 
+         * Optional, defaults to the product defined by the context. 
+         * Note that this productId is not necessarily the same as the id of the product 
+         * in the e-commerce system. Translations of product identifiers can be done by 
+         * the plug-in embedding App Builder in the respective e-commerce system. 
+         */
+    productId?: string
+    
+    /** Quantity of the line item to add to the cart (number of units). Optional, defaults to 1. */
+    quantity?: number
+
     /**
      * The custom price of the cart (line) item to be added.
      */
