@@ -3,8 +3,11 @@ import { IAppBuilderActionPropsAddToCart } from "../../../types/shapediver/appbu
 import AppBuilderActionComponent from "./AppBuilderActionComponent";
 import { ECommerceApiSingleton } from "../../../modules/ecommerce/singleton";
 import { NotificationContext } from "../../../context/NotificationContext";
+import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
 
-type Props = IAppBuilderActionPropsAddToCart;
+type Props = IAppBuilderActionPropsAddToCart & {
+	sessionId: string;
+};
 
 /**
  * Functional component for an "addToCart" action.
@@ -13,27 +16,38 @@ type Props = IAppBuilderActionPropsAddToCart;
  */
 export default function AppBuilderActionAddToCartComponent(props: Props) {
 	
-	const { label = "Add to cart", icon, tooltip } = props;
-
+	const { 
+		label = "Add to cart", 
+		icon, 
+		tooltip, 
+		sessionId,
+		productId,
+		quantity,
+		price,
+		description,
+	} = props;
+	const sessionApi = useShapeDiverStoreViewer(state => state.sessions[sessionId]);
 	const notifications = useContext(NotificationContext);
 
-	/**
-	 * TODO: Implement the action
-	 * 
-	 *   * check if we are running inside an iframe whose parent implements the required iframe API
-	 *   * if not, show some debug message or popup
-	 *   * create a model state
-	 *   * call the iframe API method to add the model to the cart
-	 *   * await the result
-	 *   * display a success or error message or popup
-	 * 
-	 */
-
 	const onClick = useCallback(async () => {
+		// TODO check whether we are running inside an iframe
 		const api = await ECommerceApiSingleton;
-		const result = await api.addItemToCart({});
-		notifications.show({message: `Item added to cart: ${result.id}`});
-	}, []);
+		const modelStateId = await sessionApi.createModelState();
+		const result = await api.addItemToCart({
+			modelStateId,
+			productId,
+			quantity,
+			price,
+			description,
+		});
+		// TODO display modal instead of notification, offer possibility to hide configurator
+		notifications.show({message: `Item for state ${modelStateId} added to cart: ${result.id}`});
+	}, [
+		productId,
+		quantity,
+		price,
+		description,
+	]);
 
 	return <AppBuilderActionComponent 
 		label={label}
