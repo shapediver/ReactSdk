@@ -1,4 +1,6 @@
-import { ECommerceApiFactory } from "./ecommerceapi";
+import { ICrossWindowPeerInfo } from "../crosswindowapi/types/crosswindowapi";
+import { DummyECommerceApi, ECommerceApiFactory } from "./ecommerceapi";
+import { IAddItemToCartData, IAddItemToCartReply, IECommerceApi, IGetUserProfileReply } from "./types/ecommerceapi";
 
 /** Number of key events for toggling configurator visibility. */
 const TOGGLE_CONFIGURATOR_VISIBILITY_NUM_EVENTS = 3;
@@ -8,13 +10,17 @@ const TOGGLE_CONFIGURATOR_VISIBILITY_MSEC = 750;
 const TOGGLE_CONFIGURATOR_VISIBILITY_KEY = "Escape";
 
 export const ECommerceApiSingleton = (async () => {
-	// TODO in case window.parent !== window return a dummy api for testing
+	// if window.parent === window return a dummy api for testing
+	if (window.parent === window) {
+		return new DummyECommerceApi();
+	}
+
 	const eCommerceApi = await ECommerceApiFactory.getApplicationApi("app", "plugin", {timeout: 10000, debug: false});
 	console.log("Successfully resolved ECommerceApi", eCommerceApi);
 	
 	// event handler for toggling configurator visibility
 	let toggleKeyPressCount = 0;
-	let timer : NodeJS.Timeout;
+	let timer: ReturnType<typeof setTimeout>;
 
 	document.addEventListener("keydown", (event) => {
 		if (event.key === TOGGLE_CONFIGURATOR_VISIBILITY_KEY) {
