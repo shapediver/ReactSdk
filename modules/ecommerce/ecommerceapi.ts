@@ -127,6 +127,29 @@ export class DummyECommerceApiActions implements IECommerceApiActions {
 
 }
 
+export class DummyECommerceApi implements IECommerceApi {
+
+	peerIsReady: Promise<ICrossWindowPeerInfo>;
+
+	actions: IECommerceApiActions;
+
+	constructor() {
+		this.peerIsReady = Promise.resolve({ origin: "dummy", name: "dummy" });
+		this.actions = new DummyECommerceApiActions();
+	}
+
+	addItemToCart(data: IAddItemToCartData): Promise<IAddItemToCartReply> {
+		return this.actions.addItemToCart(data);
+	}
+	getUserProfile(): Promise<IGetUserProfileReply> {
+		return this.actions.getUserProfile();
+	}
+	closeConfigurator(): Promise<boolean> {
+		return this.actions.closeConfigurator();
+	}
+	
+}
+
 class _ECommerceApiFactory implements IECommerceApiFactory {
 
 	crossWindowFactory: ICrossWindowFactory;
