@@ -104,22 +104,22 @@ export class ECommerceApiConnector implements IECommerceApiConnector {
 export class DummyECommerceApiActions implements IECommerceApiActions {
 
 	closeConfigurator(): Promise<boolean> {
-		return Promise.resolve(true);
+		return Promise.resolve(false);
 	}
 
 	addItemToCart(/*data: IAddItemToCartDat*/): Promise<IAddItemToCartReply> {
 		const reply: IAddItemToCartReply = {
-			id: "dummyId",
+			id: "DUMMY_ID",
 		};
 		
-		return Promise.resolve(reply);
+		return Promise.reject(reply);
 	}
 
 	getUserProfile(): Promise<IGetUserProfileReply> {
 		const reply: IGetUserProfileReply = {
-			id: "dummyId",
-			email: "dummyEmail",
-			name: "dummyName",
+			id: "DUMMY_ID",
+			email: "john@doe.com",
+			name: "John Doe",
 		};
 		
 		return Promise.resolve(reply);

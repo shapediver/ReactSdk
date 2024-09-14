@@ -49,7 +49,7 @@ export interface IAppBuilderImageRef {
 }
 
 /** Types of actions */
-export type AppBuilderActionType = "addToCart" | "setParameterValue" | "setBrowserLocation";
+export type AppBuilderActionType = "addToCart" | "setParameterValue" | "setBrowserLocation" | "closeConfigurator";
 
 /** Common properties of App Builder actions. */
 export interface IAppBuilderActionPropsCommon {
@@ -129,6 +129,9 @@ export interface IAppBuilderActionPropsSetBrowserLocation extends IAppBuilderAct
 	target?: "_self" | "_blank" | "_parent" | "_top"
 }
 
+/** Properties of a "closeConfigurator" action. */
+export type IAppBuilderActionPropsCloseConfigurator = IAppBuilderActionPropsCommon
+
 /** An App Builder action. */
 export interface IAppBuilderAction {
 	/** Type of the action. */
@@ -137,6 +140,7 @@ export interface IAppBuilderAction {
 	props: IAppBuilderActionPropsAddToCart 
 		| IAppBuilderActionPropsSetParameterValue 
 		| IAppBuilderActionPropsSetBrowserLocation
+		| IAppBuilderActionPropsCloseConfigurator
 }
 
 /** Types of widgets */
@@ -336,6 +340,11 @@ export function isSetParameterValueAction(action: IAppBuilderAction): action is 
 /** assert action type "setBrowserLocation" */
 export function isSetBrowserLocationAction(action: IAppBuilderAction): action is { type: "setBrowserLocation", props: IAppBuilderActionPropsSetBrowserLocation } {
 	return action.type === "setBrowserLocation";
+}
+
+/** assert action type "closeConfigurator" */
+export function isCloseConfiguratorAction(action: IAppBuilderAction): action is { type: "closeConfigurator", props: IAppBuilderActionPropsCloseConfigurator } {
+	return action.type === "closeConfigurator";
 }
 
 /**

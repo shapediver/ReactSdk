@@ -30,18 +30,25 @@ export default function AppBuilderActionAddToCartComponent(props: Props) {
 	const notifications = useContext(NotificationContext);
 
 	const onClick = useCallback(async () => {
-		// TODO check whether we are running inside an iframe
+		// in case we are not running inside an iframe, the instance of 
+		// IEcommerceApi will be a dummy for testing
 		const api = await ECommerceApiSingleton;
 		const modelStateId = await sessionApi.createModelState();
-		const result = await api.addItemToCart({
-			modelStateId,
-			productId,
-			quantity,
-			price,
-			description,
-		});
-		// TODO display modal instead of notification, offer possibility to hide configurator
-		notifications.show({message: `Item for state ${modelStateId} added to cart: ${result.id}`});
+		try {
+			const result = await api.addItemToCart({
+				modelStateId,
+				productId,
+				quantity,
+				price,
+				description,
+			});
+			// TODO display modal instead of notification, offer possibility to hide configurator
+			notifications.show({message: `An item for configuration ID ${modelStateId} has been added to the cart (cart item id ${result.id}).`});
+		} catch (e) {
+			notifications.show({message: `An error happened while adding configuration ID ${modelStateId} to the cart.`});
+			// TODO report error to sentry
+			throw e;
+		}
 	}, [
 		productId,
 		quantity,

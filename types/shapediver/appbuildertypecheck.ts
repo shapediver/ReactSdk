@@ -99,11 +99,16 @@ const IAppBuilderActionPropsSetBrowserLocationSchema = z.object({
 	target: z.enum(["_self", "_blank", "_parent", "_top"]).optional(),
 }).extend(IAppBuilderActionPropsCommonSchema.shape);
 
+// Zod type definition for IAppBuilderActionPropsCloseConfigurator
+const IAppBuilderActionPropsCloseConfigurator = z.object({
+}).extend(IAppBuilderActionPropsCommonSchema.shape);
+
 // Zod type definition for IAppBuilderAction
 const IAppBuilderActionSchema = z.discriminatedUnion("type", [
 	z.object({type: z.literal("addToCart"), props: IAppBuilderActionPropsAddToCartSchema}),
 	z.object({type: z.literal("setParameterValue"), props: IAppBuilderActionPropsSetParameterValueSchema}),
 	z.object({type: z.literal("setBrowserLocation"), props: IAppBuilderActionPropsSetBrowserLocationSchema}),
+	z.object({type: z.literal("closeConfigurator"), props: IAppBuilderActionPropsCloseConfigurator}),
 ]);
 
 // Zod type definition for IAppBuilderWidgetPropsCommon
