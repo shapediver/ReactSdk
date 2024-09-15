@@ -5,7 +5,6 @@ import { Options } from "react-markdown/lib";
 import remarkDirective from "remark-directive";
 import remarkGfm from "remark-gfm";
 import {visit} from "unist-util-visit";
-import { v4 as uuid } from "uuid";
 import classes from "./MarkdownWidgetComponent.module.css";
 
 interface Props {
@@ -57,7 +56,9 @@ const spanDirective = function() {
 				data.hName = "span";
 				data.hProperties = {
 					style: {color},
-					key: uuid(),
+					// The following uuid key causes a warning "A props object containing a 'key' prop is being spread into JSX"
+					// It's unclear why the key would be necessary here, so it's commented out.
+					//key: uuid(),
 				};
 			}
 		});
