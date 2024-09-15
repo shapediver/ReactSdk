@@ -92,7 +92,7 @@ export default function ParameterSliderComponent(props: PropsParameter & Partial
 			/> }
 			{ definition && <Tooltip label={tooltip} ><NumberInput
 				w={numberWidth}
-				value={value}
+				value={+value}
 				min={+definition.min!}
 				max={+definition.max!}
 				step={step}

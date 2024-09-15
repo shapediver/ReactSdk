@@ -80,9 +80,21 @@ function createParameterExecutor<T>(sessionId: string, param: IGenericParameterD
 type DefaultExportsGetter = () => string[];
 type ExportResponseSetter = (response: IExportResponse) => void;
 
+/**
+ * Create an IGenericParameterExecutor  for a session.
+ * @param session 
+ * @param getDefaultExports 
+ * @param exportResponseSetter 
+ * @returns 
+ */
 function createGenericParameterExecutorForSession(session: ISessionApi, 
 	getDefaultExports: DefaultExportsGetter, exportResponseSetter: ExportResponseSetter) : IGenericParameterExecutor { 
 	
+	/**
+	 * Note: This function receives key-value pairs of parameter value changes 
+	 * that should be executed. 
+	 * Typically this does not include all parameters defined by the session. 
+	 */
 	return async (values) => {
 
 		// store previous values (we restore them in case of error)
@@ -158,6 +170,19 @@ function createParameterStore<T>(executor: IShapeDiverParameterExecutor<T>, acce
 						dirty: uiValue !== _state.state.execValue
 					}
 				}), false, "setUiValue");
+
+				return true;
+			},
+			setUiAndExecValue: function (value: string | T): boolean {
+				const actions = get().actions;
+				if (!actions.isValid(value, false)) return false;
+				set(() => ({
+					state: {
+						uiValue: value,
+						execValue: value,
+						dirty: false
+					}
+				}), false, "setUiAndExecValue");
 
 				return true;
 			},
@@ -308,6 +333,16 @@ function isMatchingParameterDefinition(store: IParameterStore, definition: IGene
 	// deep comparison between a and b
 	// NOTE: this is a quick and dirty solution, ideally we would compare the definitions in a more robust way
 	return JSON.stringify(a) === JSON.stringify(b);
+}
+
+/**
+ * Check if the given parameter value matches the executed value in the parameter store
+ */
+function isMatchingExecutedParameterValue(store: IParameterStore, definition: IGenericParameterDefinition) {
+	const { execValue } = store.getState().state;
+	const value = definition.value;
+
+	return value === undefined || execValue === value;
 }
 
 /**
@@ -508,6 +543,15 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 			// check if a matching parameter store already exists
 			if (paramId in existingParameterStores && isMatchingParameterDefinition(existingParameterStores[paramId], def)) {
 				parameterStores[paramId] = existingParameterStores[paramId];
+				if (!isMatchingExecutedParameterValue(existingParameterStores[paramId], def)) {
+					const { actions } = parameterStores[paramId].getState();
+					if (!actions.setUiAndExecValue(def.value)) {
+						console.warn(`Could not update value of generic parameter ${paramId} to ${def.value}`);
+					}
+					else {
+						console.debug(`Updated value of generic parameter ${paramId} to ${def.value}`);
+					}
+				}
 			} 
 			else {
 				const acceptRejectMode = acceptRejectModeSelector(def.definition);
