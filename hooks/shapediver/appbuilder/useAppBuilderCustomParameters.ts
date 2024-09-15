@@ -73,7 +73,7 @@ export function useAppBuilderCustomParameters(props: Props) {
 	useEffect(() => {
 		if (appBuilderData?.parameters) {
 			appBuilderData.parameters.forEach(p => {
-				defaultCustomParameterValues.current[p.id] = p.defval;
+				defaultCustomParameterValues.current[p.id] = p.value ?? p.defval;
 			});
 		}
 		
@@ -115,7 +115,11 @@ export function useAppBuilderCustomParameters(props: Props) {
 	// define custom parameters and an execution callback for them
 	useDefineGenericParameters(sessionIdAppBuilder, 
 		acceptRejectMode ?? false, 
-		(appBuilderData?.parameters ?? []).map(p => ({definition: p})),
+		(appBuilderData?.parameters ?? []).map(p => {
+			const {value, ...rest} = p;
+			
+			return {definition: rest, value};
+		}),
 		executor,
 	);
 	

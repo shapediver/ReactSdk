@@ -11,7 +11,17 @@ import {
 import { IInteractionParameterSettings } from "@shapediver/viewer";
 
 /** Type used for parameter definitions */
-export type IAppBuilderParameterDefinition = IShapeDiverParameterDefinition;
+export type IAppBuilderParameterDefinition = IShapeDiverParameterDefinition & {
+	/**
+	 * The value to set for the generic parameter. Use this to update
+	 * the parameter's current value (i.e. its state) without changing the 
+	 * parameter definition. 
+	 * In case no value is defined when creating a new generic parameter, 
+	 * the new parameter's value is set to the default value defined in the 
+	 * parameter definition.
+	 */
+	value?: string
+};
 
 /** Type used for export definitions */
 export type IAppBuilderExportDefinition = IShapeDiverExportDefinition;

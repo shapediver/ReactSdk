@@ -61,25 +61,43 @@ export interface IGenericParameterDefinition {
 	/** The static definition of the parameter. */
 	readonly definition: IShapeDiverParameterDefinition,
 
+	/** 
+	 * The value to set for the generic parameter. Use this to update
+	 * the parameter's current value (i.e. its state) without changing the 
+	 * parameter definition. 
+	 * In case no value is defined when creating a new generic parameter, 
+	 * the new parameter's value is set to the default value defined in the 
+	 * parameter definition.
+	 */
+	readonly value?: string;
+
 	/**
      * Evaluates if a given value is valid for this parameter.
      *
      * @param value the value to evaluate
      * @param throwError if true, an error is thrown if validation does not pass (default: false)
      */
-    isValid?: (value: any, throwError?: boolean) => boolean;
+    readonly isValid?: (value: any, throwError?: boolean) => boolean;
 
 	/**
 	 * Stringify the given value according to the parameter definition.
 	 */
-	stringify?: (value: any) => string;
+	readonly stringify?: (value: any) => string;
 }
 
 /**
  * Executor function for generic parameters. 
  * @see {@link IGenericParameterDefinition}
  */
-export type IGenericParameterExecutor = (values: { [key: string]: any }, sessionId: string) => Promise<unknown|void>;
+export type IGenericParameterExecutor = (
+	/**
+	 * Key-value pairs of parameter value changes 
+	 * that should be executed. 
+	 * In case of executors for sessions, this typically does not 
+	 * include all parameters defined by the session. 
+	 */
+	values: { [key: string]: any }, sessionId: string
+) => Promise<unknown|void>;
 
 /**
  * Hook to be executed before executor. 

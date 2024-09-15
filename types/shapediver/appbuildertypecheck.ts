@@ -31,7 +31,8 @@ const IAppBuilderParameterDefinitionSchema = z.object({
 	tooltip: z.string().optional(),
 	displayname: z.string().optional(),
 	hidden: z.boolean(),
-	settings: IInteractionParameterJsonSchema.optional()
+	settings: IInteractionParameterJsonSchema.optional(),
+	value: z.string().optional(),
 });
 
 // Zod type definition for property "overrides" of IAppBuilderParameterRef

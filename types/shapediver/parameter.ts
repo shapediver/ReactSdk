@@ -46,6 +46,16 @@ export interface IShapeDiverParameterActions<T> {
     setUiValue(value: T | string): boolean;
 
     /**
+     * Set the ui value and the exec value of the parameter.
+     * The provided value must be valid, otherwise this function will return false.
+     * Note: Does not call execute.
+     * CAUTION: Typically you want to use setUiValue instead of this function.
+     * 
+     * @param value the value to use for setting state.uiValue and state.execValue
+     */
+    setUiAndExecValue(value: T | string): boolean;
+
+    /**
      * Run background executions, and update state.execValue on success.
      * Note: The returned promise might not resolve for quite some time, e.g. in 
      * case parameter changes are waiting to be confirmed by the user. 
