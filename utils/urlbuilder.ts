@@ -1,3 +1,10 @@
+import { 
+	QUERYPARAM_MODELSTATEID,
+	QUERYPARAM_MODELVIEWURL, 
+	QUERYPARAM_SETTINGSURL, 
+	QUERYPARAM_SLUG, 
+	QUERYPARAM_TICKET 
+} from "../types/shapediver/queryparams";
 
 /**
  * Data for building a ShapeDiver App Builder URL.
@@ -43,29 +50,27 @@ export interface IAppBuilderUrlBuilderData {
  */
 export function buildAppBuilderUrl(data: IAppBuilderUrlBuilderData): string {
 
-	const { baseUrl, ticket, modelViewUrl, slug, settingsUrl, ...rest } = data;
+	const { baseUrl, ticket, modelViewUrl, slug, settingsUrl, modelStateId } = data;
 
 	const url = new URL(baseUrl);
 	const searchParams = new URLSearchParams();
 	if (slug) {
-		searchParams.append("slug", slug);
+		searchParams.append(QUERYPARAM_SLUG, slug);
 	}
 	else if (ticket && modelViewUrl) {
-		searchParams.append("ticket", ticket);
-		searchParams.append("modelViewUrl", modelViewUrl);
+		searchParams.append(QUERYPARAM_TICKET, ticket);
+		searchParams.append(QUERYPARAM_MODELVIEWURL, modelViewUrl);
 	}
 	else if (!settingsUrl) {
 		throw new Error("Either settingsUrl or slug or both ticket and modelViewUrl must be provided.");
 	}
 
 	if (settingsUrl) {
-		searchParams.append("g", settingsUrl);
+		searchParams.append(QUERYPARAM_SETTINGSURL, settingsUrl);
 	}
 
-	for (const [key, value] of Object.entries(rest)) {
-		if (value) {
-			searchParams.append(key, value);
-		}
+	if (modelStateId) {
+		searchParams.append(QUERYPARAM_MODELSTATEID, modelStateId);
 	}
 
 	url.search = searchParams.toString();
