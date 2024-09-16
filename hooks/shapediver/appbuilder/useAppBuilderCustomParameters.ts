@@ -59,7 +59,8 @@ export function useAppBuilderCustomParameters(props: Props) {
 	}, []);
 	
 	// "AppBuilder" parameter (used for sending values of custom parameters to the model)
-	const appBuilderParam = useParameterStateless<string>(sessionId, CUSTOM_DATA_INPUT_NAME);
+	const appBuilderParam = useParameterStateless<string>(sessionId, CUSTOM_DATA_INPUT_NAME, PARAMETER_TYPE.STRING);
+	const appBuilderFileParam = useParameterStateless<Blob>(sessionId, CUSTOM_DATA_INPUT_NAME, PARAMETER_TYPE.FILE);
 
 	// prepare for adding pre-execution hook, which will set the value of the parameter named "AppBuilder"
 	// to a JSON string of the current custom parameter values
@@ -85,32 +86,43 @@ export function useAppBuilderCustomParameters(props: Props) {
 	// executor function for changes of custom parameter values
 	const executor = useCallback<IGenericParameterExecutor>(async (values: { [key: string]: any }) => {
 		Object.keys(values).forEach(key => customParameterValues.current[key] = values[key]);
-		if (appBuilderParam && appBuilderParam.definition.type === PARAMETER_TYPE.STRING) {
-			// strictly speaking there would be no need to set the value of the parameter, 
-			// as it is set by the pre-execution hook
-			appBuilderParam.actions.setUiValue(JSON.stringify(getCustomParameterValues()));
+		// strictly speaking there would be no need to set the value of the parameter, 
+		// as it is already set by the pre-execution hook
+		const json = JSON.stringify(getCustomParameterValues());
+		if (appBuilderParam && json.length <= appBuilderParam.definition.max!) {
+			appBuilderParam.actions.setUiValue(json);
 			await appBuilderParam.actions.execute(true);
 		}
-		else {
-			console.warn(`Parameter "${CUSTOM_DATA_INPUT_NAME}" not found or not of type 'String'!`);
+		else if (appBuilderFileParam && appBuilderFileParam.definition.format?.includes("application/json")) {
+			appBuilderFileParam.actions.setUiValue(new Blob([json], {type: "application/json"}));
+			await appBuilderFileParam.actions.execute(true);
 		}
-	}, [appBuilderParam]);
+	}, [appBuilderParam, appBuilderFileParam]);
 
 	// register the pre-execution hook
 	useEffect(() => {
-		if (appBuilderParam) {
-			if (appBuilderParam.definition.type !== PARAMETER_TYPE.STRING)
-				console.warn(`Ignoring parameter "${CUSTOM_DATA_INPUT_NAME}" whose type is ${appBuilderParam.definition.type} instead of 'String'!`);
-			else
-				setPreExecutionHook(sessionId, async (values) => {
-					values[appBuilderParam.definition.id] = JSON.stringify(getCustomParameterValues());
-			
-					return values;
-				});
+		if (appBuilderParam || appBuilderFileParam) {
+			setPreExecutionHook(sessionId, async (values) => {
+				const json = JSON.stringify(getCustomParameterValues());
+				if (appBuilderParam && json.length <= appBuilderParam.definition.max!) {
+					values[appBuilderParam.definition.id] = json;
+				}
+				else if (appBuilderFileParam && appBuilderFileParam.definition.format?.includes("application/json")) {
+					values[appBuilderFileParam.definition.id] = new Blob([json], {type: "application/json"});
+				}
+				else {
+					console.warn(`Could not find a suitable parameter named "${CUSTOM_DATA_INPUT_NAME}" whose type is 'String' or 'File'!`);
+				}
+				
+				return values;
+			});
+		}
+		else {
+			console.warn(`Could not find a parameter named "${CUSTOM_DATA_INPUT_NAME}" whose type is 'String' or 'File'!`);
 		}
 		
 		return () => removePreExecutionHook(sessionId);
-	}, [appBuilderParam]);
+	}, [appBuilderParam, appBuilderFileParam]);
 
 	// define custom parameters and an execution callback for them
 	useDefineGenericParameters(sessionIdAppBuilder, 

@@ -217,9 +217,10 @@ export interface IShapeDiverStoreParameters {
 	 * Get a single parameter store by parameter id or name.
 	 * @param sessionId
 	 * @param paramId
+	 * @param type Optional. If provided, the parameter store is only returned if the parameter has the given type.
 	 * @returns
 	 */
-	readonly getParameter: (sessionId: string, paramId: string) => IParameterStore | undefined;
+	readonly getParameter: (sessionId: string, paramId: string, type?: string) => IParameterStore | undefined;
 
 	/**
 	 * Get all export stores for a given session id.

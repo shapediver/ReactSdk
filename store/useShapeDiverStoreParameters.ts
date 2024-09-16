@@ -604,11 +604,11 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 		return get().parameterStores[sessionId] || {};
 	},
 
-	getParameter: (sessionId: string, paramId: string) => {
+	getParameter: (sessionId: string, paramId: string, type?: string) => {
 		return Object.values(get().getParameters(sessionId)).find(p => {
 			const def = p.getState().definition;
 
-			return def.id === paramId || def.name === paramId || def.displayname === paramId;
+			return (!type || type === def.type ) && (def.id === paramId || def.name === paramId || def.displayname === paramId);
 		}) as IParameterStore;
 	},
 
