@@ -13,10 +13,12 @@ interface Props {
 
 interface StyleProps {
 	anchorTarget: React.HTMLAttributeAnchorTarget
+	boldFontWeight: string
+	strongFontWeight: string
 }
 
 const defaultStyleProps : Partial<StyleProps> = {
-	anchorTarget: "_blank"
+	anchorTarget: "_blank",
 };
 
 type MarkdownWidgetComponentPropsType = Partial<StyleProps>;
@@ -73,7 +75,11 @@ const spanDirective = function() {
 export default function MarkdownWidgetComponent(props: Props & Partial<StyleProps>) {
 
 	const { children, ...rest } = props;
-	const { anchorTarget } = useProps("MarkdownWidgetComponent", defaultStyleProps, rest);
+	const { 
+		anchorTarget,
+		boldFontWeight,
+		strongFontWeight,
+	} = useProps("MarkdownWidgetComponent", defaultStyleProps, rest);
 
 	const styleProps: MantineStyleProps = {
 		mb: "xs"
@@ -90,7 +96,7 @@ export default function MarkdownWidgetComponent(props: Props & Partial<StyleProp
 				const {...rest} = props;
 
 				// @ts-expect-error ignore
-				return <Text fw={700} {...rest} />;
+				return <Text fw={boldFontWeight} {...rest} />;
 			},
 			blockquote(props) {
 				const {...rest} = props;
@@ -157,7 +163,7 @@ export default function MarkdownWidgetComponent(props: Props & Partial<StyleProp
 			strong(props) {
 				const {...rest} = props;
 
-				return <strong {...rest} />;
+				return <strong style={{fontWeight: strongFontWeight}} {...rest} />;
 			},
 			a(props) {
 				const {...rest} = props;

@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { MantineStyleProp, MantineThemeComponent, Paper, PaperProps } from "@mantine/core";
+import { MantineStyleProp, MantineThemeComponent, Paper, PaperProps, Text } from "@mantine/core";
 import { IAppBuilderWidgetPropsText } from "../../../types/shapediver/appbuilder";
 import MarkdownWidgetComponent from "../ui/MarkdownWidgetComponent";
 import { AppBuilderContainerContext } from "../../../context/AppBuilderContext";
@@ -30,11 +30,12 @@ export default function AppBuilderTextWidgetComponent(props: IAppBuilderWidgetPr
 	if (context.orientation === "horizontal") {
 		styleProps.height = "100%";
 	}
+	styleProps.fontWeight = "100";
 	
 	if (text) {
-		return <Paper {...themeProps} style={styleProps}>
+		return <Paper {...themeProps} style={styleProps}><Text>
 			{ text }
-		</Paper>;
+		</Text></Paper>;
 	}
 	else if (markdown) {
 		return <Paper {...themeProps} style={styleProps}>

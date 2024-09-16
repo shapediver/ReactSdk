@@ -1,4 +1,25 @@
-import { Accordion, Anchor, AppShellResponsiveSize, Button, CSSVariablesResolver, ColorInput, DEFAULT_THEME, Group, MantineSize, MantineSpacing, MantineThemeOverride, Paper, Stack, StyleProp, Switch, Tabs, Tooltip, createTheme, mergeThemeOverrides } from "@mantine/core";
+import { 
+	Accordion, 
+	Anchor, 
+	AppShellResponsiveSize, 
+	Button, 
+	CSSVariablesResolver, 
+	ColorInput, 
+	DEFAULT_THEME, 
+	Group,
+	MantineSize, 
+	MantineSpacing, 
+	MantineThemeOverride, 
+	Paper, 
+	Stack, 
+	StyleProp, 
+	Switch,
+	Tabs, 
+	Text,
+	Tooltip, 
+	createTheme,
+	mergeThemeOverrides 
+} from "@mantine/core";
 import { ViewportIconsThemeProps } from "../../components/shapediver/viewport/ViewportIcons";
 import { ViewportBrandingThemeProps, ViewportComponentThemeProps } from "../../components/shapediver/viewport/ViewportComponent";
 import { ViewportOverlayWrapperThemeProps } from "../../components/shapediver/viewport/ViewportOverlayWrapper";
@@ -18,6 +39,8 @@ import { AppBuilderPageThemeProps } from "../../pages/templates/AppBuilderContai
 import { AppBuilderTextWidgetThemeProps } from "../../components/shapediver/appbuilder/AppBuilderTextWidgetComponent";
 import { MarkdownWidgetComponentProps } from "../../components/shapediver/ui/MarkdownWidgetComponent";
 import { LoaderPageThemeProps } from "../../pages/misc/LoaderPage";
+import { ParameterLabelComponentThemeProps } from "shared/components/shapediver/parameter/ParameterLabelComponent";
+import { ExportLabelComponentThemeProps } from "shared/components/shapediver/exports/ExportLabelComponent";
 
 /**
  * Helper function for defining CSS variables for the AppBuilderAppShellTemplate
@@ -88,6 +111,9 @@ export const useCustomTheme = (props: Props = {}) => {
 	 */
 	const defaultTheme = createTheme({
 		defaultRadius: "md",
+		other: {
+			defaultFontWeight: "400"
+		},
 		components: {
 			/**
 			 * Default properties of Mantine components
@@ -133,6 +159,7 @@ export const useCustomTheme = (props: Props = {}) => {
 			Button: Button.extend({
 				defaultProps: {
 					variant: "default",
+					fw: "500",
 				}
 			}),
 			/** 
@@ -199,6 +226,16 @@ export const useCustomTheme = (props: Props = {}) => {
 			TabsPanel: Tabs.Panel.extend({
 				defaultProps: {
 					pt: padding,
+				}
+			}),
+			/**
+			 * Text
+			 * @see https://mantine.dev/core/text/?t=props
+			 */
+			Text: Text.extend({
+				defaultProps: {
+					//fw: "400"
+					//size: "md"
 				}
 			}),
 			/**
@@ -364,6 +401,14 @@ export const useCustomTheme = (props: Props = {}) => {
 				// acceptRejectMode: true
 			}),
 			/**
+			 * ExportLabelComponent
+			 * 
+			 * Defaults for export labels.
+			 */
+			ExportLabelComponent: ExportLabelComponentThemeProps({
+				//fontWeight: "500",
+			}),
+			/**
 			 * Icon
 			 * 
 			 * Icon component used by AppBuilder.
@@ -390,7 +435,9 @@ export const useCustomTheme = (props: Props = {}) => {
 			 * Used by AppBuilder for displaying markdown.
 			 */
 			MarkdownWidgetComponent: MarkdownWidgetComponentProps({
-				// anchorTarget: "_blank"
+				// anchorTarget: "_blank",
+				// boldFontWeight: "500",
+				// strongFontWeight: "700",
 			}),
 			/**
 			 * ParametersAndExportsAccordionComponent
@@ -401,6 +448,14 @@ export const useCustomTheme = (props: Props = {}) => {
 				//avoidSingleComponentGroups: true,
 				//mergeAccordions: false,
 				//pbSlider: "md",
+			}),
+			/**
+			 * ParameterLabelComponent
+			 * 
+			 * Defaults for parameter labels.
+			 */
+			ParameterLabelComponent: ParameterLabelComponentThemeProps({
+				//fontWeight: "500",
 			}),
 			/**
 			 * ParameterSliderComponent
@@ -481,6 +536,7 @@ export const useCustomTheme = (props: Props = {}) => {
 			"--appbuilder-appshelltemplate-headerheight-md": getAppShellSize(theme.components.AppBuilderAppShellTemplatePage.defaultProps.headerHeight, "md", "4em"),
 			"--appbuilder-appshelltemplate-headerheight-lg": getAppShellSize(theme.components.AppBuilderAppShellTemplatePage.defaultProps.headerHeight, "lg", "4em"),
 			"--appbuilder-appshelltemplate-headerheight-xl": getAppShellSize(theme.components.AppBuilderAppShellTemplatePage.defaultProps.headerHeight, "xl", "4em"),
+			"--appbuilder-default-font-weight": theme.other.defaultFontWeight,
 		},
 		light: {
 			// variables for light theme
