@@ -5,6 +5,15 @@ import useResolveAppBuilderSettings from "./useResolveAppBuilderSettings";
 import { validateAppBuilderSettingsJson } from "../../../types/shapediver/appbuildertypecheck";
 import { useThemeOverrideStore } from "../../../store/useThemeOverrideStore";
 import { getDefaultPlatformUrl } from "../../../utils/platform/environment";
+import { 
+	QUERYPARAM_DISABLEFALLBACKUI,
+	QUERYPARAM_MODELSTATEID,
+	QUERYPARAM_MODELVIEWURL,
+	QUERYPARAM_PLATFORMURL,
+	QUERYPARAM_SLUG,
+	QUERYPARAM_TEMPLATE,
+	QUERYPARAM_TICKET 
+} from "../../../types/shapediver/queryparams";
 
 /**
  * Test a string value for being "true" or "1".
@@ -48,19 +57,20 @@ export default function useAppBuilderSettings(defaultSession?: IAppBuilderSettin
 	}, [url]);
 
 	// check for ticket, modelViewUrl, slug and platformUrl
-	const ticket = parameters.get("ticket");
-	const modelViewUrl = parameters.get("modelViewUrl")?.replace(/\/+$/, "");
-	const slug = parameters.get("slug");
-	const platformUrl = parameters.get("platformUrl")?.replace(/\/+$/, "");
-	const disableFallbackUi = isTrueish(parameters.get("disableFallbackUi"));
-	const template = parameters.get("template");
+	const ticket = parameters.get(QUERYPARAM_TICKET);
+	const modelViewUrl = parameters.get(QUERYPARAM_MODELVIEWURL)?.replace(/\/+$/, "");
+	const slug = parameters.get(QUERYPARAM_SLUG);
+	const platformUrl = parameters.get(QUERYPARAM_PLATFORMURL)?.replace(/\/+$/, "");
+	const disableFallbackUi = isTrueish(parameters.get(QUERYPARAM_DISABLEFALLBACKUI));
+	const template = parameters.get(QUERYPARAM_TEMPLATE);
+	const modelStateId = parameters.get(QUERYPARAM_MODELSTATEID) !== null ? parameters.get(QUERYPARAM_MODELSTATEID)! : undefined;
 	
 	// define fallback session settings to be used in case loading from json failed
 	// in case slug and optionally platformUrl are defined, use them
 	// otherwise, if ticket and modelViewUrl are defined, use them
 	const queryParamSession = useMemo<IAppBuilderSettingsSession|undefined>(() => slug ? 
-		{ id: "default", slug, platformUrl: platformUrl ?? getDefaultPlatformUrl() } as IAppBuilderSettingsSession : 
-		(ticket && modelViewUrl ? { id: "default", ticket, modelViewUrl} : undefined), [slug, platformUrl, ticket, modelViewUrl]);
+		{ id: "default", slug, platformUrl: platformUrl ?? getDefaultPlatformUrl(), modelStateId } as IAppBuilderSettingsSession : 
+		(ticket && modelViewUrl ? { id: "default", ticket, modelViewUrl, modelStateId } : undefined), [slug, platformUrl, ticket, modelViewUrl]);
 
 	// define theme overrides based on query string params
 	const themeOverrides = useMemo(() => { return template ? {

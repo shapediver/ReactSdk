@@ -373,6 +373,10 @@ export interface IAppBuilderSettingsSession extends SessionCreateDto {
 	 * Set to true to require confirmation of the user to accept or reject changed parameter values.
 	 */
 	acceptRejectMode?: boolean
+	/**
+	 * Optional model state id.
+	 */
+	modelStateId?: string
 }
 
 /**

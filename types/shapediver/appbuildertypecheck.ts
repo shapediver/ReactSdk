@@ -249,6 +249,7 @@ const IAppBuilderSettingsSessionSchema = z.object({
 	slug: z.string().optional(),
 	platformUrl: z.string().optional(),
 	acceptRejectMode: z.boolean().optional(),
+	modelStateId: z.string().optional(),
 });
 
 // Zod type definition for IAppBuilderSettingsSettings
