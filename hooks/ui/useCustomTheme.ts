@@ -112,6 +112,7 @@ export const useCustomTheme = (props: Props = {}) => {
 	const defaultTheme = createTheme({
 		defaultRadius: "md",
 		other: {
+			//forceColorScheme: "light",
 			defaultFontWeight: "400"
 		},
 		components: {
