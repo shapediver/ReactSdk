@@ -75,6 +75,8 @@ export function useAppBuilderCustomParameters(props: Props) {
 		if (appBuilderData?.parameters) {
 			appBuilderData.parameters.forEach(p => {
 				defaultCustomParameterValues.current[p.id] = p.value ?? p.defval;
+				if (p.value !== undefined && p.id in customParameterValues.current)
+					delete customParameterValues.current[p.id];
 			});
 		}
 		
