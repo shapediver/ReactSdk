@@ -53,8 +53,9 @@ export default function useResolveAppBuilderSettings(settings : IAppBuilderSetti
 				const client = create({ clientId: getPlatformClientId(), baseUrl: session.platformUrl });
 				const result = await client.models.iframeEmbedding(session.slug);
 				const iframeData = result.data;
-
+			
 				return {
+					acceptRejectMode: iframeData.model.settings?.parameters_commit,
 					...session, 
 					ticket: iframeData.ticket,
 					modelViewUrl: iframeData.model_view_url,
