@@ -1,9 +1,9 @@
 import React, { useContext } from "react";
 import { MantineStyleProp, MantineThemeComponent, Paper, PaperProps, Text } from "@mantine/core";
-import { IAppBuilderWidgetPropsText } from "../../../types/shapediver/appbuilder";
-import MarkdownWidgetComponent from "../ui/MarkdownWidgetComponent";
-import { AppBuilderContainerContext } from "../../../context/AppBuilderContext";
-import { usePropsAppBuilder } from "../../../hooks/ui/usePropsAppBuilder";
+import { IAppBuilderWidgetPropsText } from "../../../../types/shapediver/appbuilder";
+import MarkdownWidgetComponent from "../../ui/MarkdownWidgetComponent";
+import { AppBuilderContainerContext } from "../../../../context/AppBuilderContext";
+import { usePropsAppBuilder } from "../../../../hooks/ui/usePropsAppBuilder";
 
 type StylePros = PaperProps;
 

@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { IAppBuilderTab } from "../../../types/shapediver/appbuilder";
-import AppBuilderWidgetsComponent from "./AppBuilderWidgetsComponent";
+import AppBuilderWidgetsComponent from "./widgets/AppBuilderWidgetsComponent";
 import TabsComponent, { ITabsComponentProps } from "../../ui/TabsComponent";
 
 interface Props {

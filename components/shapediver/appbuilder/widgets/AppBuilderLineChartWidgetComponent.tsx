@@ -1,11 +1,11 @@
 import React, { } from "react";
 import { Paper, Title } from "@mantine/core";
-import { convertChartData, IAppBuilderWidgetPropsBarChart } from "../../../types/shapediver/appbuildercharts";
-import { BarChart } from "@mantine/charts";
+import { convertChartData, IAppBuilderWidgetPropsLineChart } from "../../../../types/shapediver/appbuildercharts";
+import { LineChart } from "@mantine/charts";
 
-export default function AppBuilderBarChartWidgetComponent(props: IAppBuilderWidgetPropsBarChart) {
+export default function AppBuilderLineChartWidgetComponent(props: IAppBuilderWidgetPropsLineChart) {
 	
-	const {name, type, plotSettings, data} = props;
+	const {name, style, plotSettings, data} = props;
 
 	return (
 		<Paper>
@@ -15,7 +15,7 @@ export default function AppBuilderBarChartWidgetComponent(props: IAppBuilderWidg
 			>
 				{name}
 			</Title>
-			<BarChart
+			<LineChart
 				h={250} // TODO make this a style prop
 				withXAxis= {plotSettings.xaxis}
 				xAxisLabel= {plotSettings.xlabel}
@@ -23,11 +23,12 @@ export default function AppBuilderBarChartWidgetComponent(props: IAppBuilderWidg
 				yAxisLabel= {plotSettings.ylabel}
 				gridAxis= {plotSettings.grid}
 				tickLine= {plotSettings.grid}
+				withDots= {plotSettings.dots}
 				withLegend= {plotSettings.legend}
 				data={convertChartData(data)}
 				dataKey="key"
-				type={type}
 				series={data.series}
+				curveType={style}
 			/>
 		</Paper>
 	);

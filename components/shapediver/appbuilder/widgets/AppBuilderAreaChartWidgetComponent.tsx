@@ -1,11 +1,11 @@
 import React, { } from "react";
 import { Paper, Title } from "@mantine/core";
-import { convertChartData, IAppBuilderWidgetPropsLineChart } from "../../../types/shapediver/appbuildercharts";
-import { LineChart } from "@mantine/charts";
+import { convertChartData, IAppBuilderWidgetPropsAreaChart } from "../../../../types/shapediver/appbuildercharts";
+import { AreaChart } from "@mantine/charts";
 
-export default function AppBuilderLineChartWidgetComponent(props: IAppBuilderWidgetPropsLineChart) {
+export default function AppBuilderAreaChartWidgetComponent(props: IAppBuilderWidgetPropsAreaChart) {
 	
-	const {name, style, plotSettings, data} = props;
+	const {name, style, type, plotSettings, data} = props;
 
 	return (
 		<Paper>
@@ -15,7 +15,7 @@ export default function AppBuilderLineChartWidgetComponent(props: IAppBuilderWid
 			>
 				{name}
 			</Title>
-			<LineChart
+			<AreaChart
 				h={250} // TODO make this a style prop
 				withXAxis= {plotSettings.xaxis}
 				xAxisLabel= {plotSettings.xlabel}
@@ -29,6 +29,8 @@ export default function AppBuilderLineChartWidgetComponent(props: IAppBuilderWid
 				dataKey="key"
 				series={data.series}
 				curveType={style}
+				type={type}
+				
 			/>
 		</Paper>
 	);

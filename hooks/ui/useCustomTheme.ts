@@ -36,7 +36,7 @@ import { AppShellSize } from "@mantine/core/lib/components/AppShell/AppShell.typ
 import { AppBuilderVerticalContainerThemeProps } from "../../pages/templates/AppBuilderVerticalContainer";
 import { AppBuilderHorizontalContainerThemeProps } from "../../pages/templates/AppBuilderHorizontalContainer";
 import { AppBuilderPageThemeProps } from "../../pages/templates/AppBuilderContainerWrapper";
-import { AppBuilderTextWidgetThemeProps } from "../../components/shapediver/appbuilder/AppBuilderTextWidgetComponent";
+import { AppBuilderTextWidgetThemeProps } from "../../components/shapediver/appbuilder/widgets/AppBuilderTextWidgetComponent";
 import { MarkdownWidgetComponentProps } from "../../components/shapediver/ui/MarkdownWidgetComponent";
 import { LoaderPageThemeProps } from "../../pages/misc/LoaderPage";
 import { ParameterLabelComponentThemeProps } from "../../components/shapediver/parameter/ParameterLabelComponent";

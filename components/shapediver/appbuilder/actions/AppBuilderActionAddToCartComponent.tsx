@@ -1,9 +1,9 @@
 import React, { useCallback, useContext } from "react";
-import { IAppBuilderActionPropsAddToCart } from "../../../types/shapediver/appbuilder";
+import { IAppBuilderActionPropsAddToCart } from "../../../../types/shapediver/appbuilder";
 import AppBuilderActionComponent from "./AppBuilderActionComponent";
-import { ECommerceApiSingleton } from "../../../modules/ecommerce/singleton";
-import { NotificationContext } from "../../../context/NotificationContext";
-import { useCreateModelState } from "../../../hooks/shapediver/useCreateModelState";
+import { ECommerceApiSingleton } from "../../../../modules/ecommerce/singleton";
+import { NotificationContext } from "../../../../context/NotificationContext";
+import { useCreateModelState } from "../../../../hooks/shapediver/useCreateModelState";
 import { IconTypeEnum } from "shared/types/shapediver/icons";
 
 type Props = IAppBuilderActionPropsAddToCart & {

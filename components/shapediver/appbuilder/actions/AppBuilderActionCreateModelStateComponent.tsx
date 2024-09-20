@@ -1,8 +1,8 @@
 import React, { useCallback } from "react";
-import { IAppBuilderActionPropsAddToCart } from "../../../types/shapediver/appbuilder";
+import { IAppBuilderActionPropsAddToCart } from "../../../../types/shapediver/appbuilder";
 import AppBuilderActionComponent from "./AppBuilderActionComponent";
-import { useCreateModelState } from "../../../hooks/shapediver/useCreateModelState";
-import { IconTypeEnum } from "../../../types/shapediver/icons";
+import { useCreateModelState } from "../../../../hooks/shapediver/useCreateModelState";
+import { IconTypeEnum } from "../../../../types/shapediver/icons";
 
 type Props = IAppBuilderActionPropsAddToCart & {
 	sessionId: string;

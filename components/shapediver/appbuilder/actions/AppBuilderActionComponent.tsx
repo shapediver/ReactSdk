@@ -1,7 +1,7 @@
 import { Button, ButtonProps, Tooltip, PolymorphicComponentProps } from "@mantine/core";
 import React from "react";
-import Icon from "../../ui/Icon";
-import { IAppBuilderActionPropsCommon } from "../../../types/shapediver/appbuilder";
+import Icon from "../../../ui/Icon";
+import { IAppBuilderActionPropsCommon } from "../../../../types/shapediver/appbuilder";
 
 type ButtonComponentProps<C = "button"> = PolymorphicComponentProps<C, ButtonProps>;
 

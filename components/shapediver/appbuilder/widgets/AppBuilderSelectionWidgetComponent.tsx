@@ -1,15 +1,15 @@
-import ParametersAndExportsAccordionComponent from "../ui/ParametersAndExportsAccordionComponent";
+import ParametersAndExportsAccordionComponent from "../../ui/ParametersAndExportsAccordionComponent";
 import React, { useEffect, useRef, useState } from "react";
-import { IAppBuilderWidgetPropsInteraction } from "../../../types/shapediver/appbuilder";
-import { IGenericParameterDefinition } from "../../../types/store/shapediverStoreParameters";
+import { IAppBuilderWidgetPropsInteraction } from "../../../../types/shapediver/appbuilder";
+import { IGenericParameterDefinition } from "../../../../types/store/shapediverStoreParameters";
 import { ShapeDiverResponseParameterType } from "@shapediver/sdk.geometry-api-sdk-v2";
-import { useDefineGenericParameters } from "../../../hooks/shapediver/parameters/useDefineGenericParameters";
+import { useDefineGenericParameters } from "../../../../hooks/shapediver/parameters/useDefineGenericParameters";
 import { useId } from "@mantine/hooks";
-import { useParameterStateless } from "../../../hooks/shapediver/parameters/useParameterStateless";
-import { useSessionPropsParameter } from "../../../hooks/shapediver/parameters/useSessionPropsParameter";
+import { useParameterStateless } from "../../../../hooks/shapediver/parameters/useParameterStateless";
+import { useSessionPropsParameter } from "../../../../hooks/shapediver/parameters/useSessionPropsParameter";
 import { isInteractionSelectionParameterSettings, SelectionParameterValue } from "@shapediver/viewer";
-import { useSelection } from "../../../hooks/shapediver/viewer/interaction/selection/useSelection";
-import { useViewportId } from "../../../hooks/shapediver/viewer/useViewportId";
+import { useSelection } from "../../../../hooks/shapediver/viewer/interaction/selection/useSelection";
+import { useViewportId } from "../../../../hooks/shapediver/viewer/useViewportId";
 
 interface Props extends IAppBuilderWidgetPropsInteraction {
 	/** 

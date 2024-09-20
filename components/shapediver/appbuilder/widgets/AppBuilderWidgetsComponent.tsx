@@ -10,7 +10,7 @@ import {
 	isTextWidget,
 	isInteractionWidget,
 	isActionsWidget,
-} from "../../../types/shapediver/appbuilder";
+} from "../../../../types/shapediver/appbuilder";
 import AppBuilderTextWidgetComponent from "./AppBuilderTextWidgetComponent";
 import AppBuilderImageWidgetComponent from "./AppBuilderImageWidgetComponent";
 import AppBuilderAccordionWidgetComponent from "./AppBuilderAccordionWidgetComponent";

@@ -1,12 +1,12 @@
 import React, { } from "react";
 import { MantineThemeComponent, Paper, PaperProps, Stack } from "@mantine/core";
-import { IAppBuilderWidgetPropsActions, isAddToCartAction, isCloseConfiguratorAction, isCreateModelStateAction, isSetBrowserLocationAction, isSetParameterValueAction } from "../../../types/shapediver/appbuilder";
+import { IAppBuilderWidgetPropsActions, isAddToCartAction, isCloseConfiguratorAction, isCreateModelStateAction, isSetBrowserLocationAction, isSetParameterValueAction } from "../../../../types/shapediver/appbuilder";
 //import { usePropsAppBuilder } from "../../../hooks/ui/usePropsAppBuilder";
-import AppBuilderActionAddToCartComponent from "./AppBuilderActionAddToCartComponent";
-import AppBuilderActionSetParameterValueComponent from "./AppBuilderActionSetParameterValueComponent";
-import AppBuilderActionSetBrowserLocationComponent from "./AppBuilderActionSetBrowserLocationComponent";
-import AppBuilderActionCloseConfiguratorComponent from "./AppBuilderActionCloseConfiguratorComponent";
-import AppBuilderActionCreateModelStateComponent from "./AppBuilderActionCreateModelStateComponent";
+import AppBuilderActionAddToCartComponent from "../actions/AppBuilderActionAddToCartComponent";
+import AppBuilderActionSetParameterValueComponent from "../actions/AppBuilderActionSetParameterValueComponent";
+import AppBuilderActionSetBrowserLocationComponent from "../actions/AppBuilderActionSetBrowserLocationComponent";
+import AppBuilderActionCloseConfiguratorComponent from "../actions/AppBuilderActionCloseConfiguratorComponent";
+import AppBuilderActionCreateModelStateComponent from "../actions/AppBuilderActionCreateModelStateComponent";
 
 type StylePros = PaperProps;
 

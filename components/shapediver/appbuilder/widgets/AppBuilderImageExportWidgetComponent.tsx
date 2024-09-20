@@ -1,8 +1,8 @@
 import { EXPORT_TYPE } from "@shapediver/viewer";
-import { useExport } from "../../../hooks/shapediver/parameters/useExport";
+import { useExport } from "../../../../hooks/shapediver/parameters/useExport";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import AppBuilderImage from "./AppBuilderImage";
-import { useShapeDiverStoreParameters } from "../../../store/useShapeDiverStoreParameters";
+import AppBuilderImage from "../AppBuilderImage";
+import { useShapeDiverStoreParameters } from "../../../../store/useShapeDiverStoreParameters";
 import { useShallow } from "zustand/react/shallow";
 
 interface Props {
