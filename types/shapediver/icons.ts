@@ -25,6 +25,7 @@ export enum IconTypeEnum {
 	CameraOff = "camera-off",
 	Check = "check",
 	Copy = "copy",
+	DeviceFloppy = "device-floppy",
 	Dots = "dots",
 	DotsVertical = "dots-vertical",
 	Download = "download",
@@ -56,6 +57,7 @@ export enum IconTypeEnum {
 	Share2 = "share-2",
 	Share3 = "share-3",
 	ShareOff = "share-off",
+	ShoppingCartPlus = "shopping-cart-plus",
 	Sun = "sun",
 	Upload = "upload",
 	User = "user",
@@ -73,6 +75,7 @@ export enum IconTypeEnum {
 	ZoomScan = "zoom-scan"
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const IconTypeEnumType = {
 	...IconTypeEnum,
 };

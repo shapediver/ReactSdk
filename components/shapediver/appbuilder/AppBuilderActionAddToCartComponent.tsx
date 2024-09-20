@@ -3,9 +3,8 @@ import { IAppBuilderActionPropsAddToCart } from "../../../types/shapediver/appbu
 import AppBuilderActionComponent from "./AppBuilderActionComponent";
 import { ECommerceApiSingleton } from "../../../modules/ecommerce/singleton";
 import { NotificationContext } from "../../../context/NotificationContext";
-import { useShapeDiverStoreViewer } from "../../../store/useShapeDiverStoreViewer";
-import { useViewportId } from "../../../hooks/shapediver/viewer/useViewportId";
-import { useShallow } from "zustand/react/shallow";
+import { useCreateModelState } from "../../../hooks/shapediver/useCreateModelState";
+import { IconTypeEnum } from "shared/types/shapediver/icons";
 
 type Props = IAppBuilderActionPropsAddToCart & {
 	sessionId: string;
@@ -20,33 +19,32 @@ export default function AppBuilderActionAddToCartComponent(props: Props) {
 	
 	const { 
 		label = "Add to cart", 
-		icon, 
+		icon = IconTypeEnum.ShoppingCartPlus, 
 		tooltip, 
 		sessionId,
 		productId,
 		quantity,
 		price,
 		description,
+		includeImage,
 		//image, // TODO use image defined by export of href
-		createGltf
+		includeGltf
 	} = props;
-	const { viewportId } = useViewportId();
-	const { sessionApi, viewportApi } = useShapeDiverStoreViewer(useShallow(state => ({
-		sessionApi: state.sessions[sessionId],
-		viewportApi: state.viewports[viewportId],
-	})));
+	
+	const { createModelState } = useCreateModelState({ sessionId });
+
 	const notifications = useContext(NotificationContext);
 
 	const onClick = useCallback(async () => {
 		// in case we are not running inside an iframe, the instance of 
 		// IEcommerceApi will be a dummy for testing
 		const api = await ECommerceApiSingleton;
-		const modelStateId = await sessionApi.createModelState(
+		const modelStateId = await createModelState(
 			undefined, // <-- use parameter values of the session
 			false, // <-- use parameter values of the session
-			() => viewportApi.getScreenshot(),
+			includeImage,
 			undefined, // <-- custom data
-			createGltf ? async () => viewportApi.convertToGlTF() : undefined
+			includeGltf
 		);
 		try {
 			const result = await api.addItemToCart({
@@ -68,9 +66,9 @@ export default function AppBuilderActionAddToCartComponent(props: Props) {
 		quantity,
 		price,
 		description,
-		sessionApi,
-		viewportApi,
-		createGltf
+		createModelState,
+		includeImage,
+		includeGltf
 	]);
 
 	return <AppBuilderActionComponent 

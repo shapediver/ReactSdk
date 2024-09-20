@@ -59,7 +59,7 @@ export interface IAppBuilderImageRef {
 }
 
 /** Types of actions */
-export type AppBuilderActionType = "addToCart" | "setParameterValue" | "setBrowserLocation" | "closeConfigurator";
+export type AppBuilderActionType = "createModelState" | "addToCart" | "setParameterValue" | "setBrowserLocation" | "closeConfigurator";
 
 /** Common properties of App Builder actions. */
 export interface IAppBuilderActionPropsCommon {
@@ -72,12 +72,32 @@ export interface IAppBuilderActionPropsCommon {
 	// TODO: allow to define what should happen in case of success or error.
 }
 
+/** Properties of a "createModelState" action. */
+export interface IAppBuilderActionPropsCreateModelState extends IAppBuilderActionPropsCommon {
+	/**
+	 * Optional flag to control whether an image of the scene shall be 
+	 * included with the model state.
+	 */
+	includeImage?: boolean
+	/** 
+	 * Optional image to be included when creating the model state for the line item.
+	 * In case no image is provided here, a screenshot of the model will be used
+	 * if @see {@link includeImage} is set to true.
+	 */
+	image?: IAppBuilderImageRef
+	/**
+	 * Optional flag to control whether a glTF export of the scene shall be 
+	 * included with the model state.
+	 */
+	includeGltf?: boolean
+}
+
 /** 
  * Properties of an "addToCart" action. 
  * This action triggers a corresponding message to the e-commerce system via the iframe API. 
  * A response is awaited and the result is displayed to the user. 
  */
-export interface IAppBuilderActionPropsAddToCart extends IAppBuilderActionPropsCommon {
+export interface IAppBuilderActionPropsAddToCart extends IAppBuilderActionPropsCreateModelState {
 	/** 
 	 * Identifier of the product to add to the cart. 
 	 * Optional, defaults to the product defined by the context. 
@@ -92,16 +112,6 @@ export interface IAppBuilderActionPropsAddToCart extends IAppBuilderActionPropsC
 	price?: number
 	/** Description to be used for the line item. */
 	description?: string
-	/** 
-	 * Optional image to be included when creating the model state for the line item.
-	 * In case no image is provided here, a screenshot of the model will be used.
-	 */
-	image?: Pick<IAppBuilderWidgetPropsImage, "export" | "href">
-	/**
-	 * Optional flag to control whether a glTF export of the scene shall be 
-	 * included with the model state.
-	 */
-	createGltf?: boolean
 }
 
 /** Properties of a "setParameterValue" action. */
@@ -152,7 +162,8 @@ export interface IAppBuilderAction {
 	/** Type of the action. */
 	type: AppBuilderActionType
 	/** Properties of the action. */
-	props: IAppBuilderActionPropsAddToCart 
+	props: IAppBuilderActionPropsCreateModelState
+		| IAppBuilderActionPropsAddToCart 
 		| IAppBuilderActionPropsSetParameterValue 
 		| IAppBuilderActionPropsSetBrowserLocation
 		| IAppBuilderActionPropsCloseConfigurator
@@ -340,6 +351,11 @@ export function isInteractionWidget(widget: IAppBuilderWidget): widget is { type
 /** assert widget type "actions" */
 export function isActionsWidget(widget: IAppBuilderWidget): widget is { type: "actions", props: IAppBuilderWidgetPropsActions } {
 	return widget.type === "actions";
+}
+
+/** assert action type "createModelState" */
+export function isCreateModelStateAction(action: IAppBuilderAction): action is { type: "createModelState", props: IAppBuilderActionPropsCreateModelState } {
+	return action.type === "createModelState";
 }
 
 /** assert action type "addToCart" */

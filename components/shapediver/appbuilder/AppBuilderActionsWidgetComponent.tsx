@@ -1,11 +1,12 @@
 import React, { } from "react";
 import { MantineThemeComponent, Paper, PaperProps, Stack } from "@mantine/core";
-import { IAppBuilderWidgetPropsActions, isAddToCartAction, isCloseConfiguratorAction, isSetBrowserLocationAction, isSetParameterValueAction } from "../../../types/shapediver/appbuilder";
+import { IAppBuilderWidgetPropsActions, isAddToCartAction, isCloseConfiguratorAction, isCreateModelStateAction, isSetBrowserLocationAction, isSetParameterValueAction } from "../../../types/shapediver/appbuilder";
 //import { usePropsAppBuilder } from "../../../hooks/ui/usePropsAppBuilder";
 import AppBuilderActionAddToCartComponent from "./AppBuilderActionAddToCartComponent";
 import AppBuilderActionSetParameterValueComponent from "./AppBuilderActionSetParameterValueComponent";
 import AppBuilderActionSetBrowserLocationComponent from "./AppBuilderActionSetBrowserLocationComponent";
 import AppBuilderActionCloseConfiguratorComponent from "./AppBuilderActionCloseConfiguratorComponent";
+import AppBuilderActionCreateModelStateComponent from "./AppBuilderActionCreateModelStateComponent";
 
 type StylePros = PaperProps;
 
@@ -39,7 +40,9 @@ export default function AppBuilderActionsWidgetComponent(props: Props & AppBuild
 	}
 
 	const actionComponents = actions.map((action, i) => {
-		if (isAddToCartAction(action))
+		if (isCreateModelStateAction(action))
+			return <AppBuilderActionCreateModelStateComponent key={i} sessionId={sessionId} {...action.props} />;
+		else if (isAddToCartAction(action))
 			return <AppBuilderActionAddToCartComponent key={i} sessionId={sessionId} {...action.props} />;
 		else if (isCloseConfiguratorAction(action))
 			return <AppBuilderActionCloseConfiguratorComponent key={i} {...action.props} />;

@@ -3,6 +3,7 @@ import { IAppBuilderActionPropsCloseConfigurator } from "../../../types/shapediv
 import AppBuilderActionComponent from "./AppBuilderActionComponent";
 import { ECommerceApiSingleton } from "../../../modules/ecommerce/singleton";
 import { NotificationContext } from "../../../context/NotificationContext";
+import { IconTypeEnum } from "shared/types/shapediver/icons";
 
 type Props = IAppBuilderActionPropsCloseConfigurator & {
 };
@@ -16,7 +17,7 @@ export default function AppBuilderActionCloseConfiguratorComponent(props: Props)
 	
 	const { 
 		label = "Close configurator", 
-		icon, 
+		icon = IconTypeEnum.X, 
 		tooltip, 
 	} = props;
 	const notifications = useContext(NotificationContext);
