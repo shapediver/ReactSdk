@@ -1,17 +1,26 @@
-import { ActionIcon, ColorInput } from "@mantine/core";
+import { ActionIcon, ColorInput, MantineThemeComponent, useProps } from "@mantine/core";
 import React, { useCallback, useEffect, useState } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
 import Icon from "../../ui/Icon";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
+import { ColorFormatType, convertFromSdColor, convertToSdColor } from "../../../utils/misc/colors";
 
-function convertFromSdColor(val: string) {
-	return val.replace("0x", "#").substring(0, 7);
+interface StyleProps {
+	colorFormat: ColorFormatType
 }
 
-function convertToSdColor(val: string) {
-	return val.replace("#", "0x") + "ff";
+const defaultStyleProps : Partial<StyleProps> = {
+	colorFormat: "rgba",
+};
+
+type ParameterColorComponentPropsType = Partial<StyleProps>;
+
+export function ParameterColorComponentThemeProps(props: ParameterColorComponentPropsType): MantineThemeComponent {
+	return {
+		defaultProps: props
+	};
 }
 
 /**
@@ -19,7 +28,13 @@ function convertToSdColor(val: string) {
  *
  * @returns
  */
-export default function ParameterColorComponent(props: PropsParameter) {
+export default function ParameterColorComponent(props: PropsParameter & StyleProps) {
+
+	const { colorFormat: _colorFormat, ...rest } = props;
+
+	const { 
+		colorFormat,
+	} = useProps("ParameterColorComponent", defaultStyleProps, { colorFormat: _colorFormat});
 
 	const {
 		definition,
@@ -27,16 +42,16 @@ export default function ParameterColorComponent(props: PropsParameter) {
 		value: paramValue,
 		onCancel,
 		disabled
-	} = useParameterComponentCommons<string>(props, 0, state => state.uiValue);
+	} = useParameterComponentCommons<string>(rest, 0, state => state.uiValue);
 
 	const handleSdColorChange = useCallback((val: string) => {
-		handleChange(convertToSdColor(val));
-	}, [handleChange]);
+		handleChange(convertToSdColor(val, colorFormat));
+	}, [handleChange, colorFormat]);
 
-	const [value, setValue] = useState(convertFromSdColor(paramValue));
+	const [value, setValue] = useState(convertFromSdColor(paramValue, colorFormat));
 	useEffect(() => {
-		setValue(convertFromSdColor(paramValue));
-	}, [paramValue]);
+		setValue(convertFromSdColor(paramValue, colorFormat));
+	}, [paramValue, colorFormat]);
 
 	return <>
 		<ParameterLabelComponent { ...props } cancel={onCancel} />
@@ -52,6 +67,7 @@ export default function ParameterColorComponent(props: PropsParameter) {
 			onChangeEnd={handleSdColorChange}
 			disabled={disabled}
 			popoverProps={{withinPortal: false}}
+			format={colorFormat}
 		/> }
 	</>;
 }
