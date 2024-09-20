@@ -476,7 +476,7 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 							{ 
 								definition: mapParameterDefinition(param), 
 								isValid: (value, throwError) => param.isValid(value, throwError),
-								// stringify: (value) => param.stringify(value) // TODO: remove comment once stringify accepts an optional value
+								stringify: (value) => param.stringify(value)
 							}, 
 							() => {
 								const { preExecutionHooks } = get();
