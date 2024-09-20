@@ -97,6 +97,11 @@ export interface IAppBuilderActionPropsAddToCart extends IAppBuilderActionPropsC
 	 * In case no image is provided here, a screenshot of the model will be used.
 	 */
 	image?: Pick<IAppBuilderWidgetPropsImage, "export" | "href">
+	/**
+	 * Optional flag to control whether a glTF export of the scene shall be 
+	 * included with the model state.
+	 */
+	createGltf?: boolean
 }
 
 /** Properties of a "setParameterValue" action. */

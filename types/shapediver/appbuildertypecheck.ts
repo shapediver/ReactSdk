@@ -83,6 +83,7 @@ const IAppBuilderActionPropsAddToCartSchema = z.object({
 	price: z.number().optional(),
 	description: z.string().optional(),
 	image: IAppBuilderImageRefSchema.optional(),
+	createGltf: z.boolean().optional(),
 }).extend(IAppBuilderActionPropsCommonSchema.shape);
 
 // Zod type definition for IAppBuilderActionPropsSetParameterValue
