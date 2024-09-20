@@ -11,7 +11,7 @@ interface StyleProps {
 	colorFormat: ColorFormatType
 }
 
-const defaultStyleProps : Partial<StyleProps> = {
+const defaultStyleProps : StyleProps = {
 	colorFormat: "rgba",
 };
 
@@ -28,13 +28,11 @@ export function ParameterColorComponentThemeProps(props: ParameterColorComponent
  *
  * @returns
  */
-export default function ParameterColorComponent(props: PropsParameter & StyleProps) {
-
-	const { colorFormat: _colorFormat, ...rest } = props;
+export default function ParameterColorComponent(props: PropsParameter) {
 
 	const { 
 		colorFormat,
-	} = useProps("ParameterColorComponent", defaultStyleProps, { colorFormat: _colorFormat});
+	} = useProps("ParameterColorComponent", defaultStyleProps, defaultStyleProps);
 
 	const {
 		definition,
@@ -42,7 +40,7 @@ export default function ParameterColorComponent(props: PropsParameter & StylePro
 		value: paramValue,
 		onCancel,
 		disabled
-	} = useParameterComponentCommons<string>(rest, 0, state => state.uiValue);
+	} = useParameterComponentCommons<string>(props, 0, state => state.uiValue);
 
 	const handleSdColorChange = useCallback((val: string) => {
 		handleChange(convertToSdColor(val, colorFormat));
