@@ -55,14 +55,14 @@ export type TModelQueryPropsExt = {
 export type TModelQueryProps = IPlatformPagedItemQueryProps<TModelEmbed, TModelQueryPropsExt>;
 
 /** The type of the model store. */
-export interface IShapeDiverStorePlatformModel 
-    extends IShapeDiverStorePlatformGeneric<
+export type IShapeDiverStorePlatformModel 
+    = IShapeDiverStorePlatformGeneric<
         TModelData, 
         TModelActions, 
         TModelEmbed, 
         TModelQueryItem, 
         TModelQueryPropsExt
-    > { }
+    >;
 
 /** Typically used cache keys. */
 export enum ModelCacheKeyEnum {
@@ -75,12 +75,12 @@ export enum ModelCacheKeyEnum {
 }
 
 /** The type of the extended model store. */
-export interface IShapeDiverStorePlatformModelExtended 
-    extends IShapeDiverStorePlatformGenericExtended<
+export type IShapeDiverStorePlatformModelExtended 
+    = IShapeDiverStorePlatformGenericExtended<
         TModelData, 
         TModelActions, 
         TModelEmbed, 
         TModelQueryItem, 
         TModelQueryPropsExt,
         ModelCacheKeyEnum
-    > { }
+    >;

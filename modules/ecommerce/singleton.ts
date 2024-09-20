@@ -1,6 +1,4 @@
-import { ICrossWindowPeerInfo } from "../crosswindowapi/types/crosswindowapi";
 import { DummyECommerceApi, ECommerceApiFactory } from "./ecommerceapi";
-import { IAddItemToCartData, IAddItemToCartReply, IECommerceApi, IGetUserProfileReply } from "./types/ecommerceapi";
 
 /** Number of key events for toggling configurator visibility. */
 const TOGGLE_CONFIGURATOR_VISIBILITY_NUM_EVENTS = 3;

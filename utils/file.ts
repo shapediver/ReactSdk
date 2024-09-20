@@ -106,9 +106,9 @@ export const fetchFileWithToken = async (urlOrResponse: string | Response, filen
 		...(token ? { headers: { Authorization: token } } : {}),
 	}) : Promise.resolve(urlOrResponse))
 		.then((res) => res.blob())
-		.then((blob) => {
-			isSaveAs ? downloadBlobFileSaveAs(blob, filename) : downloadBlobFile(blob, filename);
-		}).catch((err) => {
+		.then((blob) => 
+			isSaveAs ? downloadBlobFileSaveAs(blob, filename) : downloadBlobFile(blob, filename)
+		).catch((err) => {
 			throw new Error(err.message);
 		})
 		.finally(() => {

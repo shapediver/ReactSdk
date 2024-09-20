@@ -5,8 +5,7 @@ import { AppBuilderContainerContext } from "../../../context/AppBuilderContext";
 import { usePropsAppBuilder } from "../../../hooks/ui/usePropsAppBuilder";
 import classes from "./AppBuilderImage.module.css";
 
-interface Props extends IAppBuilderWidgetPropsAnchor {
-}
+type Props = IAppBuilderWidgetPropsAnchor;
 
 type ImageStyleProps = Pick<ImageProps, "radius"> & { fit?: "contain" | "scale-down", withBorder?: boolean};
 
