@@ -7,11 +7,17 @@ import {
  * Reference to the authenticated platform client.
  */
 export interface IPlatformClientRef {
-    /** Token */
-    jwtToken: string,
+    /** 
+     * Token for the platform client.
+     * May be undefined in case the client is not authenticated (anonymous user).
+     */
+    jwtToken: string | undefined,
     /** Base URL of the platform */
     platformUrl: string
-    /** Authenticated platform client */
+    /** 
+     * Platform client. 
+     * May be authenticated or not, @see {@link jwtToken}.
+     */
     client: SdPlatformSdk
 }
 
@@ -20,15 +26,20 @@ export interface IPlatformClientRef {
  */
 export interface IShapeDiverStorePlatform {
 
-    /** Reference to the authenticated platform client. */
+    /** 
+     * Reference to the platform client. 
+     * The client may be authenticated or not, @see {@link IPlatformClientRef.jwtToken}.
+     */
     clientRef: IPlatformClientRef | undefined
    
     /**
      * Authenticate the platform client.
      * In case the application is not running on the platform, this function returns undefined.
+     * @param redirect Redirect for authentication in case using a refresh token did not work. Defaults to true. 
+     * @param forceReAuthenticate Force re-authentication, do not use cached token. Defaults to false. 
      * @returns The authenticated platform client.
      */
-    authenticate: (forceReAuthenticate?: boolean) => Promise<IPlatformClientRef | undefined>
+    authenticate: (redirect?: boolean, forceReAuthenticate?: boolean) => Promise<IPlatformClientRef | undefined>
 
     /**
      * Information about the current user.
@@ -37,6 +48,7 @@ export interface IShapeDiverStorePlatform {
 
     /**
      * Load information about the current user.
+     * @param forceRefresh Force refreshing the user information, do not use cached data. Defaults to false. 
      */
     getUser: (forceRefresh?: boolean) => Promise<SdPlatformResponseUserSelf | undefined>
 }

@@ -14,7 +14,12 @@ export default function useResolveAppBuilderSettings(settings : IAppBuilderSetti
 
 	// when running on the platform, try to get a token (refresh token grant)
 	const { value: sdkRef, error: platformError } = useAsync(async () => {
-		return await authenticate();
+		// in case query parameter "redirect" is set to "0", do not redirect
+		// on authentication failure
+		const params = new URLSearchParams(window.location.search);
+		const redirect = params.get("redirect") === "0" ? false : true;
+		
+		return await authenticate(redirect);
 	});
 
 	// resolve session data using iframe embedding or token

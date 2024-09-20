@@ -24,7 +24,7 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatformExtende
 	user: undefined,
 	genericCache: {},
 	
-	authenticate: async (forceReAuthenticate?: boolean) => {
+	authenticate: async (redirect: boolean = true, forceReAuthenticate?: boolean) => {
 		if (!shouldUsePlatform()) return;
 
 		const { clientRef, cachePromise } = get();
@@ -40,7 +40,7 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatformExtende
 		
 				const sdkRef = {
 					platformUrl,
-					jwtToken: result.access_token!,
+					jwtToken: result.access_token,
 					client
 				};
 
@@ -55,6 +55,21 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatformExtende
 					isPBInvalidRequestOAuthResponseError(error) // <-- thrown if the refresh token is not valid anymore or there is none
 					|| isPBInvalidGrantOAuthResponseError(error) // <-- thrown if the refresh token is generally invalid
 				) {
+					// in case authentication failed and redirect is disabled, return the unauthenticated client
+					if (!redirect) {
+						const sdkRef = {
+							platformUrl,
+							jwtToken: undefined,
+							client
+						};
+		
+						set(() => ({ 
+							clientRef: sdkRef
+						}), false, "authenticate");
+		
+						return sdkRef;
+					}
+
 					if (window.location.origin === "https://shapediver.com") {
 						// redirect to www.shapediver.com, because 3rd party auth requires it
 						window.location.href = `https://www.shapediver.com${window.location.pathname}${window.location.search}`;
@@ -80,7 +95,7 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatformExtende
 
 		return cachePromise(PlatformCacheKeyEnum.GetUser, forceRefresh ?? false, async () => {
 			const clientRef = await get().authenticate();
-			if (!clientRef) return;
+			if (!clientRef || !clientRef.jwtToken) return;
 
 			const userId = clientRef.client.authorization.authData.userId;
 			if (!userId) return;
