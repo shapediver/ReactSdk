@@ -22,6 +22,7 @@ import {
 	IconCameraOff,
 	IconCheck,
 	IconCopy,
+	IconDeviceFloppy,
 	IconDots,
 	IconDotsVertical,
 	IconDownload,
@@ -54,6 +55,7 @@ import {
 	IconShare2,
 	IconShare3,
 	IconShareOff,
+	IconShoppingCartPlus,
 	IconSun,
 	IconUpload,
 	IconUser,
@@ -142,6 +144,8 @@ const Icon = forwardRef<_TablerIconType, Props>( function Icon({type, size, stro
 		return <IconCheck {...iconProps} />;
 	case IconTypeEnum.Copy:
 		return <IconCopy {...iconProps} />;
+	case IconTypeEnum.DeviceFloppy:
+		return <IconDeviceFloppy {...iconProps} />;
 	case IconTypeEnum.Dots:
 		return <IconDots {...iconProps} />;
 	case IconTypeEnum.DotsVertical:
@@ -204,6 +208,8 @@ const Icon = forwardRef<_TablerIconType, Props>( function Icon({type, size, stro
 		return <IconShare3 {...iconProps} />;
 	case IconTypeEnum.ShareOff:
 		return <IconShareOff {...iconProps} />;
+	case IconTypeEnum.ShoppingCartPlus:
+		return <IconShoppingCartPlus {...iconProps} />;
 	case IconTypeEnum.Sun:
 		return <IconSun {...iconProps} />;
 	case IconTypeEnum.Upload:

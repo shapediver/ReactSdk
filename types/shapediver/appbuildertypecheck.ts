@@ -76,15 +76,20 @@ const IAppBuilderActionPropsCommonSchema = z.object({
 	tooltip: z.string().optional(),
 });
 
+// Zod type definition for IAppBuilderActionPropsCreateModelState
+const IAppBuilderActionPropsCreateModelStateSchema = z.object({
+	includeImage: z.boolean().optional(),
+	image: IAppBuilderImageRefSchema.optional(),
+	includeGltf: z.boolean().optional(),
+}).extend(IAppBuilderActionPropsCommonSchema.shape);
+
 // Zod type definition for IAppBuilderActionPropsAddToCart
 const IAppBuilderActionPropsAddToCartSchema = z.object({
 	productId: z.string().optional(),
 	quantity: z.number().optional(),
 	price: z.number().optional(),
 	description: z.string().optional(),
-	image: IAppBuilderImageRefSchema.optional(),
-	createGltf: z.boolean().optional(),
-}).extend(IAppBuilderActionPropsCommonSchema.shape);
+}).extend(IAppBuilderActionPropsCreateModelStateSchema.shape);
 
 // Zod type definition for IAppBuilderActionPropsSetParameterValue
 const IAppBuilderActionPropsSetParameterValueSchema = z.object({
@@ -107,6 +112,7 @@ const IAppBuilderActionPropsCloseConfigurator = z.object({
 
 // Zod type definition for IAppBuilderAction
 const IAppBuilderActionSchema = z.discriminatedUnion("type", [
+	z.object({type: z.literal("createModelState"), props: IAppBuilderActionPropsCreateModelStateSchema}),
 	z.object({type: z.literal("addToCart"), props: IAppBuilderActionPropsAddToCartSchema}),
 	z.object({type: z.literal("setParameterValue"), props: IAppBuilderActionPropsSetParameterValueSchema}),
 	z.object({type: z.literal("setBrowserLocation"), props: IAppBuilderActionPropsSetBrowserLocationSchema}),
