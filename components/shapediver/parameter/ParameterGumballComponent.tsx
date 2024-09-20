@@ -7,8 +7,7 @@ import { GumballParameterValue, IGumballParameterProps } from "@shapediver/viewe
 import { useGumball } from "../../../hooks/shapediver/viewer/interaction/gumball/useGumball";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import Icon from "../../ui/Icon";
-
-const VIEWPORT_ID = "viewport_1";
+import { useViewportId } from "../../../hooks/shapediver/viewer/useViewportId";
 
 /**
  * Parse the value of a gumball parameter and extract the transformed node names.
@@ -50,10 +49,12 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 	// state for the gumball application
 	const [gumballActive, setGumballActive] = useState<boolean>(false);
 
+	const { viewportId } = useViewportId();
+
 	// get the transformed nodes and the selected nods
 	const { transformedNodeNames, setTransformedNodeNames, setSelectedNodeNames, clearTransformedNodeNames } = useGumball(
 		props.sessionId, 
-		VIEWPORT_ID, 
+		viewportId, 
 		gumballProps,
 		gumballActive,
 		parseTransformation(value)

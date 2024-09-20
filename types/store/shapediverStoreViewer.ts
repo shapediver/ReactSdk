@@ -11,7 +11,6 @@ export interface SessionCreateDto extends SessionCreationDefinition {
  * Redeclaration of ViewportCreationDefinition to always have an id.
  */
 export interface ViewportCreateDto extends ViewportCreationDefinition {
-	id: string,
 	showStatistics?: boolean,
 }
 

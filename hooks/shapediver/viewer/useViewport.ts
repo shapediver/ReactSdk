@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useShapeDiverStoreViewer } from "../../../store/useShapeDiverStoreViewer";
 import { ViewportCreateDto } from "../../../types/store/shapediverStoreViewer";
 import { useShallow } from "zustand/react/shallow";
+import { useViewportId } from "./useViewportId";
 
 /**
  * Hook for creating a viewport of the ShapeDiver 3D Viewer.
@@ -18,19 +19,21 @@ export function useViewport(props: ViewportCreateDto) {
 	const [error, setError] = useState<Error | undefined>(undefined);
 	const promiseChain = useRef(Promise.resolve());
 	const canvasRef = useRef(null);
+	const { viewportId: defaultViewportId } = useViewportId();
+	const _props = { ...props, id: props.id ?? defaultViewportId };
 
 	useEffect(() => {
 		promiseChain.current = promiseChain.current.then(async () => {
 			const viewportApi = await createViewport({
 				canvas: canvasRef.current!,
-				...props
+				..._props
 			}, { onError: setError });
 			if (viewportApi && props.showStatistics)
 				viewportApi.showStatistics = true;
 		});
 
 		return () => {
-			promiseChain.current = promiseChain.current.then(() => closeViewport(props.id));
+			promiseChain.current = promiseChain.current.then(() => closeViewport(_props.id));
 		};
 	}, [props.id]);
 

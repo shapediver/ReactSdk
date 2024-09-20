@@ -9,8 +9,7 @@ import { useParameterStateless } from "../../../hooks/shapediver/parameters/useP
 import { useSessionPropsParameter } from "../../../hooks/shapediver/parameters/useSessionPropsParameter";
 import { isInteractionSelectionParameterSettings, SelectionParameterValue } from "@shapediver/viewer";
 import { useSelection } from "../../../hooks/shapediver/viewer/interaction/selection/useSelection";
-
-const VIEWPORT_ID = "viewport_1";
+import { useViewportId } from "../../../hooks/shapediver/viewer/useViewportId";
 
 interface Props extends IAppBuilderWidgetPropsInteraction {
 	/** 
@@ -50,7 +49,9 @@ export default function AppBuilderSelectionWidgetComponent({ interactionSettings
 		parameterRef.current = parameter;
 	}, [parameter]);
 
-	const { selectedNodeNames } = useSelection(sessionId, viewportId || VIEWPORT_ID, settings!.props, selectionActive);
+	const { viewportId: defaultViewportId } = useViewportId();
+
+	const { selectedNodeNames } = useSelection(sessionId, viewportId ?? defaultViewportId, settings!.props, selectionActive);
 
 	useEffect(() => {
 		if (parameterRef.current && selectedNodeNames) {
