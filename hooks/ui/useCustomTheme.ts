@@ -39,8 +39,8 @@ import { AppBuilderPageThemeProps } from "../../pages/templates/AppBuilderContai
 import { AppBuilderTextWidgetThemeProps } from "../../components/shapediver/appbuilder/AppBuilderTextWidgetComponent";
 import { MarkdownWidgetComponentProps } from "../../components/shapediver/ui/MarkdownWidgetComponent";
 import { LoaderPageThemeProps } from "../../pages/misc/LoaderPage";
-import { ParameterLabelComponentThemeProps } from "shared/components/shapediver/parameter/ParameterLabelComponent";
-import { ExportLabelComponentThemeProps } from "shared/components/shapediver/exports/ExportLabelComponent";
+import { ParameterLabelComponentThemeProps } from "../../components/shapediver/parameter/ParameterLabelComponent";
+import { ExportLabelComponentThemeProps } from "../../components/shapediver/exports/ExportLabelComponent";
 
 /**
  * Helper function for defining CSS variables for the AppBuilderAppShellTemplate

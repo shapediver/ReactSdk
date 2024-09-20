@@ -3,7 +3,7 @@ import { IAppBuilderActionPropsAddToCart } from "../../../types/shapediver/appbu
 import AppBuilderActionComponent from "./AppBuilderActionComponent";
 import { ECommerceApiSingleton } from "../../../modules/ecommerce/singleton";
 import { NotificationContext } from "../../../context/NotificationContext";
-import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
+import { useShapeDiverStoreViewer } from "../../../store/useShapeDiverStoreViewer";
 
 type Props = IAppBuilderActionPropsAddToCart & {
 	sessionId: string;
