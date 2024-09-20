@@ -41,6 +41,7 @@ import { MarkdownWidgetComponentProps } from "../../components/shapediver/ui/Mar
 import { LoaderPageThemeProps } from "../../pages/misc/LoaderPage";
 import { ParameterLabelComponentThemeProps } from "../../components/shapediver/parameter/ParameterLabelComponent";
 import { ExportLabelComponentThemeProps } from "../../components/shapediver/exports/ExportLabelComponent";
+import { ParameterColorComponentThemeProps } from "../../components/shapediver/parameter/ParameterColorComponent";
 
 /**
  * Helper function for defining CSS variables for the AppBuilderAppShellTemplate
@@ -449,6 +450,14 @@ export const useCustomTheme = (props: Props = {}) => {
 				//avoidSingleComponentGroups: true,
 				//mergeAccordions: false,
 				//pbSlider: "md",
+			}),
+			/**
+			 * ParameterColorComponent
+			 * 
+			 * Defaults for parameter color components.
+			 */
+			ParameterColorComponent: ParameterColorComponentThemeProps({
+				// colorFormat: "rgba", // or "hexa"
 			}),
 			/**
 			 * ParameterLabelComponent
