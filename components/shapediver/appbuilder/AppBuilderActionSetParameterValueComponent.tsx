@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { IAppBuilderActionPropsSetParameterValue } from "../../../types/shapediver/appbuilder";
 import AppBuilderActionComponent from "./AppBuilderActionComponent";
-import { useParameterStateless } from "shared/hooks/shapediver/parameters/useParameterStateless";
+import { useParameterStateless } from "../../../hooks/shapediver/parameters/useParameterStateless";
 
 type Props = IAppBuilderActionPropsSetParameterValue & {
 	sessionId: string;
