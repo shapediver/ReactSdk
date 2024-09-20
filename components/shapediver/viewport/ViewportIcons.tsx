@@ -9,9 +9,10 @@ import { FLAG_TYPE } from "@shapediver/viewer";
 import classes from "./ViewportIcons.module.css";
 import Icon from "../../ui/Icon";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
+import { useViewportId } from "../../../hooks/shapediver/viewer/useViewportId";
 
 interface Props {
-	viewportId: string,
+	viewportId?: string,
 }
 
 interface OptionalProps {
@@ -54,7 +55,7 @@ export function ViewportIconsThemeProps(props: ViewportIconsThemePropsType): Man
 
 export default function ViewportIcons(props: Props & Partial<OptionalProps>) {
 
-	const { viewportId, ...rest }	= props;
+	const { viewportId: _viewportId, ...rest }	= props;
 	const {
 		color,
 		colorDisabled,
@@ -69,6 +70,8 @@ export default function ViewportIcons(props: Props & Partial<OptionalProps>) {
 		variant,
 		variantDisabled,
 	} = useProps("ViewportIcons", defaultProps, rest);
+	const { viewportId: defaultViewportId } = useViewportId();
+	const viewportId = _viewportId ?? defaultViewportId;
 
 	const viewport = useShapeDiverStoreViewer(state => state.viewports[viewportId]);
 

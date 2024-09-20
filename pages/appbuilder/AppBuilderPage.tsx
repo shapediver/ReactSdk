@@ -18,8 +18,6 @@ import AppBuilderTemplateSelector from "../templates/AppBuilderTemplateSelector"
 import { shouldUsePlatform } from "../../utils/platform/environment";
 import { IAppBuilderTemplatePageContainerHints, IAppBuilderTemplatePageProps } from "../../types/pages/appbuildertemplates";
 
-const VIEWPORT_ID = "viewport_1";
-
 const urlWithoutQueryParams = window.location.origin + window.location.pathname;
 
 const WelcomePlatformMarkdown = `
@@ -213,13 +211,9 @@ export default function AppBuilderPage(props: Partial<Props>) {
 						right={containers.right}
 						bottom={containers.bottom}
 					>
-						<ViewportComponent
-							id={VIEWPORT_ID}
-						>
+						<ViewportComponent>
 							<ViewportOverlayWrapper>
-								<ViewportIcons
-									viewportId={VIEWPORT_ID}
-								/>
+								<ViewportIcons/>
 							</ViewportOverlayWrapper>
 						</ViewportComponent>
 					</AppBuilderTemplateSelector>

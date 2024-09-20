@@ -7,8 +7,7 @@ import { ISelectionParameterProps, SelectionParameterValue } from "@shapediver/v
 import { useSelection } from "../../../hooks/shapediver/viewer/interaction/selection/useSelection";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import Icon from "../../ui/Icon";
-
-const VIEWPORT_ID = "viewport_1";
+import { useViewportId } from "../../../hooks/shapediver/viewer/useViewportId";
 
 /**
  * Parse the value of a selection parameter and extract the selected node names.
@@ -49,10 +48,12 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 	// is the selection active or not? 
 	// TODO: avoid multiple parallel selections
 	const [selectionActive, setSelectionActive] = useState<boolean>(false);
+
+	const { viewportId } = useViewportId();
 	
 	const { selectedNodeNames, setSelectedNodeNames } = useSelection(
 		props.sessionId, 
-		VIEWPORT_ID, 
+		viewportId, 
 		selectionProps,
 		selectionActive,
 		parseNames(value)
