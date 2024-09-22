@@ -10,12 +10,14 @@ import {
 	IExportStores, IExportStoresPerSession,
 	IGenericParameterDefinition,
 	IGenericParameterExecutor,
+	IHistoryEntry,
 	IParameterChanges,
 	IParameterChangesPerSession,
 	IParameterStore,
 	IParameterStores,
 	IParameterStoresPerSession,
 	IPreExecutionHook,
+	ISessionsHistoryState,
 	IShapeDiverStoreParameters
 } from "../types/store/shapediverStoreParameters";
 import { IShapeDiverExport, IShapeDiverExportDefinition } from "../types/shapediver/export";
@@ -34,7 +36,7 @@ function createParameterExecutor<T>(sessionId: string, param: IGenericParameterD
 	const paramId = param.definition.id;
 	
 	return {
-		execute: async (uiValue: T | string, execValue: T | string, forceImmediate?: boolean) => {
+		execute: async (uiValue: T | string, execValue: T | string, forceImmediate?: boolean, skipHistory?: boolean) => {
 			const changes = getChanges();
 
 			// check whether there is anything to do
@@ -54,7 +56,7 @@ function createParameterExecutor<T>(sessionId: string, param: IGenericParameterD
 				console.debug(`Queueing change of parameter ${paramId} to ${uiValue}`);
 				changes.values[paramId] = uiValue;
 				if (forceImmediate)
-					setTimeout(changes.accept, 0);
+					setTimeout(() => changes.accept(skipHistory), 0);
 				const values = await changes.wait;
 				const value = paramId in values ? values[paramId] : uiValue;
 				if (value !== uiValue) 
@@ -79,6 +81,7 @@ function createParameterExecutor<T>(sessionId: string, param: IGenericParameterD
 
 type DefaultExportsGetter = () => string[];
 type ExportResponseSetter = (response: IExportResponse) => void;
+type HistoryPusher = (entry: ISessionsHistoryState) => void;
 
 /**
  * Create an IGenericParameterExecutor  for a session.
@@ -88,14 +91,17 @@ type ExportResponseSetter = (response: IExportResponse) => void;
  * @returns 
  */
 function createGenericParameterExecutorForSession(session: ISessionApi, 
-	getDefaultExports: DefaultExportsGetter, exportResponseSetter: ExportResponseSetter) : IGenericParameterExecutor { 
+	getDefaultExports: DefaultExportsGetter, 
+	exportResponseSetter: ExportResponseSetter,
+	historyPusher: HistoryPusher
+) : IGenericParameterExecutor { 
 	
 	/**
 	 * Note: This function receives key-value pairs of parameter value changes 
 	 * that should be executed. 
 	 * Typically this does not include all parameters defined by the session. 
 	 */
-	return async (values) => {
+	return async (values, sessionId, skipHistory) => {
 
 		// store previous values (we restore them in case of error)
 		const previousValues = Object.keys(values).reduce((acc, paramId) => {
@@ -123,6 +129,10 @@ function createGenericParameterExecutorForSession(session: ISessionApi,
 			}
 			else {
 				await session.customize();
+				if (!skipHistory) {
+					const state: ISessionsHistoryState = { [session.id]: session.parameterValues };
+					historyPusher(state);
+				}
 			}
 		}
 		catch (e: any)
@@ -186,9 +196,9 @@ function createParameterStore<T>(executor: IShapeDiverParameterExecutor<T>, acce
 
 				return true;
 			},
-			execute: async function (forceImmediate?: boolean): Promise<T | string> {
+			execute: async function (forceImmediate?: boolean, skipHistory?: boolean): Promise<T | string> {
 				const state = get().state;
-				const result = await executor.execute(state.uiValue, state.execValue, forceImmediate);
+				const result = await executor.execute(state.uiValue, state.execValue, forceImmediate, skipHistory);
 				// TODO in case result is not the current uiValue, we could somehow visualize
 				// the fact that the uiValue gets reset here
 				set((_state) => ({
@@ -357,6 +367,8 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 	defaultExports: {},
 	defaultExportResponses: {},
 	preExecutionHooks: {},
+	history: [],
+	historyIndex: -1,
 
 	removeChanges: (sessionId: string) => {
 		const { parameterChanges } = get();
@@ -397,11 +409,11 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 		};
 	
 		changes.wait = new Promise((resolve, reject) => {
-			changes.accept = async () => {
+			changes.accept = async (skipHistory) => {
 				try {
 					// get executor promise, but don't wait for it yet
 					const amendedValues = preExecutionHook ? await preExecutionHook(changes.values, sessionId) : changes.values;
-					const promise = executor(amendedValues, sessionId);
+					const promise = executor(amendedValues, sessionId, skipHistory);
 					// set "executing" mode
 					set((_state) => ({
 						parameterChanges: {
@@ -443,14 +455,21 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 
 	addSession: (session: ISessionApi, _acceptRejectMode: boolean | IAcceptRejectModeSelector, token?: string) => {
 		const sessionId = session.id;
-		const { parameterStores: parameters, exportStores: exports, getChanges } = get();
+		const { 
+			parameterStores: parameters, 
+			exportStores: exports, 
+			getChanges,
+			preExecutionHooks,
+			defaultExports,
+			pushHistoryState,
+		} = get();
 
 		// check if there is something to add
 		if (parameters[sessionId] || exports[sessionId])
 			return;
 
 		const getDefaultExports = () => {
-			return get().defaultExports[sessionId] || [];
+			return defaultExports[sessionId] || [];
 		};
 		const setExportResponse = (response: IExportResponse) => {
 			set((_state) => ({
@@ -460,7 +479,11 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 				}
 			}), false, "setExportResponse");
 		};
-		const executor = createGenericParameterExecutorForSession(session, getDefaultExports, setExportResponse);
+		const historyPusher = (state: ISessionsHistoryState) => {
+			const entry = pushHistoryState(state);
+			history.pushState(entry, "", "");
+		};
+		const executor = createGenericParameterExecutorForSession(session, getDefaultExports, setExportResponse, historyPusher);
 
 		const acceptRejectModeSelector = typeof(_acceptRejectMode) === "boolean" ? () => _acceptRejectMode : _acceptRejectMode;
 
@@ -478,11 +501,7 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 								isValid: (value, throwError) => param.isValid(value, throwError),
 								stringify: (value) => param.stringify(value)
 							}, 
-							() => {
-								const { preExecutionHooks } = get();
-								
-								return getChanges(sessionId, executor, 0, preExecutionHooks[sessionId]);
-							}
+							() => getChanges(sessionId, executor, 0, preExecutionHooks[sessionId])
 						), acceptRejectMode, param.value);
 
 						return acc;
@@ -706,6 +725,124 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 		set(() => ({
 			preExecutionHooks: hooks
 		}), false, "removePreExecutionHook");
+	},
+
+	async batchParameterValueUpdate(sessionId: string, values: { [key: string]: string }, skipHistory?: boolean) {
+		const { parameterStores } = get();
+		const stores = parameterStores[sessionId];
+		if (!stores)
+			return;
+
+		const paramIds = Object.keys(values);
+
+		// verify that all parameter stores exist and values are valid
+		paramIds.forEach(paramId => {
+			const store = stores[paramId];
+			if (!store) 
+				throw new Error(`Parameter ${paramId} does not exist for session ${sessionId}`);
+		
+			const { actions } = store.getState();
+			const value = values[paramId];
+			if (!actions.isValid(value)) 
+				throw new Error(`Value ${value} is not valid for parameter ${paramId} of session ${sessionId}`);
+		});
+
+		// update values and return execution promises
+		// TODO SS-8042 this could be optimized by supporting changes of multiple parameters 
+		// at once, which would require a refactoring of the state management
+		const promises = paramIds.map((paramId, index) => {
+			const store = stores[paramId];
+			const { actions } = store.getState();
+			actions.setUiValue(values[paramId]);
+			
+			// once we reach the last parameter, we execute the changes immediately
+			return actions.execute(index === paramIds.length - 1, skipHistory);
+		});
+
+		await Promise.all(promises);
+	},
+
+	pushHistoryState(state: ISessionsHistoryState) {
+		const { history, historyIndex } = get();
+		const entry: IHistoryEntry = { state, time: Date.now() };
+		const newHistory = history.slice(0, historyIndex + 1).concat(entry);
+		set(() => ({
+			history: newHistory,
+			historyIndex: newHistory.length - 1
+		}), false, "pushHistoryState");
+		
+		return entry;
+	},
+
+	async restoreHistoryState(state: ISessionsHistoryState, skipHistory?: boolean) {
+		const { batchParameterValueUpdate } = get();
+		const sessionIds = Object.keys(state);
+		const promises = sessionIds.map(sessionId => batchParameterValueUpdate(sessionId, state[sessionId], skipHistory));
+		await Promise.all(promises);
+	},
+
+	async restoreHistoryStateFromIndex(index: number) {
+		const { history, restoreHistoryState } = get();
+
+		if (index < 0 || index >= history.length)
+			throw new Error(`Invalid history index ${index}`);
+
+		const entry = history[index];
+		await restoreHistoryState(entry.state, true);
+
+		set(() => ({
+			historyIndex: index
+		}), false, "restoreHistoryState");
+	},
+
+	async restoreHistoryStateFromTimestamp(time: number) {
+		const { history, restoreHistoryStateFromIndex } = get();
+		const index = history.findIndex(entry => entry.time === time);
+		if (index < 0)
+			throw new Error(`No history entry found for timestamp ${time}`);
+
+		await restoreHistoryStateFromIndex(index);
+	},
+
+	async restoreHistoryStateFromEntry(entry: IHistoryEntry) {
+		const { 
+			history, 
+			restoreHistoryState,
+			restoreHistoryStateFromIndex,
+			restoreHistoryStateFromTimestamp,
+		} = get();
+		try {
+			await restoreHistoryStateFromTimestamp(entry.time);
+			console.debug(`Restored parameter values from history at timestamp ${entry.time}`, entry);
+		}
+		catch {
+			// find history entry whose parameter values match the given entry
+			const index = history.findIndex(e => {
+				const sessionIds = Object.keys(e.state);
+				if (sessionIds.length !== Object.keys(entry.state).length)
+					return false;
+				
+				return sessionIds.every(sessionId => {
+					if (!(sessionId in entry.state))
+						return false;
+					const values = e.state[sessionId];
+					const entryValues = entry.state[sessionId];
+					const valueKeys = Object.keys(values);
+					const entryKeys = Object.keys(entryValues);
+					if (valueKeys.length !== entryKeys.length)
+						return false;
+					
+					return valueKeys.every(key => values[key] === entryValues[key]);
+				});
+			});
+			if (index >= 0) {
+				console.debug(`Restoring parameter values from history at index ${index}`, entry);
+				await restoreHistoryStateFromIndex(index);
+			} else {
+				console.debug("No matching history entry found, directly restoring parameter values", entry);
+				await restoreHistoryState(entry.state);
+			}
+		}
 	},
 
 }

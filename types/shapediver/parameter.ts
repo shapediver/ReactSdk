@@ -62,10 +62,11 @@ export interface IShapeDiverParameterActions<T> {
      * 
      * @@param forceImmediate Set to true if the change should be executed immediately 
      *                       regardless of other settings.
+     * @@param skipHistory If true, skip the creation of a history entry after successful execution.
      * 
      * @returns the value that was executed. 
      */
-    execute(forceImmediate?: boolean): Promise<T | string>;
+    execute(forceImmediate?: boolean, skipHistory?: boolean): Promise<T | string>;
 
     /**
      * Evaluates if a given value is valid for this parameter.
@@ -147,10 +148,16 @@ export interface IShapeDiverParameterExecutor<T> {
      * @param execValue The latest successfully executed value.
      * @param forceImmediate Set to true if the change should be executed immediately 
      *                       regardless of other settings.
+     * @param skipHistory If true, skip the creation of a history entry after successful execution.
      *
      * @returns the value that was executed, which might be different from uiValue and execValue. 
      */
-    readonly execute: (uiValue : T | string, execValue: T | string, forceImmediate?: boolean) => Promise<T | string>;
+    readonly execute: (
+        uiValue : T | string, 
+        execValue: T | string, 
+        forceImmediate?: boolean,
+        skipHistory?: boolean
+    ) => Promise<T | string>;
 
     /**
      * Evaluates if a given value is valid.
