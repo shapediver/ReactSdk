@@ -4,23 +4,46 @@ import { IShapeDiverExport } from "../shapediver/export";
 import { IShapeDiverParameter, IShapeDiverParameterDefinition } from "../shapediver/parameter";
 import { StoreApi, UseBoundStore } from "zustand";
 
+/** A store for an individual parameter. */
 export type IParameterStore = UseBoundStore<StoreApi<IShapeDiverParameter<any>>>;
 
+/** A map from parameter id to parameter store. */
 export type IParameterStores = { [parameterId: string]: IParameterStore }
 
+/** A map from session id to parameter stores per parameter id. */
 export type IParameterStoresPerSession = { [sessionId: string]: IParameterStores };
 
+/** A store for an individual export. */
 export type IExportStore = UseBoundStore<StoreApi<IShapeDiverExport>>;
 
-export type IExportStores = { [parameterId: string]: IExportStore }
+/** A map from export id to export store. */
+export type IExportStores = { [exportId: string]: IExportStore }
 
+/** A map from session id to export stores per export id. */
 export type IExportStoresPerSession = { [sessionId: string]: IExportStores };
 
+/** A map from session id to default export ids (ids of exports that will be requested with every computation). */
 export type IDefaultExportsPerSession = { [sessionId: string]: string[] };
 
+/** A map from export id to export response. Used for responses of default exports. */
 export type IExportResponse = { [exportId: string]: ShapeDiverResponseExport };
 
+/** A map from session id to export responses per export id. */
 export type IExportResponsesPerSession = { [sessionId: string]: IExportResponse };
+
+/** The parameter values for a single session at the time of the history entry. */
+export type ISingleSessionHistoryState = { [parameterId: string]: any };
+
+/** The parameter values for multiple sessions at the time of the history entry. */
+export type ISessionsHistoryState = { [sessionId: string]: ISingleSessionHistoryState };
+
+/** A state in the history for arbitrary sessions. */
+export interface IHistoryEntry {
+	/** The parameter values per session at the time of the history entry. */
+	state: ISessionsHistoryState;
+	/** The time of the history entry (return value of Date.now()). */
+	time: number;
+}
 
 /**
  * Pending parameter changes (waiting to be executed).
@@ -36,7 +59,10 @@ export interface IParameterChanges {
 	 */
 	wait: Promise<{ [parameterId: string]: any }>;
 	/** Accept the changes, this resolves wait */
-	accept: () => Promise<void>;
+	accept: (
+		/** If true, skip the creation of a history entry after successful execution. */
+		skipHistory?: boolean
+	) => Promise<void>;
 	/** Reject the changes, this rejects wait */
 	reject: () => void;
 	/** True if changes are currently being executed */
@@ -96,7 +122,11 @@ export type IGenericParameterExecutor = (
 	 * In case of executors for sessions, this typically does not 
 	 * include all parameters defined by the session. 
 	 */
-	values: { [key: string]: any }, sessionId: string
+	values: { [key: string]: any },
+	/** The session id. */
+	sessionId: string,
+	/** If true, skip the creation of a history entry after successful execution. */
+	skipHistory?: boolean,
 ) => Promise<unknown|void>;
 
 /**
@@ -154,6 +184,17 @@ export interface IShapeDiverStoreParameters {
 	 * Pre-execution hooks per session.
 	 */
 	readonly preExecutionHooks: IPreExecutionHookPerSession;
+
+	/**
+	 * History of parameter values.
+	 */
+	readonly history: IHistoryEntry[];
+
+	/**
+	 * Index of the current history entry.
+	 * If the history is empty, the index is -1.
+	 */
+	readonly historyIndex: number;
 
 	/**
 	 * Add parameter and export stores for all parameters and exports of the session.
@@ -290,4 +331,55 @@ export interface IShapeDiverStoreParameters {
 	 * @returns 
 	 */
 	readonly removePreExecutionHook: (sessionId: string) => void,
+
+	/**
+	 * Set the values of multiple parameters of a session at once, 
+	 * execute and await the changes immediately.
+	 * @param sessionId 
+	 * @param values 
+	 * @param skipHistory If true, skip the creation of a history entry after successful execution.
+	 * @returns 
+	 */
+	readonly batchParameterValueUpdate: (sessionId: string, values: { [parameterId: string]: any }, skipHistory?: boolean) => Promise<void>,
+
+	/** 
+	 * Push a state of parameter values to the history at the current index.
+	 * In case the history index is not at the end of the history,
+	 * all history entries after the current index are removed.
+	 */
+	readonly pushHistoryState: (state: ISessionsHistoryState) => IHistoryEntry,
+
+	/**
+	 * Restore the state of parameter values from the given history state. 
+	 * In case the history index is not at the end of the history,
+	 * all history entries after the current index are removed.
+	 * @param state 
+	 * @returns 
+	 */
+	readonly restoreHistoryState: (state: ISessionsHistoryState, skipHistory?: boolean) => Promise<void>,
+
+	/**
+	 * Restore the state of parameter values from the history at the given index.
+	 * @param index 
+	 * @returns 
+	 */
+	readonly restoreHistoryStateFromIndex: (index: number) => Promise<void>,
+
+	/**
+	 * Restore the state of parameter values from the history at the given timestamp.
+	 * Throws an error if the timestamp is not found in the history.
+	 * @param time 
+	 * @returns 
+	 */
+	readonly restoreHistoryStateFromTimestamp: (time: number) => Promise<void>,
+
+	/**
+	 * Restore the state of parameter values from the given history entry.
+	 * Tries to restore by timestamp, in case this fails, tries to restore by 
+	 * matching parameter values to entries in the history, in case this fails 
+	 * restores the state of the entry directly.
+	 * @param entry 
+	 * @returns 
+	 */
+	readonly restoreHistoryStateFromEntry: (entry: IHistoryEntry) => Promise<void>,
 }

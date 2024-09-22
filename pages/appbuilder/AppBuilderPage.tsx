@@ -17,6 +17,7 @@ import MarkdownWidgetComponent from "../../components/shapediver/ui/MarkdownWidg
 import AppBuilderTemplateSelector from "../templates/AppBuilderTemplateSelector";
 import { shouldUsePlatform } from "../../utils/platform/environment";
 import { IAppBuilderTemplatePageContainerHints, IAppBuilderTemplatePageProps } from "../../types/pages/appbuildertemplates";
+import { useParameterHistory } from "../../hooks/shapediver/parameters/useParameterHistory";
 
 const urlWithoutQueryParams = window.location.origin + window.location.pathname;
 
@@ -156,6 +157,9 @@ export default function AppBuilderPage(props: Partial<Props>) {
 	// get props for fallback parameters
 	const parameterProps = useSessionPropsParameter(sessionId);
 	const exportProps = useSessionPropsExport(sessionId);
+
+	// use parameter history
+	useParameterHistory();
 
 	// create UI elements for containers
 	const containers: IAppBuilderTemplatePageProps = {
