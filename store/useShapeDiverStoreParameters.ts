@@ -129,10 +129,11 @@ function createGenericParameterExecutorForSession(session: ISessionApi,
 			}
 			else {
 				await session.customize();
-				if (!skipHistory) {
-					const state: ISessionsHistoryState = { [session.id]: session.parameterValues };
-					historyPusher(state);
-				}
+			}
+
+			if (!skipHistory) {
+				const state: ISessionsHistoryState = { [session.id]: session.parameterValues };
+				historyPusher(state);
 			}
 		}
 		catch (e: any)
