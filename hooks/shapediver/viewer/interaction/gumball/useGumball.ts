@@ -106,7 +106,7 @@ export function useGumball(
 		if (viewportApi) {
 			// whenever the selected node names change, create a new gumball
 			const nodes = getNodesByName(sessionApi, selectedNodeNames);
-			const gumball = new Gumball(viewportApi, Object.values(nodes).map(n => n.node));
+			const gumball = new Gumball(viewportApi, Object.values(nodes).map(n => n.node), gumballProps);
 			gumballRef.current = gumball;
 		}
 
