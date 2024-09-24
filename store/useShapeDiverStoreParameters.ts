@@ -459,8 +459,6 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 			parameterStores: parameters, 
 			exportStores: exports, 
 			getChanges,
-			preExecutionHooks,
-			defaultExports,
 			pushHistoryState,
 		} = get();
 
@@ -469,7 +467,7 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 			return;
 
 		const getDefaultExports = () => {
-			return defaultExports[sessionId] || [];
+			return get().defaultExports[sessionId] || [];
 		};
 		const setExportResponse = (response: IExportResponse) => {
 			set((_state) => ({
@@ -501,7 +499,11 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 								isValid: (value, throwError) => param.isValid(value, throwError),
 								stringify: (value) => param.stringify(value)
 							}, 
-							() => getChanges(sessionId, executor, 0, preExecutionHooks[sessionId])
+							() => {
+								const { preExecutionHooks } = get();
+								
+								return getChanges(sessionId, executor, 0, preExecutionHooks[sessionId]);
+							}
 						), acceptRejectMode, param.value);
 
 						return acc;
