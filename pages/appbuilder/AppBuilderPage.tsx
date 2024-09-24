@@ -158,9 +158,6 @@ export default function AppBuilderPage(props: Partial<Props>) {
 	const parameterProps = useSessionPropsParameter(sessionId);
 	const exportProps = useSessionPropsExport(sessionId);
 
-	// use parameter history
-	useParameterHistory();
-
 	// create UI elements for containers
 	const containers: IAppBuilderTemplatePageProps = {
 		top: undefined,
@@ -191,6 +188,9 @@ export default function AppBuilderPage(props: Partial<Props>) {
 	}
 
 	const show = !!sessionApi;
+
+	// use parameter history
+	useParameterHistory({loaded: show});
 	
 	const showMarkdown = !(settings && hasSession) // no settings or no session
 		&& !loading // not loading

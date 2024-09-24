@@ -342,6 +342,18 @@ export interface IShapeDiverStoreParameters {
 	 */
 	readonly batchParameterValueUpdate: (sessionId: string, values: { [parameterId: string]: any }, skipHistory?: boolean) => Promise<void>,
 
+	/**
+	 * Get history state object representing the default parameter values.
+	 * @returns 
+	 */
+	readonly getDefaultState: () => ISessionsHistoryState,
+
+	/**
+	 * Reset the history to the default state (clear it).
+	 * @returns 
+	 */
+	readonly resetHistory: () => void,
+
 	/** 
 	 * Push a state of parameter values to the history at the current index.
 	 * In case the history index is not at the end of the history,

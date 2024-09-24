@@ -765,6 +765,31 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 		await Promise.all(promises);
 	},
 
+	getDefaultState(): ISessionsHistoryState {
+		const { parameterStores } = get();
+		const state: ISessionsHistoryState = {};
+		Object.keys(parameterStores).forEach(sessionId => {
+			const stores = parameterStores[sessionId];
+			state[sessionId] = Object.keys(stores).reduce((acc, paramId) => {
+				const store = stores[paramId];
+				const { definition: { defval } } = store.getState();
+				acc[paramId] = defval;
+
+				return acc;
+			}, {} as { [paramId: string]: string });
+
+		});
+
+		return state;
+	},
+
+	resetHistory() {
+		set(() => ({
+			history: [],
+			historyIndex: -1
+		}), false, "resetHistory");
+	},
+
 	pushHistoryState(state: ISessionsHistoryState) {
 		const { history, historyIndex } = get();
 		const entry: IHistoryEntry = { state, time: Date.now() };

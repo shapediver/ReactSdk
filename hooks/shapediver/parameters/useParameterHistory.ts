@@ -1,13 +1,30 @@
 import { useEffect } from "react";
 import { useShapeDiverStoreParameters } from "../../../store/useShapeDiverStoreParameters";
 import { IHistoryEntry } from "shared/types/store/shapediverStoreParameters";
+import { useShallow } from "zustand/react/shallow";
+
+interface Props {
+	loaded: boolean;
+}
 
 /**
  * Hook providing parameter history. 
  */
-export function useParameterHistory() {
+export function useParameterHistory(props: Props) {
 	
-	const restoreHistoryStateFromEntry = useShapeDiverStoreParameters(state => state.restoreHistoryStateFromEntry);
+	const { loaded } = props;
+
+	const { 
+		getDefaultState,
+		pushHistoryState,
+		resetHistory,
+		restoreHistoryStateFromEntry,
+	} = useShapeDiverStoreParameters(useShallow(state => ({
+		getDefaultState: state.getDefaultState,
+		pushHistoryState: state.pushHistoryState,
+		resetHistory: state.resetHistory,
+		restoreHistoryStateFromEntry: state.restoreHistoryStateFromEntry,
+	})));
 	
 	useEffect(() => {
 		const handlePopState = async (event: any) => {
@@ -18,11 +35,24 @@ export function useParameterHistory() {
 		};
 	
 		window.addEventListener("popstate", handlePopState);
-	
+
 		return () => {
 			window.removeEventListener("popstate", handlePopState);
 		};
-	}, [restoreHistoryStateFromEntry]); 
+	}, [restoreHistoryStateFromEntry]);
+
+	useEffect(() => {
+		if (!loaded)
+			return;
+
+		const defaultState = getDefaultState();
+		const entry = pushHistoryState(defaultState);
+		history.replaceState(entry, "", "");
+
+		return () => {
+			resetHistory();
+		};
+	}, [loaded, getDefaultState, pushHistoryState, resetHistory]);
 
 
 	return;
