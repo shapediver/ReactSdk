@@ -120,7 +120,7 @@ export function useAppBuilderCustomParameters(props: Props) {
 			});
 		}
 		else {
-			console.warn(`Could not find a parameter named "${CUSTOM_DATA_INPUT_NAME}" whose type is 'String' or 'File'!`);
+			console.debug(`Could not find a parameter named "${CUSTOM_DATA_INPUT_NAME}" whose type is 'String' or 'File'!`);
 		}
 		
 		return () => removePreExecutionHook(sessionId);
