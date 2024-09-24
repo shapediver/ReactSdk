@@ -39,7 +39,7 @@ export default function AppBuilderActionCreateModelStateComponent(props: Props) 
 		// Save the modelStateId as a search parameter
 		const url = new URL(window.location.href);
 		url.searchParams.set("modelStateId", modelStateId);
-		window.history.pushState({modelStateId}, "", url.toString());
+		history.replaceState(history.state, "", url.toString());
 		
 	}, [createModelState, includeImage, includeGltf]);
 
