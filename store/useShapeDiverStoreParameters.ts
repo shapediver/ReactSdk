@@ -17,6 +17,7 @@ import {
 	IParameterStores,
 	IParameterStoresPerSession,
 	IPreExecutionHook,
+	ISessionDependency,
 	ISessionsHistoryState,
 	IShapeDiverStoreParameters
 } from "../types/store/shapediverStoreParameters";
@@ -364,6 +365,7 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 
 	parameterStores: {},
 	exportStores: {},
+	sessionDependency: {},
 	parameterChanges: {},
 	defaultExports: {},
 	defaultExportResponses: {},
@@ -519,11 +521,21 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 
 						return acc;
 					}, {} as IExportStores) } // Create new export stores
-			}
+			},
+			sessionDependency: {
+				..._state.sessionDependency,
+				...{ [sessionId]: [] }
+			},
 		}), false, "addSession");
 	},
 
-	addGeneric: (sessionId: string, _acceptRejectMode: boolean | IAcceptRejectModeSelector, definitions: IGenericParameterDefinition | IGenericParameterDefinition[], executor: IGenericParameterExecutor) => {
+	addGeneric: (
+		sessionId: string, 
+		_acceptRejectMode: boolean | IAcceptRejectModeSelector, 
+		definitions: IGenericParameterDefinition | IGenericParameterDefinition[], 
+		executor: IGenericParameterExecutor,
+		dependsOnSessions: string[] | string | undefined,
+	) => {
 		const { parameterStores: parameters, getChanges } = get();
 
 		// check if there is something to add
@@ -546,11 +558,21 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 
 						return acc;
 					}, {} as IParameterStores) } // Create new parameter stores
-			}
+			},
+			sessionDependency: {
+				..._state.sessionDependency,
+				...{ [sessionId]: Array.isArray(dependsOnSessions) ? dependsOnSessions : dependsOnSessions ? [dependsOnSessions] : [] }
+			},
 		}), false, "addGeneric");
 	},
 
-	syncGeneric: (sessionId: string, _acceptRejectMode: boolean | IAcceptRejectModeSelector, definitions: IGenericParameterDefinition | IGenericParameterDefinition[], executor: IGenericParameterExecutor) => {
+	syncGeneric: (
+		sessionId: string, 
+		_acceptRejectMode: boolean | IAcceptRejectModeSelector, 
+		definitions: IGenericParameterDefinition | IGenericParameterDefinition[], 
+		executor: IGenericParameterExecutor,
+		dependsOnSessions: string[] | string | undefined,
+	) => {
 		const { parameterStores: parameterStorePerSession, getChanges } = get();
 		definitions = Array.isArray(definitions) ? definitions : [definitions];
 
@@ -591,12 +613,20 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 			parameterStores: {
 				..._state.parameterStores,
 				...{ [sessionId]: parameterStores }
-			}
+			},
+			sessionDependency: {
+				..._state.sessionDependency,
+				...{ [sessionId]: Array.isArray(dependsOnSessions) ? dependsOnSessions : dependsOnSessions ? [dependsOnSessions] : [] }
+			},
 		}), false, "syncGeneric");
 	},
 
 	removeSession: (sessionId: string) => {
-		const {parameterStores: parametersPerSession, exportStores: exportsPerSession } = get();
+		const {
+			parameterStores: parametersPerSession, 
+			exportStores: exportsPerSession,
+			sessionDependency,
+		} = get();
 
 		// check if there is something to remove
 		if (!parametersPerSession[sessionId] && !exportsPerSession[sessionId])
@@ -616,9 +646,17 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 				exports[id] = exportsPerSession[id];
 		});
 
+		// create a new object, omitting the session to be removed
+		const dependency: ISessionDependency = {};
+		Object.keys(sessionDependency).forEach(id => {
+			if (id !== sessionId)
+				dependency[id] = sessionDependency[id];
+		});
+
 		set(() => ({
 			parameterStores: parameters,
 			exportStores: exports,
+			sessionDependency: dependency,
 		}), false, "removeSession");
 	},
 	

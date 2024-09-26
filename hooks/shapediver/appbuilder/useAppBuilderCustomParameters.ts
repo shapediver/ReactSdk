@@ -135,6 +135,7 @@ export function useAppBuilderCustomParameters(props: Props) {
 			return {definition: rest, value};
 		}),
 		executor,
+		sessionId
 	);
 	
 	return {
