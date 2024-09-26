@@ -14,7 +14,8 @@ export interface IGumballState {
 	 */
 	transformedNodeNames: {
 		name: string,
-		transformation: number[]
+		transformation: number[],
+		localTransformations?: number[]
 	}[],
 	/**
 	 * Set the transformed node names.
@@ -22,7 +23,7 @@ export interface IGumballState {
 	 * @param nodes 
 	 * @returns 
 	 */
-	setTransformedNodeNames: (nodes: { name: string, transformation: number[] }[]) => void,
+	setTransformedNodeNames: (nodes: { name: string, transformation: number[], localTransformations?: number[] }[]) => void,
 	/**
 	 * The selected node names.
 	 */
@@ -41,7 +42,7 @@ export interface IGumballState {
 	 * @param oldTransformedNodeNames 
 	 * @returns 
 	 */
-	restoreTransformedNodeNames: (newTransformedNodeNames: { name: string, transformation: number[] }[], oldTransformedNodeNames: { name: string }[]) => void,
+	restoreTransformedNodeNames: (newTransformedNodeNames: { name: string, transformation: number[], localTransformations?: number[] }[], oldTransformedNodeNames: { name: string }[]) => void,
 	/**
 	 * Clear the transformed nodes.
 	 * 
@@ -129,13 +130,17 @@ export function useGumball(
 	 * @param oldTransformedNodeNames The old transformed node names.
 	 * @returns
 	 */
-	const restoreTransformedNodeNames = useCallback((newTransformedNodeNames: { name: string, transformation: number[] }[], oldTransformedNodeNames: { name: string }[]) => {
+	const restoreTransformedNodeNames = useCallback((newTransformedNodeNames: { name: string, transformation: number[], localTransformations?: number[] }[], oldTransformedNodeNames: { name: string }[]) => {
 		const nodes = getNodesByName(sessionApi, oldTransformedNodeNames.map(tn => tn.name));
 
 		nodes.forEach(tn => {
 			// get the new transformation matrix (if it exists)
 			const newTransformation = newTransformedNodeNames.find(nt => nt.name === tn.name);
-			const transformationMatrix = newTransformation ? mat4.fromValues(...(newTransformation.transformation as [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number])) : undefined;
+
+			// if there is a local transformation present that we can reset to, use it
+			let transformationMatrix: mat4 | undefined;
+			if(newTransformation && newTransformation.localTransformations) 
+				transformationMatrix = mat4.fromValues(...(newTransformation.localTransformations as [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number]));
 
 			// update the gumball transformation
 			// in case the transformation matrix is undefined, the transformation will be reset

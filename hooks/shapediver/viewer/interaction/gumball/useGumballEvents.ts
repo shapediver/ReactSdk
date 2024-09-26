@@ -24,18 +24,18 @@ export function useGumballEvents(
     /**
      * The transformed nodes.
      */
-    transformedNodeNames: { name: string, transformation: number[] }[],
+    transformedNodeNames: { name: string, transformation: number[], localTransformations?: number[] }[],
     /**
      * Set the transformed nodes.
      * 
      * @param nodes 
      * @returns 
      */
-    setTransformedNodeNames: (nodes: { name: string, transformation: number[] }[]) => void
+    setTransformedNodeNames: (nodes: { name: string, transformation: number[], localTransformations?: number[] }[]) => void
 } {
 
 	// state for the transformed node names
-	const [transformedNodeNames, setTransformedNodeNames] = useState<{ name: string, transformation: number[] }[]>(initialTransformedNodeNames ?? []);
+	const [transformedNodeNames, setTransformedNodeNames] = useState<{ name: string, transformation: number[], localTransformations?: number[] }[]>(initialTransformedNodeNames ?? []);
 	// create a reference to the transformed node names
 	const transformedNodeNamesRef = useRef(transformedNodeNames);
 
@@ -55,6 +55,7 @@ export function useGumballEvents(
 			for (let i = 0; i < gumballEvent.nodes.length; i++) {
 				const node = gumballEvent.nodes[i];
 				const transformation = gumballEvent.transformations[i];
+				const localTransformation = gumballEvent.localTransformations[i];
 
 				// search for the node in the selected nodes
 				selectedNodeNames.forEach((name) => {
@@ -71,10 +72,12 @@ export function useGumballEvents(
 						const index = newTransformedNodeNames.findIndex(tn => tn.name === name);
 						if (index !== -1) {
 							newTransformedNodeNames[index].transformation = Array.from(transformation);
+							newTransformedNodeNames[index].localTransformations = Array.from(localTransformation);
 						} else {
 							newTransformedNodeNames.push({
 								name: name,
-								transformation: Array.from(transformation)
+								transformation: Array.from(transformation),
+								localTransformations: Array.from(localTransformation)
 							});
 						}
 					}

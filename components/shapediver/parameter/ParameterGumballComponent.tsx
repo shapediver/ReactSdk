@@ -24,6 +24,7 @@ const parseTransformation = (value?: string): { name: string, transformation: nu
 
 		return parsed.names.map((name, i) => ({ name, transformation: parsed.transformations[i] }));
 	}
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	catch (e) {
 		return [];
 	}
@@ -52,7 +53,7 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 	const { viewportId } = useViewportId();
 
 	// get the transformed nodes and the selected nods
-	const { transformedNodeNames, setTransformedNodeNames, setSelectedNodeNames, clearTransformedNodeNames } = useGumball(
+	const { transformedNodeNames, setTransformedNodeNames, setSelectedNodeNames, restoreTransformedNodeNames, clearTransformedNodeNames } = useGumball(
 		props.sessionId, 
 		viewportId, 
 		gumballProps,
@@ -60,50 +61,59 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 		parseTransformation(value)
 	);
 
-	/**
-	 * Callback function to change the value of the parameter.
-	 * This function is called when the gumball interaction is confirmed.
-	 * It also ends the gumball interaction process and resets the selected nodes.
-	 */
-	const changeValue = useCallback((transformedNodeNames: { name: string, transformation: number[] }[]) => {
-		setGumballActive(false);
-		const parameterValue: GumballParameterValue = { 
-			names: transformedNodeNames.map(node => node.name), 
-			transformations: transformedNodeNames.map(node => node.transformation) 
-		};
-		handleChange(JSON.stringify(parameterValue), 0);
-		setSelectedNodeNames([]);
-	}, []);
-
-
 	// store the transformed nodes in a ref to access them in the resetTransformation function
 	const transformedNodeNamesRef = useRef(transformedNodeNames);
 	useEffect(() => {
 		transformedNodeNamesRef.current = transformedNodeNames;
 	}, [transformedNodeNames]);
 
+	// store the last confirmed value in a ref to access it in the resetTransformation function
+	const lastConfirmedValue = useRef<{ name: string, transformation: number[], localTransformations?: number[] }[]>([]);
+
+	/**
+	 * Callback function to change the value of the parameter.
+	 * This function is called when the gumball interaction is confirmed.
+	 * It also ends the gumball interaction process and resets the selected nodes.
+	 */
+	const changeValue = useCallback((transformedNodeNames: { name: string, transformation: number[], localTransformations?: number[] }[]) => {
+		setGumballActive(false);
+		const parameterValue: GumballParameterValue = { 
+			names: transformedNodeNames.map(node => node.name), 
+			transformations: transformedNodeNames.map(node => node.transformation)
+		};
+
+		// create a deep copy of the transformed node names
+		const transformedNodeNamesCopy = JSON.parse(JSON.stringify(transformedNodeNames));
+		lastConfirmedValue.current = transformedNodeNamesCopy;
+		handleChange(JSON.stringify(parameterValue), 0);
+		setSelectedNodeNames([]);
+	}, []);
+
 	/**
 	 * Callback function to reset the transformed nodes.
 	 * This function is called when the gumball interaction is aborted by the user.
-	 * If a value is provided, the transformed nodes are reset to the provided value.
+	 * The transformed nodes are reset to the last confirmed value.
 	 * It also ends the gumball.
 	 */
 	const resetTransformation = useCallback(() => {
-		clearTransformedNodeNames(transformedNodeNamesRef.current);
+		restoreTransformedNodeNames(lastConfirmedValue.current, transformedNodeNamesRef.current);
 		setGumballActive(false);
 		setSelectedNodeNames([]);
 	}, []);
 
+	// react to changes of the execValue and reset the last confirmed value
+	useEffect(() => {
+		lastConfirmedValue.current = [];
+	}, [state.execValue]); 
 
 	// react to changes of the uiValue and update the gumball state if necessary
 	useEffect(() => {
 		const parsed = parseTransformation(state.uiValue);
 		// compare names to selectedNodeNames
 		if (parsed.length !== transformedNodeNames.length || 
-			!parsed.every((n, i) => n === transformedNodeNames[i]) ||
+			!parsed.every((n, i) => n.name === transformedNodeNames[i].name) ||
 			!parsed.every((n, i) => n.transformation.every((t, j) => t === transformedNodeNames[i].transformation[j]))
 		) {
-			console.log("update transformed nodes", parsed);
 			setGumballActive(false);
 			setTransformedNodeNames(parsed);
 			setSelectedNodeNames([]);
@@ -112,7 +122,10 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 
 	// extend the onCancel callback to reset the transformed nodes.
 	const _onCancel = useMemo(() => onCancel ? () =>{
-		resetTransformation();
+		lastConfirmedValue.current = [];
+		clearTransformedNodeNames(transformedNodeNamesRef.current);
+		setGumballActive(false);
+		setSelectedNodeNames([]);
 		onCancel?.();
 	} : undefined, [onCancel]);
 
@@ -129,7 +142,7 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 		<Stack>
 			<Button justify="space-between" fullWidth h="100%" disabled={disabled}
 				rightSection={<Loader type="dots" />}
-				onClick={_onCancel}
+				onClick={resetTransformation}
 			>
 				<Stack>
 					<Space />
@@ -155,7 +168,7 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 				<Button
 					fullWidth={true}
 					variant={"light"}
-					onClick={_onCancel}>
+					onClick={resetTransformation}>
 					<Text>Cancel</Text>
 				</Button>
 			</Group>
