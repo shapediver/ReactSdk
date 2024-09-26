@@ -343,11 +343,6 @@ export function isBarChartWidget(widget: IAppBuilderWidget): widget is { type: "
 	return widget.type === "barChart";
 }
 
-/** assert widget type "interaction" */
-export function isInteractionWidget(widget: IAppBuilderWidget): widget is { type: "interaction", props: IAppBuilderWidgetPropsInteraction } {
-	return widget.type === "interaction";
-}
-
 /** assert widget type "actions" */
 export function isActionsWidget(widget: IAppBuilderWidget): widget is { type: "actions", props: IAppBuilderWidgetPropsActions } {
 	return widget.type === "actions";
