@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { IUseSessionDto, useSession } from "./useSession";
 import { useSessionPropsParameter } from "./parameters/useSessionPropsParameter";
-import { IGenericParameterDefinition } from "../../types/store/shapediverStoreParameters";
+import { IGenericParameterDefinition, IGenericParameterExecutor } from "../../types/store/shapediverStoreParameters";
 import { useSessionPropsExport } from "./parameters/useSessionPropsExport";
 import { useDefineGenericParameters } from "./parameters/useDefineGenericParameters";
 import { useParameterStateless } from "./parameters/useParameterStateless";
@@ -87,21 +87,24 @@ export function useSessionWithCustomUi(props: IUseSessionDto | undefined) {
 	// custom UI parameter
 	const customUiParam = useParameterStateless<string>(sessionId, CUSTOM_DATA_INPUT_NAME);
 
+	// execution callback
+	const executor = useCallback<IGenericParameterExecutor>(async (values) => new Promise((resolve, reject) => {
+		Object.keys(values).forEach(key => customParameterValues.current[key] = values[key]);
+		console.debug("Custom parameter value changes", values, "New state", customParameterValues.current);
+		if (customUiParam && customUiParam.definition.type === "String") {
+			customUiParam.actions.setUiValue(JSON.stringify(customParameterValues.current));
+			customUiParam.actions.execute(true).then(resolve).catch(reject);
+		}
+		else {
+			console.warn(`Could not find a string input named ${CUSTOM_DATA_INPUT_NAME}`);
+			resolve(values);
+		}
+	}),	[]);
+
 	// define custom parameters and an execution callback for them
 	useDefineGenericParameters(sessionIdCustomUi, props?.acceptRejectMode ?? false, 
 		customUiState.parameters,
-		(values) => new Promise((resolve, reject) => {
-			Object.keys(values).forEach(key => customParameterValues.current[key] = values[key]);
-			console.debug("Custom parameter value changes", values, "New state", customParameterValues.current);
-			if (customUiParam && customUiParam.definition.type === "String") {
-				customUiParam.actions.setUiValue(JSON.stringify(customParameterValues.current));
-				customUiParam.actions.execute(true).then(resolve).catch(reject);
-			}
-			else {
-				console.warn(`Could not find a string input named ${CUSTOM_DATA_INPUT_NAME}`);
-				resolve(values);
-			}
-		})			
+		executor
 	);
 
 	// get output "CUSTOM_DATA_OUTPUT_NAME", react to its changes, and set the custom UI state

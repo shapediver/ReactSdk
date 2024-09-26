@@ -146,6 +146,11 @@ export interface IPreExecutionHookPerSession { [sessionId: string]: IPreExecutio
 export type IAcceptRejectModeSelector = (param: IShapeDiverParameterDefinition) => boolean;
 
 /**
+ * A map from session id to a list of ids of sessions it depends on.
+ */
+export type ISessionDependency = { [sessionId: string]: string[] };
+
+/**
  * Interface for the store of parameters and exports. 
  * The parameters and exports managed by this store are abstractions of the 
  * parameters and exports defined by a ShapeDiver 3D Viewer session. 
@@ -164,6 +169,11 @@ export interface IShapeDiverStoreParameters {
 	 * Export stores.
 	 */
 	readonly exportStores: IExportStoresPerSession;
+
+	/**
+	 * Session dependencies.
+	 */
+	readonly sessionDependency: ISessionDependency;
 
 	/**
 	 * Pending parameter changes.
@@ -215,13 +225,15 @@ export interface IShapeDiverStoreParameters {
 	 * @param acceptRejectMode If true, changes are not executed immediately. May be specified as a boolean or a function of the parameter definition.
 	 * @param definitions Definitions of the parameters.
 	 * @param executor Executor of parameter changes.
+	 * @param dependsOnSessions List of ids of sessions the given session depends on.
 	 * @returns 
 	 */
 	readonly addGeneric: (
 		sessionId: string, 
 		acceptRejectMode: boolean | IAcceptRejectModeSelector, 
 		definitions: IGenericParameterDefinition | IGenericParameterDefinition[], 
-		executor: IGenericParameterExecutor
+		executor: IGenericParameterExecutor,
+		dependsOnSessions: string[] | string | undefined,
 	) => void,
 
 	/**
@@ -230,13 +242,15 @@ export interface IShapeDiverStoreParameters {
 	 * @param acceptRejectMode If true, changes are not executed immediately. May be specified as a boolean or a function of the parameter definition.
 	 * @param definitions Definitions of the parameters.
 	 * @param executor Executor of parameter changes.
+	 * @param dependsOnSessions List of ids of sessions the given session depends on.
 	 * @returns 
 	 */
 	readonly syncGeneric: (
 		sessionId: string, 
 		acceptRejectMode: boolean | IAcceptRejectModeSelector, 
 		definitions: IGenericParameterDefinition | IGenericParameterDefinition[], 
-		executor: IGenericParameterExecutor
+		executor: IGenericParameterExecutor,
+		dependsOnSessions: string[] | string | undefined,
 	) => void,
 
 	/**

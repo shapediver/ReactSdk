@@ -19,7 +19,11 @@ export function useParameterComponentCommons<T>(
 ) {
 	const { sessionId, disableIfDirty, acceptRejectMode } = props;
 	const { definition, actions, state } = useParameter<T|string>(props);
-	const changes = useShapeDiverStoreParameters(state => state.parameterChanges[sessionId]);
+	const executing = useShapeDiverStoreParameters(state => {
+		const ids = state.sessionDependency[sessionId].concat(sessionId);
+
+		return !ids.every(id => !state.parameterChanges[id]?.executing);
+	});
 	const [value, setValue] = useState(initializer(state));
 
 	const debounceTimeout = acceptRejectMode ? 0 : debounceTimeoutForImmediateExecution;
@@ -44,16 +48,16 @@ export function useParameterComponentCommons<T>(
 	 *   - the component is running in acceptRejectMode and the parameter state is dirty, AND
 	 *   - changes are not currently executing
 	 */
-	const onCancel = useMemo( () => acceptRejectMode && state.dirty && !changes?.executing ? 
+	const onCancel = useMemo( () => acceptRejectMode && state.dirty && !executing ? 
 		() => handleChange(state.execValue, 0) : undefined,
-	[acceptRejectMode, state.dirty, changes?.executing, state.execValue] );
+	[acceptRejectMode, state.dirty, executing, state.execValue] );
 
 	/** 
 	 * disable the component in case 
 	 *   - the parameter state is dirty AND we should disable the component if so, OR
 	 *   - changes are currently executing
 	 */
-	const disabled = (disableIfDirty && state.dirty) || changes?.executing;
+	const disabled = (disableIfDirty && state.dirty) || executing;
 
 	const memoizedDefinition = useMemo(() => {
 		return { ...definition, ...props.overrides };

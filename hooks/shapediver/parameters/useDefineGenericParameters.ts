@@ -18,9 +18,13 @@ import { useShallow } from "zustand/react/shallow";
  * @param executor Executor of parameter changes.
  * @returns
  */
-export function useDefineGenericParameters(sessionId: string, acceptRejectMode: boolean | IAcceptRejectModeSelector, 
+export function useDefineGenericParameters(
+	sessionId: string, 
+	acceptRejectMode: boolean | IAcceptRejectModeSelector, 
 	definitions: IGenericParameterDefinition | IGenericParameterDefinition[], 
-	executor: IGenericParameterExecutor) {
+	executor: IGenericParameterExecutor,
+	dependsOnSessions?: string[] | string | undefined
+) {
 	
 	const { syncGeneric, removeSession } = useShapeDiverStoreParameters(
 		useShallow(state => ({ syncGeneric: state.syncGeneric, removeSession: state.removeSession }))
@@ -28,8 +32,8 @@ export function useDefineGenericParameters(sessionId: string, acceptRejectMode: 
 	
 	// keep the generic parameters in sync
 	useEffect(() => {
-		syncGeneric(sessionId, acceptRejectMode, definitions, executor);
-	}, [sessionId, definitions]);
+		syncGeneric(sessionId, acceptRejectMode, definitions, executor, dependsOnSessions);
+	}, [sessionId, acceptRejectMode, definitions, executor, dependsOnSessions]);
 
 	// in case the session id changes, remove the parameters for the previous session
 	useEffect(() => {
