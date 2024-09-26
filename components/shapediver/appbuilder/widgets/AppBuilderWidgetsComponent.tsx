@@ -8,7 +8,6 @@ import {
 	isLineChartWidget, 
 	isRoundChartWidget, 
 	isTextWidget,
-	isInteractionWidget,
 	isActionsWidget,
 } from "../../../../types/shapediver/appbuilder";
 import AppBuilderTextWidgetComponent from "./AppBuilderTextWidgetComponent";
@@ -18,8 +17,6 @@ import AppBuilderRoundChartWidgetComponent from "./AppBuilderRoundChartWidgetCom
 import AppBuilderLineChartWidgetComponent from "./AppBuilderLineChartWidgetComponent";
 import AppBuilderAreaChartWidgetComponent from "./AppBuilderAreaChartWidgetComponent";
 import AppBuilderBarChartWidgetComponent from "./AppBuilderBarChartWidgetComponent";
-import AppBuilderSelectionWidgetComponent from "./AppBuilderSelectionWidgetComponent";
-import { isInteractionSelectionParameterSettings } from "@shapediver/viewer";
 import AppBuilderActionsWidgetComponent from "./AppBuilderActionsWidgetComponent";
 
 interface Props {
@@ -54,11 +51,6 @@ export default function AppBuilderWidgetsComponent({ sessionId, widgets }: Props
 				return <AppBuilderAreaChartWidgetComponent key={i} {...w.props} />;
 			else if (isBarChartWidget(w))
 				return <AppBuilderBarChartWidgetComponent key={i} {...w.props} />;
-			else if (isInteractionWidget(w))
-				if(isInteractionSelectionParameterSettings(w.props.interactionSettings))
-					return <AppBuilderSelectionWidgetComponent key={i} sessionId={sessionId} {...w.props} />;
-				else
-					return null;
 			else if (isActionsWidget(w))
 				return <AppBuilderActionsWidgetComponent key={i} sessionId={sessionId} {...w.props} />;
 			else
