@@ -1,5 +1,4 @@
 import React from "react";
-import reportWebVitals from "reportWebVitals";
 import { ITrackerContext } from "../types/context/trackercontext";
 import { DummyTracker, TrackerContext } from "../context/TrackerContext";
 
@@ -26,8 +25,6 @@ export default function RootComponent(props: Props) {
 		tracker
 	} = props;
 
-	tracker?.trackPageview();
-
 	return useStrictMode ? <React.StrictMode>
 		<TrackerContext.Provider value={tracker ?? DummyTracker}>
 			{children}
@@ -38,7 +35,3 @@ export default function RootComponent(props: Props) {
 		</TrackerContext.Provider>;
 }
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals(r => console.debug("reportWebVitals", r));
