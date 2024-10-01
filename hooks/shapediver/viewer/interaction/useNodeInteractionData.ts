@@ -15,6 +15,7 @@ import { useOutputNode } from "../useOutputNode";
  * Makes use of {@link useOutputNode}.
  * 
  * @param sessionId The ID of the session.
+ * @param componentId The ID of the component.
  * @param outputIdOrName The ID or name of the output.
  * @param patterns The patterns for matching the node names of the given output
  * @param interactionSettings The settings for the interaction data.
@@ -25,6 +26,7 @@ import { useOutputNode } from "../useOutputNode";
  */
 export function useNodeInteractionData(
 	sessionId: string, 
+	componentId: string,
 	outputIdOrName: string, 
 	patterns: NodeNameFilterPattern[], 
 	interactionSettings: { select?: boolean, hover?: boolean, drag?: boolean },
@@ -58,7 +60,8 @@ export function useNodeInteractionData(
 		if (oldNode) {
 			oldNode.traverse(node => {
 				for (const data of node.data) {
-					if (data instanceof InteractionData) {
+					// remove existing interaction data if it is restricted to the current component
+					if (data instanceof InteractionData && data.restrictedManagers.includes(componentId)) {
 						if (data.interactionStates.select === true)
 							selectManager?.deselect(node);
 						node.removeData(data);
@@ -83,7 +86,7 @@ export function useNodeInteractionData(
 				}
 			}
 			Object.values(availableNodes).forEach(availableNode => {
-				addInteractionData(availableNode.node, interactionSettings);
+				addInteractionData(availableNode.node, interactionSettings, componentId);
 			});
 
 			setAvailableNodeNames(Object.values(availableNodes).map(n => n.name));
@@ -115,19 +118,17 @@ export function useNodeInteractionData(
  * @param node 
  * @param interactionDataSettings 
  */
-const addInteractionData = (node: ITreeNode, interactionDataSettings: { select?: boolean, hover?: boolean, drag?: boolean }) => {
-	
-	// remove existing interaction data
-	// TODO to be discussed how to improve this and allow parallel interaction data
+const addInteractionData = (node: ITreeNode, interactionDataSettings: { select?: boolean, hover?: boolean, drag?: boolean }, componentId: string) => {
 	for (const data of node.data) {
-		if (data instanceof InteractionData) {
+		// remove existing interaction data if it is restricted to the current component
+		if (data instanceof InteractionData && data.restrictedManagers.includes(componentId)) {
 			console.warn(`Node ${node.id} already has interaction data with id ${data.id}, removing it.`);
 			node.removeData(data);
 		}
 	}
 
 	// add the interaction data to the node
-	const interactionData = new InteractionData(interactionDataSettings);
+	const interactionData = new InteractionData(interactionDataSettings, undefined, [componentId]);
 	node.addData(interactionData);
 	node.updateVersion();
 };

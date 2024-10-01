@@ -31,11 +31,13 @@ export interface ISelectionState {
  * according to the provided filter pattern.
  * 
  * @param patterns The pattern to match the hovered nodes.
+ * @param componentId The ID of the component.
  * @param initialSelectedNodeNames The initial selected node names (used to initialize the selection state).
  * 					Note that this initial state is not checked against the filter pattern.
  */
 export function useSelectManagerEvents(
 	patterns: OutputNodeNameFilterPatterns, 
+	componentId: string,
 	initialSelectedNodeNames?: string[]
 ): ISelectionState {
 
@@ -57,6 +59,8 @@ export function useSelectManagerEvents(
 
 			// We ignore the event if it's not based on an event triggered by the UI.
 			if (!selectEvent.event) return;
+			// We ignore the event if it's not based on the component ID.
+			if (selectEvent.manager.id !== componentId) return;
 
 			const selected = [selectEvent.node];
 			const nodeNames = matchNodesWithPatterns(patterns, selected);
@@ -74,6 +78,8 @@ export function useSelectManagerEvents(
 			if (selectEvent.reselection) return;
 			// We ignore the event if it's not based on an event triggered by the UI.
 			if (!selectEvent.event) return;
+			// We ignore the event if it's not based on the component ID.
+			if (selectEvent.manager.id !== componentId) return;
 
 			setSelectedNodeNames([]);
 		});
@@ -87,8 +93,10 @@ export function useSelectManagerEvents(
 
 			// We ignore the event if it's not based on an event triggered by the UI.
 			if (!multiSelectEvent.event) return;
-
+			// We ignore the event if the number of selected nodes exceeds the maximum number of nodes.
 			if (multiSelectEvent.nodes.length > (multiSelectEvent.manager as MultiSelectManager).maximumNodes) return;
+			// We ignore the event if it's not based on the component ID.
+			if (multiSelectEvent.manager.id !== componentId) return;
 
 			const selected = multiSelectEvent.nodes;
 			const nodeNames = matchNodesWithPatterns(patterns, selected);
@@ -104,6 +112,8 @@ export function useSelectManagerEvents(
 
 			// We ignore the event if it's not based on an event triggered by the UI.
 			if (!multiSelectEvent.event) return;
+			// We ignore the event if it's not based on the component ID.
+			if (multiSelectEvent.manager.id !== componentId) return;
 
 			// remove the node from the selected nodes
 			const selected = multiSelectEvent.nodes;
@@ -120,6 +130,8 @@ export function useSelectManagerEvents(
 
 			// We ignore the event if it's not based on an event triggered by the UI.
 			if (!multiSelectEvent.event) return;
+			// We ignore the event if it's not based on the component ID.
+			if (multiSelectEvent.manager.id !== componentId) return;
 
 			// TODO: refactor this to use a store instead of calling mantine notifications directly
 			notifications.show({
@@ -138,7 +150,7 @@ export function useSelectManagerEvents(
 			removeListener(tokenMultiSelectOff);
 			removeListener(tokenMaximumMultiSelect);
 		};
-	}, [patterns]);
+	}, [patterns, componentId]);
 
 	return {
 		selectedNodeNames,

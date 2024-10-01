@@ -1,6 +1,6 @@
 import { ISelectionParameterProps, ITreeNode, OutputApiData } from "@shapediver/viewer";
 import { InteractionData, MultiSelectManager, SelectManager } from "@shapediver/viewer.features.interaction";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { vec3 } from "gl-matrix";
 import { ISelectionState, useSelectManagerEvents } from "./useSelectManagerEvents";
 import { useSelectManager } from "./useSelectManager";
@@ -41,17 +41,20 @@ export function useSelection(
 	 */
 	setSelectedNodeNamesAndRestoreSelection: (names: string[]) => void
 } {
-	
+
+	// create a unique component ID
+	const componentId = useId();
+
 	// call the select manager hook
-	const { selectManager } = useSelectManager(viewportId, activate ? selectionProps : undefined);
+	const { selectManager } = useSelectManager(viewportId, componentId, activate ? selectionProps : undefined);
 
 	// call the hover manager hook
 	const hoverSettings = useMemo(() => { return { hoverColor: selectionProps.hoverColor }; }, [selectionProps]);
-	useHoverManager(viewportId, activate ? hoverSettings : undefined);
+	useHoverManager(viewportId, componentId, activate ? hoverSettings : undefined);
 	
 	// convert the user-defined name filters to filter patterns, and subscribe to selection events
 	const { patterns } = useCreateNameFilterPattern(sessionId, selectionProps.nameFilter);
-	const { selectedNodeNames, setSelectedNodeNames, resetSelectedNodeNames } = useSelectManagerEvents(patterns, initialSelectedNodeNames);
+	const { selectedNodeNames, setSelectedNodeNames, resetSelectedNodeNames } = useSelectManagerEvents(patterns, componentId, initialSelectedNodeNames);
 
 	// state for available node names
 	const [availableNodeNames, setAvailableNodeNames] = useState<{ [key: string]: string[]}>({});
@@ -68,7 +71,7 @@ export function useSelection(
 	for (const outputId in outputs) {
 		// add interaction data
 		if (!patterns[outputId]) patterns[outputId] = [];
-		const { outputNode, availableNodeNames: availableNodeNamesForOutput } = useNodeInteractionData(sessionId, outputId, patterns[outputId], interactionSettings, selectManager);
+		const { outputNode, availableNodeNames: availableNodeNamesForOutput } = useNodeInteractionData(sessionId, componentId, outputId, patterns[outputId], interactionSettings);
 		// in case selection becomes active or the output node changes, restore the selection status
 		useEffect(() => {
 			if (outputNode && selectManager)
