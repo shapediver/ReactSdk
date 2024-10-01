@@ -9,8 +9,12 @@ import { OutputNodeNameFilterPatterns, matchNodesWithPatterns } from "../utils/p
  * Hook allowing to create the hover manager events.
  * 
  * @param pattern The pattern to match the hovered nodes.
+ * @param componentId The ID of the component.
  */
-export function useHoverManagerEvents(pattern: OutputNodeNameFilterPatterns): {
+export function useHoverManagerEvents(
+	pattern: OutputNodeNameFilterPatterns,
+	componentId: string
+): {
 	/**
 	 * The hovered node names.
 	 */
@@ -30,6 +34,8 @@ export function useHoverManagerEvents(pattern: OutputNodeNameFilterPatterns): {
 
 			// We ignore the event if it's not based on an event triggered by the UI.
 			if (!hoverEvent.event) return;
+			// We ignore the event if it's not based on the component ID.
+			if (hoverEvent.manager.id !== componentId) return;
 
 			const hovered = [hoverEvent.node];
 			const nodeNames = matchNodesWithPatterns(pattern, hovered);
@@ -45,6 +51,8 @@ export function useHoverManagerEvents(pattern: OutputNodeNameFilterPatterns): {
 
 			// We ignore the event if it's not based on an event triggered by the UI.
 			if (!hoverEvent.event) return;
+			// We ignore the event if it's not based on the component ID.
+			if (hoverEvent.manager.id !== componentId) return;
 
 			setHoveredNodeNames([]);
 		});
@@ -56,7 +64,7 @@ export function useHoverManagerEvents(pattern: OutputNodeNameFilterPatterns): {
 			removeListener(tokenHoverOn);
 			removeListener(tokenHoverOff);
 		};
-	}, [pattern]);
+	}, [pattern, componentId]);
 
 	return {
 		hoveredNodeNames
