@@ -1,7 +1,6 @@
 import { addListener, EVENTTYPE_INTERACTION, IEvent, removeListener } from "@shapediver/viewer";
-import { InteractionEventResponseMapping, MultiSelectManager } from "@shapediver/viewer.features.interaction";
+import { InteractionEventResponseMapping, matchNodesWithPatterns, MultiSelectManager, OutputNodeNameFilterPatterns } from "@shapediver/viewer.features.interaction";
 import { useState, useCallback, useEffect, useContext } from "react";
-import { OutputNodeNameFilterPatterns, matchNodesWithPatterns } from "../utils/patternUtils";
 import { NotificationContext } from "../../../../../context/NotificationContext";
 
 // #region Functions (1)

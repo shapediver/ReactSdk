@@ -4,8 +4,8 @@ import {
 	removeListener
 } from "@shapediver/viewer";
 import { GumballEventResponseMapping } from "@shapediver/viewer.features.gumball";
+import { getNodeData } from "@shapediver/viewer.features.interaction";
 import { useEffect, useRef, useState } from "react";
-import { getNodeData } from "../utils/patternUtils";
 
 // #region Functions (1)
 

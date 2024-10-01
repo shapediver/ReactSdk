@@ -60,8 +60,10 @@ export function useHoverManager(viewportId: string, componentId: string, setting
 	useEffect(() => {
 		if (settings && interactionEngine && !hoverManagers[viewportId][componentId]) {
 			// create the hover manager with the given settings
-			const hoverManager = new HoverManager(componentId);
-			hoverManager.effectMaterial = new MaterialStandardData({ color: settings.hoverColor || "#00ff78" });
+			const hoverManager = new HoverManager(
+				componentId,
+				new MaterialStandardData({ color: settings.hoverColor || "#00ff78" })
+			);
 			const token = interactionEngine.addInteractionManager(hoverManager);
 			hoverManagers[viewportId][componentId] = { hoverManager, token };
 			setHoverManager(hoverManagers[viewportId][componentId].hoverManager);

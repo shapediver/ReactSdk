@@ -1,5 +1,5 @@
+import { convertUserDefinedNameFilters, OutputNodeNameFilterPatterns } from "@shapediver/viewer.features.interaction";
 import { useShapeDiverStoreViewer } from "../../../../store/useShapeDiverStoreViewer";
-import { OutputNodeNameFilterPatterns, convertUserDefinedNameFilters } from "./utils/patternUtils";
 import { useState, useEffect } from "react";
 
 // #region Functions (1)

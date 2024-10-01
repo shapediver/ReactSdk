@@ -1,5 +1,4 @@
-import { gatherNodesForPattern, NodeNameFilterPattern } from "./utils/patternUtils";
-import { InteractionData, MultiSelectManager, SelectManager } from "@shapediver/viewer.features.interaction";
+import { addInteractionData, gatherNodesForPattern, InteractionData, MultiSelectManager, NodeNameFilterPattern, SelectManager } from "@shapediver/viewer.features.interaction";
 import { IOutputApi, ITreeNode, OutputApiData } from "@shapediver/viewer";
 import { useCallback, useState } from "react";
 import { useOutputNode } from "../useOutputNode";
@@ -108,29 +107,5 @@ export function useNodeInteractionData(
 		availableNodeNames
 	};
 }
-
-/**
- * Add interaction data to the node.
- * 
- * If the node already has interaction data, the function will remove the interaction data and add the new interaction data.
- * Then the function will update the version of the node.
- * 
- * @param node 
- * @param interactionDataSettings 
- */
-const addInteractionData = (node: ITreeNode, interactionDataSettings: { select?: boolean, hover?: boolean, drag?: boolean }, componentId: string) => {
-	for (const data of node.data) {
-		// remove existing interaction data if it is restricted to the current component
-		if (data instanceof InteractionData && data.restrictedManagers.includes(componentId)) {
-			console.warn(`Node ${node.id} already has interaction data with id ${data.id}, removing it.`);
-			node.removeData(data);
-		}
-	}
-
-	// add the interaction data to the node
-	const interactionData = new InteractionData(interactionDataSettings, undefined, [componentId]);
-	node.addData(interactionData);
-	node.updateVersion();
-};
 
 // #endregion Functions (1)

@@ -85,18 +85,22 @@ export function useSelectManager(viewportId: string, componentId: string, settin
 				// depending on the settings, create a select manager or a multi select manager
 				if (selectMultiple) {
 					// create a multi select manager with the given settings
-					const selectManager = new MultiSelectManager(componentId);
-					selectManager.effectMaterial = new MaterialStandardData({ color: settings.selectionColor || "#0d44f0" });
-					selectManager.minimumNodes = settings.minimumSelection!;
-					selectManager.maximumNodes = settings.maximumSelection!;
+					const selectManager = new MultiSelectManager(
+						componentId,
+						new MaterialStandardData({ color: settings.selectionColor || "#0d44f0" }),
+						settings.minimumSelection!,
+						settings.maximumSelection!
+					);
 					selectManager.deselectOnEmpty = false;
 
 					const token = interactionEngine.addInteractionManager(selectManager);
 					selectManagers[viewportId][componentId] = { selectManager, token, selectMultiple };
 				} else {
 					// create a select manager with the given settings
-					const selectManager = new SelectManager(componentId);
-					selectManager.effectMaterial = new MaterialStandardData({ color: settings.selectionColor || "#0d44f0" });
+					const selectManager = new SelectManager(
+						componentId,
+						new MaterialStandardData({ color: settings.selectionColor || "#0d44f0" })
+					);
 					selectManager.deselectOnEmpty = false;
 
 					const token = interactionEngine.addInteractionManager(selectManager);
