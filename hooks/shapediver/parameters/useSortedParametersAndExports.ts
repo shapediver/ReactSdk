@@ -48,7 +48,7 @@ export function useSortedParametersAndExports(parameters?: PropsParameter[], exp
 		}
 
 		return [];
-	}));
+	})); // <-- TODO SS-8052 move into useMemo
 
 	sortedParamsAndExports = sortedParamsAndExports.concat((exports ?? []).flatMap(e => {
 		const stores = Object.values(exportStores[e.sessionId] ?? {});
@@ -59,13 +59,13 @@ export function useSortedParametersAndExports(parameters?: PropsParameter[], exp
 		}
 		
 		return [];
-	}));
+	})); // <-- TODO SS-8052 move into useMemo
 
 	// sort the parameters
 	sortedParamsAndExports.sort((a, b) => 
 		(typeof a.definition.order === "number" ? a.definition.order : Infinity) 
 		- (typeof b.definition.order === "number" ? b.definition.order : Infinity)
-	);
+	); // <-- TODO SS-8052 move into useMemo
 
 	return sortedParamsAndExports;
 }

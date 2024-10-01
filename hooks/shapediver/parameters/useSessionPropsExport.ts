@@ -19,7 +19,7 @@ export function useSessionPropsExport(sessionId: string | string[], filter?: (pa
 			.filter(store => _filter(store.getState().definition))
 			.map(store => { return {sessionId, exportId: store.getState().definition.id}; })
 		)
-	);
+	); // <-- TODO SS-8052 review how to avoid unnecessary re-renders
 
 	return propsExports;
 }

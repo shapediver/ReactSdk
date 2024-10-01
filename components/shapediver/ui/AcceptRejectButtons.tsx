@@ -17,7 +17,7 @@ export default function AcceptRejectButtons({ parameters }: Props) {
 	const parameterChanges = useParameterChanges(parameters ?? []);
 
 	// check if there is at least one parameter for which changes can be accepted or rejected
-	const sortedParamsAndExports = useSortedParametersAndExports(parameters, []);
+	const sortedParamsAndExports = useSortedParametersAndExports(parameters);
 	const showButtons = sortedParamsAndExports.some(p => p.parameter?.acceptRejectMode);
 
 	// disable the accept and reject buttons if there are no changes or 

@@ -23,7 +23,7 @@ export function useSessionPropsParameter(sessionId: string | string[], filter?: 
 				return { sessionId, parameterId: pstate.definition.id, acceptRejectMode: pstate.acceptRejectMode}; 
 			})
 		)
-	);
+	); // <-- TODO SS-8052 review how to avoid unnecessary re-renders
 
 	return propsParameters;
 }
