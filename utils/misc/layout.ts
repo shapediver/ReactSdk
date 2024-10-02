@@ -11,6 +11,8 @@ interface GridLayoutProps {
     leftColumns?: number;
     rightColumns?: number;
     bottomRows?: number;
+	topFullWidth?: boolean;
+	bottomFullWidth?: boolean;
 }
 
 export function createGridLayout(props: GridLayoutProps): React.CSSProperties {
@@ -25,7 +27,9 @@ export function createGridLayout(props: GridLayoutProps): React.CSSProperties {
 		topRows = 1, 
 		leftColumns = 1, 
 		rightColumns = 1, 
-		bottomRows = 1
+		bottomRows = 1,
+		topFullWidth = false,
+		bottomFullWidth = false,
 	} = props;
 
 	const m = "main";
@@ -44,7 +48,7 @@ export function createGridLayout(props: GridLayoutProps): React.CSSProperties {
 		area.push(row);
 	}
 
-	if (hasTop) {
+	if (hasTop && !topFullWidth) {
 		for (let j = 0; j < columns; j++) {
 			for (let i = 0; i < topRows; i++) {
 				area[i][j] = t;
@@ -52,7 +56,7 @@ export function createGridLayout(props: GridLayoutProps): React.CSSProperties {
 		}
 	}
 
-	if (hasBottom) {
+	if (hasBottom && !bottomFullWidth) {
 		for (let j = 0; j < columns; j++) {
 			for (let i = rows - bottomRows; i < rows; i++)
 				area[i][j] = b;
@@ -70,6 +74,21 @@ export function createGridLayout(props: GridLayoutProps): React.CSSProperties {
 		for (let i = 0; i < rows; i++) {
 			for (let j = columns - rightColumns; j < columns; j++)
 				area[i][j] = r;
+		}
+	}
+
+	if (hasTop && topFullWidth) {
+		for (let j = 0; j < columns; j++) {
+			for (let i = 0; i < topRows; i++) {
+				area[i][j] = t;
+			}
+		}
+	}
+
+	if (hasBottom && bottomFullWidth) {
+		for (let j = 0; j < columns; j++) {
+			for (let i = rows - bottomRows; i < rows; i++)
+				area[i][j] = b;
 		}
 	}
 

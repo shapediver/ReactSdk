@@ -345,6 +345,8 @@ export const useCustomTheme = (props: Props = {}) => {
 				// rightColumns: 1,
 				// topRows: 1,
 				// bottomRows: 1,
+				// topFullWidth: false,
+				// bottomFullWidth: false,
 			}),
 			/**
 			 * AppBuilderHorizontalContainer

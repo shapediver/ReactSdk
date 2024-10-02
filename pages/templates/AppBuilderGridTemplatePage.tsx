@@ -26,6 +26,10 @@ interface StyleProps {
 	topRows: number;
 	/** Number of rows for bottom container */
 	bottomRows: number;
+	/** Shall the top container use the full width? */
+	topFullWidth: boolean;
+	/** Shall the bottom container use the full width? */
+	bottomFullWidth: boolean;
 }
 
 const defaultStyleProps: StyleProps = {
@@ -39,6 +43,8 @@ const defaultStyleProps: StyleProps = {
 	rightColumns: 1,
 	topRows: 1,
 	bottomRows: 1,
+	topFullWidth: false,
+	bottomFullWidth: false,
 };
 
 type AppBuilderGridTemplatePageThemePropsType = Partial<StyleProps>;
@@ -76,6 +82,8 @@ export default function AppBuilderGridTemplatePage(props: IAppBuilderTemplatePag
 		rightColumns,
 		topRows,
 		bottomRows,
+		topFullWidth,
+		bottomFullWidth
 	} = useProps("AppBuilderGridTemplatePage", defaultStyleProps, props);
 
 	const rootRef = useRef<HTMLDivElement>(null);
@@ -88,7 +96,8 @@ export default function AppBuilderGridTemplatePage(props: IAppBuilderTemplatePag
 			hasLeft: !!left,
 			hasRight: !!right,
 			hasBottom: !!bottom,
-			rows, columns, topRows, leftColumns, rightColumns, bottomRows
+			rows, columns, topRows, leftColumns, rightColumns, bottomRows,
+			topFullWidth, bottomFullWidth,
 		})),
 	});
 
@@ -100,11 +109,13 @@ export default function AppBuilderGridTemplatePage(props: IAppBuilderTemplatePag
 				hasLeft: !!left,
 				hasRight: !!right,
 				hasBottom: !!bottom,
-				rows, columns, topRows, leftColumns, rightColumns, bottomRows
+				rows, columns, topRows, leftColumns, rightColumns, bottomRows,
+				topFullWidth, bottomFullWidth,
 			}))
 		});
 	}, [left, right, bottom, top, 
-		columns, rows, leftColumns, rightColumns, topRows, bottomRows
+		columns, rows, leftColumns, rightColumns, topRows, bottomRows,
+		topFullWidth, bottomFullWidth,
 	]);
 
 	return (
