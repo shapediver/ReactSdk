@@ -18,6 +18,7 @@ import AppBuilderTemplateSelector from "../templates/AppBuilderTemplateSelector"
 import { shouldUsePlatform } from "../../utils/platform/environment";
 import { IAppBuilderTemplatePageContainerHints, IAppBuilderTemplatePageProps } from "../../types/pages/appbuildertemplates";
 import { useParameterHistory } from "../../hooks/shapediver/parameters/useParameterHistory";
+import { useKeyBindings } from "../../hooks/shapediver/useKeyBindings";
 
 const urlWithoutQueryParams = window.location.origin + window.location.pathname;
 
@@ -191,6 +192,9 @@ export default function AppBuilderPage(props: Partial<Props>) {
 
 	// use parameter history
 	useParameterHistory({loaded: show});
+
+	// key bindings
+	useKeyBindings({sessionId});
 	
 	const showMarkdown = !(settings && hasSession) // no settings or no session
 		&& !loading // not loading

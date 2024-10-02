@@ -29,13 +29,13 @@ export function useCreateModelState(props: Props) {
 		data?: Record<string, any>,
 		includeGltf?: boolean,
 	) => 
-		sessionApi.createModelState(
+		sessionApi ? sessionApi.createModelState(
 			parameterValues,
 			omitSessionParameterValues,
-			includeImage ? () => viewportApi.getScreenshot() : undefined,
+			includeImage && viewportApi ? () => viewportApi.getScreenshot() : undefined,
 			data, // <-- custom data
-			includeGltf ? async () => viewportApi.convertToGlTF() : undefined
-		), 
+			includeGltf && viewportApi ? async () => viewportApi.convertToGlTF() : undefined
+		) : undefined, 
 	[sessionApi, viewportApi]);
 
 	return {
