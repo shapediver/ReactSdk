@@ -119,9 +119,6 @@ export function useAppBuilderCustomParameters(props: Props) {
 				return values;
 			});
 		}
-		else {
-			console.debug(`Could not find a parameter named "${CUSTOM_DATA_INPUT_NAME}" whose type is 'String' or 'File'!`);
-		}
 		
 		return () => removePreExecutionHook(sessionId);
 	}, [appBuilderParam, appBuilderFileParam]);

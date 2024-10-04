@@ -61,7 +61,6 @@ export default function AppBuilderContainerWrapper(props: Props & AppBuilderCont
 
 	if (containerThemeOverrides[template]?.[name]) {
 		const theme = containerThemeOverrides[template]?.[name];
-		console.debug("AppBuilderContainerWrapper", context, theme, template, name);
 		
 		return <MantineThemeProvider theme={theme}>
 			{c}

@@ -49,8 +49,6 @@ export default function AppBuilderContainer(props: Props & AppBuilderContainerTh
 		name
 	};
 
-	console.debug("AppBuilderContainer", context, orientation, name);
-
 	const container = context.orientation === "vertical" ? 
 		<AppBuilderVerticalContainer>{children}</AppBuilderVerticalContainer> : 
 		<AppBuilderHorizontalContainer>{children}</AppBuilderHorizontalContainer>;
