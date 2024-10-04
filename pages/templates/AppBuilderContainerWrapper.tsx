@@ -1,13 +1,12 @@
 import React, { useContext } from "react";
 import { AppBuilderContainerContext, AppBuilderTemplateContext } from "../../context/AppBuilderContext";
 import { MantineThemeComponent, MantineThemeOverride, MantineThemeProvider, useProps } from "@mantine/core";
-import AppBuilderVerticalContainer from "./AppBuilderVerticalContainer";
-import AppBuilderHorizontalContainer from "./AppBuilderHorizontalContainer";
-import { IAppBuilderContainerContext } from "../../types/context/appbuildercontext";
+import { AppBuilderContainerOrientationType, IAppBuilderContainerContext } from "../../types/context/appbuildercontext";
+import AppBuilderContainer from "./AppBuilderContainer";
 
 interface Props {
 	name: string,
-	orientation: "vertical" | "horizontal",
+	orientation?: AppBuilderContainerOrientationType,
 	children?: React.ReactNode,
 }
 
@@ -25,7 +24,7 @@ const defaultStyleProps: IAppBuilderContainerWrapperStyleProps = {
 
 type AppBuilderContainerWrapperThemePropsType = Partial<IAppBuilderContainerWrapperStyleProps>;
 
-export function AppBuilderPageThemeProps(props: AppBuilderContainerWrapperThemePropsType): MantineThemeComponent {
+export function AppBuilderContainerWrapperThemeProps(props: AppBuilderContainerWrapperThemePropsType): MantineThemeComponent {
 	return {
 		defaultProps: props
 	};
@@ -40,7 +39,7 @@ export default function AppBuilderContainerWrapper(props: Props & AppBuilderCont
 	const { 
 		containerThemeOverrides: _themeOverrides, 
 		name, 
-		orientation, 
+		orientation = "unspecified", 
 		children 
 	} = props;
 
@@ -55,17 +54,14 @@ export default function AppBuilderContainerWrapper(props: Props & AppBuilderCont
 	};
 
 	const { name: template } = useContext(AppBuilderTemplateContext);
-
-	const container = orientation === "vertical" ? 
-		<AppBuilderVerticalContainer>{children}</AppBuilderVerticalContainer> : 
-		<AppBuilderHorizontalContainer>{children}</AppBuilderHorizontalContainer>;
 		
 	const c = <AppBuilderContainerContext.Provider value={context}>
-		{container}
+		<AppBuilderContainer orientation={orientation}>{children}</AppBuilderContainer>
 	</AppBuilderContainerContext.Provider>;
 
 	if (containerThemeOverrides[template]?.[name]) {
 		const theme = containerThemeOverrides[template]?.[name];
+		console.debug("AppBuilderContainerWrapper", context, theme, template, name);
 		
 		return <MantineThemeProvider theme={theme}>
 			{c}

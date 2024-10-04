@@ -115,17 +115,17 @@ export default function AppBuilderAppShellTemplatePage(props: IAppBuilderTemplat
 				<AppShell.Header>
 					<Group h="100%" justify="space-between" wrap="nowrap" px="xs" >
 						{ hasNavbarContent ? <Burger opened={opened} onClick={toggle} hiddenFrom={navbarBreakpoint} size="sm" /> : undefined }
-						<AppBuilderContainerWrapper orientation="horizontal" name="top">
+						<AppBuilderContainerWrapper name="top">
 							{ top?.node }
 						</AppBuilderContainerWrapper>
 					</Group>
 				</AppShell.Header>
 				<AppShell.Navbar hidden={!opened} className={classes.appShellMainNavbar}>
-					<AppBuilderContainerWrapper orientation="vertical" name="left">
+					<AppBuilderContainerWrapper name="left">
 						{ left?.node }
 					</AppBuilderContainerWrapper>
 					{
-						!bottom ? undefined : showBottomInGrid ? undefined : <AppBuilderContainerWrapper orientation="vertical" name="bottom">
+						!bottom ? undefined : showBottomInGrid ? undefined : <AppBuilderContainerWrapper name="bottom">
 							{ bottom.node }
 						</AppBuilderContainerWrapper>
 					}
@@ -142,7 +142,7 @@ export default function AppBuilderAppShellTemplatePage(props: IAppBuilderTemplat
 						<section
 							className={`${isLandscape ? classes.appShellGridAreaRight : classes.appShellGridAreaBottomPortrait}`}
 						>
-							<AppBuilderContainerWrapper orientation="vertical" name="right">
+							<AppBuilderContainerWrapper name="right">
 								{ right.node }
 							</AppBuilderContainerWrapper>
 						</section>
@@ -150,7 +150,7 @@ export default function AppBuilderAppShellTemplatePage(props: IAppBuilderTemplat
 					{ bottom && showBottomInGrid ? <section
 						className={classes.appShellGridAreaBottom}
 					>
-						<AppBuilderContainerWrapper orientation={bottom.hints?.preferVertical ? "vertical" : "horizontal"} name="bottom">
+						<AppBuilderContainerWrapper orientation={bottom.hints?.preferVertical ? "vertical" : undefined} name="bottom">
 							{ bottom.node }
 						</AppBuilderContainerWrapper>
 					</section> : undefined

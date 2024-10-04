@@ -123,16 +123,16 @@ export default function AppBuilderGridTemplatePage(props: IAppBuilderTemplatePag
 			<section ref={rootRef} className={`${classes.appBuilderTemplatePage} viewer-fullscreen-area`} style={rootStyle}>
 
 				{ top ? <section className={classes.appBuilderTemplatePageTop} style={{background: bgTop}}>
-					<AppBuilderContainerWrapper orientation="horizontal" name="top">{top.node}</AppBuilderContainerWrapper></section> : undefined }
+					<AppBuilderContainerWrapper name="top">{top.node}</AppBuilderContainerWrapper></section> : undefined }
 
 				{ left ? <section className={classes.appBuilderTemplatePageLeft} style={{background: bgLeft}}>
-					<AppBuilderContainerWrapper orientation="vertical" name="left">{left.node}</AppBuilderContainerWrapper></section> : undefined }
+					<AppBuilderContainerWrapper name="left">{left.node}</AppBuilderContainerWrapper></section> : undefined }
 
 				{ right ? <section className={classes.appBuilderTemplatePageRight} style={{background: bgRight}}>
-					<AppBuilderContainerWrapper orientation="vertical" name="right">{right.node}</AppBuilderContainerWrapper></section> : undefined }
+					<AppBuilderContainerWrapper name="right">{right.node}</AppBuilderContainerWrapper></section> : undefined }
 
 				{ bottom ? <section className={classes.appBuilderTemplatePageBottom} style={{background: bgBottom}}>
-					<AppBuilderContainerWrapper orientation="horizontal" name="bottom">{bottom.node}</AppBuilderContainerWrapper></section> : undefined }
+					<AppBuilderContainerWrapper name="bottom">{bottom.node}</AppBuilderContainerWrapper></section> : undefined }
 				
 				<section
 					className={classes.appBuilderTemplatePageMain}

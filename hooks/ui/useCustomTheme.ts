@@ -35,13 +35,14 @@ import { AppBuilderAppShellTemplatePageThemeProps } from "../../pages/templates/
 import { AppShellSize } from "@mantine/core/lib/components/AppShell/AppShell.types";
 import { AppBuilderVerticalContainerThemeProps } from "../../pages/templates/AppBuilderVerticalContainer";
 import { AppBuilderHorizontalContainerThemeProps } from "../../pages/templates/AppBuilderHorizontalContainer";
-import { AppBuilderPageThemeProps } from "../../pages/templates/AppBuilderContainerWrapper";
+import { AppBuilderContainerWrapperThemeProps } from "../../pages/templates/AppBuilderContainerWrapper";
 import { AppBuilderTextWidgetThemeProps } from "../../components/shapediver/appbuilder/widgets/AppBuilderTextWidgetComponent";
 import { MarkdownWidgetComponentProps } from "../../components/shapediver/ui/MarkdownWidgetComponent";
 import { LoaderPageThemeProps } from "../../pages/misc/LoaderPage";
 import { ParameterLabelComponentThemeProps } from "../../components/shapediver/parameter/ParameterLabelComponent";
 import { ExportLabelComponentThemeProps } from "../../components/shapediver/exports/ExportLabelComponent";
 import { ParameterColorComponentThemeProps } from "../../components/shapediver/parameter/ParameterColorComponent";
+import { AppBuilderContainerThemeProps } from "shared/pages/templates/AppBuilderContainer";
 
 /**
  * Helper function for defining CSS variables for the AppBuilderAppShellTemplate
@@ -259,7 +260,7 @@ export const useCustomTheme = (props: Props = {}) => {
 			 * 
 			 * Used for defining theme overrides per template and per AppBuilder container.
 			 */
-			AppBuilderContainerWrapper: AppBuilderPageThemeProps({
+			AppBuilderContainerWrapper: AppBuilderContainerWrapperThemeProps({
 				containerThemeOverrides: {
 					/** Theme overrides for the "appshell" template. */
 					appshell: {
@@ -303,8 +304,54 @@ export const useCustomTheme = (props: Props = {}) => {
 								}),
 							}
 						}
+					},
+					/** Theme overrides for the "grid" template. */
+					grid: {
+						/** Theme overrides for the "top" container. */
+						top:  {
+							components: {
+								Anchor: Anchor.extend({
+									defaultProps: {
+										c: "inherit",
+									}
+								}),
+								Paper: Paper.extend({
+									defaultProps: {
+										withBorder: false,
+									}
+								}),
+								AppBuilderHorizontalContainer: {
+									defaultProps: {
+										justify: "left"
+									}
+								},
+								AppBuilderImage: AppBuilderImageThemeProps({
+									fit: "scale-down",
+									withBorder: false,
+								}),
+								AppBuilderTextWidgetComponent: AppBuilderTextWidgetThemeProps({
+									styles: { root: { overflow: "clip" }}
+								}),
+							}
+						},
+						/** Theme overrides for the "bottom" container. */
+						bottom: {
+							components: {
+								Anchor: Anchor.extend({
+									defaultProps: {
+										c: "inherit",
+									}
+								}),
+								AppBuilderTextWidgetComponent: AppBuilderTextWidgetThemeProps({
+									styles: { root: { overflow: "auto" }}
+								}),
+							}
+						}
 					}
 				}
+			}),
+			AppBuilderContainer: AppBuilderContainerThemeProps({
+				// orientation: "unspecified"
 			}),
 			/**
 			 * AppBuilderImage
