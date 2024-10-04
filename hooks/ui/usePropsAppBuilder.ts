@@ -27,7 +27,7 @@ export function usePropsAppBuilder<T extends Record<string, any>, U extends Part
 
 	const { 
 		containerThemeOverrides,
-	} = useProps("AppBuilderPage", defaultStyleProps, defaultOverrideProps);
+	} = useProps("AppBuilderContainerWrapper", defaultStyleProps, defaultOverrideProps);
 
 	const { name: template } = useContext(AppBuilderTemplateContext);
 	const context = useContext(AppBuilderContainerContext);

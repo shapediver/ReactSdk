@@ -40,7 +40,7 @@ export function useKeyBindings(props: Props) {
 		timeout: 750,
 		hits: 3,
 		callback
-	})
+	});
 
 	return {
 	};

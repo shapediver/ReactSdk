@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 
 interface Props {
 	key: string
@@ -37,12 +37,11 @@ export function useKeyBinding(props: Props) {
 				if (count === hits) {
 					// If the key is pressed X times within Y milliseconds
 					clearTimeout(timer); // Clear the timer to prevent reset
-					console.debug("hit", count)
 					callback(); // Call the event handler
 					count = 0; // Reset the counter after the event is handled
 				}
 			}
-		}
+		};
 
 		document.addEventListener("keydown", cb);
 

@@ -1,7 +1,6 @@
 import React, { } from "react";
 import { MantineThemeComponent, Paper, PaperProps, Stack } from "@mantine/core";
 import { IAppBuilderWidgetPropsActions, isAddToCartAction, isCloseConfiguratorAction, isCreateModelStateAction, isSetBrowserLocationAction, isSetParameterValueAction } from "../../../../types/shapediver/appbuilder";
-//import { usePropsAppBuilder } from "../../../hooks/ui/usePropsAppBuilder";
 import AppBuilderActionAddToCartComponent from "../actions/AppBuilderActionAddToCartComponent";
 import AppBuilderActionSetParameterValueComponent from "../actions/AppBuilderActionSetParameterValueComponent";
 import AppBuilderActionSetBrowserLocationComponent from "../actions/AppBuilderActionSetBrowserLocationComponent";
@@ -33,7 +32,7 @@ export default function AppBuilderActionsWidgetComponent(props: Props & AppBuild
 		//...rest 
 	} = props;
 
-	//const themeProps = usePropsAppBuilder("AppBuilderActionsWidgetComponent", defaultStyleProps, rest);
+	//const themeProps = useProps("AppBuilderActionsWidgetComponent", defaultStyleProps, rest);
 	
 	if (!actions || actions.length === 0) {
 		return <></>;

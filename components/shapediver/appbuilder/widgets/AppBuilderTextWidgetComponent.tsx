@@ -1,9 +1,8 @@
 import React, { useContext } from "react";
-import { MantineStyleProp, MantineThemeComponent, Paper, PaperProps, Text } from "@mantine/core";
+import { MantineStyleProp, MantineThemeComponent, Paper, PaperProps, Text, useProps } from "@mantine/core";
 import { IAppBuilderWidgetPropsText } from "../../../../types/shapediver/appbuilder";
 import MarkdownWidgetComponent from "../../ui/MarkdownWidgetComponent";
 import { AppBuilderContainerContext } from "../../../../context/AppBuilderContext";
-import { usePropsAppBuilder } from "../../../../hooks/ui/usePropsAppBuilder";
 
 type StylePros = PaperProps;
 
@@ -22,7 +21,7 @@ export default function AppBuilderTextWidgetComponent(props: IAppBuilderWidgetPr
 	
 	const { text, markdown, ...rest } = props;
 
-	const themeProps = usePropsAppBuilder("AppBuilderTextWidgetComponent", defaultStyleProps, rest);
+	const themeProps = useProps("AppBuilderTextWidgetComponent", defaultStyleProps, rest);
 	
 	const context = useContext(AppBuilderContainerContext);
 
