@@ -1,4 +1,4 @@
-import { Group, MantineThemeComponent, Text, useProps } from "@mantine/core";
+import { Group, MantineThemeComponent, Text, Tooltip, useProps } from "@mantine/core";
 import { useParameter } from "../../../hooks/shapediver/parameters/useParameter";
 import React from "react";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
@@ -36,11 +36,15 @@ export default function ParameterLabelComponent(props: Props & Partial<StyleProp
 		fontWeight,
 	} = useProps("ParameterLabelComponent", defaultStyleProps, rest);
 	const { definition } = useParameter<any>(props);
+	const { displayname, name, tooltip } = definition;
+	const label = displayname || name;
+
+	const labelcomp = <Text pb={4} size="sm" fw={fontWeight}>
+		{label}
+	</Text>
 
 	return <Group justify="space-between" w="100%" wrap="nowrap">
-		<Text pb={4} size="sm" fw={fontWeight}>
-			{definition.displayname || definition.name}
-		</Text>
+		{tooltip ? <Tooltip label={tooltip} position="top">{labelcomp}</Tooltip> : labelcomp}
 		{cancel && <Icon type={IconTypeEnum.X} color="red" onClick={cancel} />}
 	</Group>;
 }

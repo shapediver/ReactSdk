@@ -1,4 +1,4 @@
-import { MantineThemeComponent, Text, useProps } from "@mantine/core";
+import { MantineThemeComponent, Text, Tooltip, useProps } from "@mantine/core";
 import { useExport } from "../../../hooks/shapediver/parameters/useExport";
 import React from "react";
 import { PropsExport } from "../../../types/components/shapediver/propsExport";
@@ -29,8 +29,14 @@ export default function ExportLabelComponent(props: PropsExport & Partial<StyleP
 	const { 
 		fontWeight,
 	} = useProps("ExportLabelComponent", defaultStyleProps, props);
+	const { displayname, name, tooltip } = definition;
+	const label = displayname || name;
+
+	const labelcomp = <Text pb={4} size="sm" fw={fontWeight}>
+		{label}
+	</Text>
 
 	return <Text pb={4} size="sm" fw={fontWeight}>
-		{definition.displayname || definition.name}
+		{tooltip ? <Tooltip label={tooltip} position="top">{labelcomp}</Tooltip> : labelcomp}
 	</Text>;
 }
