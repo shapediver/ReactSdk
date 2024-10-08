@@ -1,11 +1,12 @@
-import React, { } from "react";
-import { MantineThemeComponent, Paper, PaperProps, Stack } from "@mantine/core";
+import React, { useContext } from "react";
+import { Group, MantineThemeComponent, Paper, PaperProps, Stack } from "@mantine/core";
 import { IAppBuilderWidgetPropsActions, isAddToCartAction, isCloseConfiguratorAction, isCreateModelStateAction, isSetBrowserLocationAction, isSetParameterValueAction } from "../../../../types/shapediver/appbuilder";
 import AppBuilderActionAddToCartComponent from "../actions/AppBuilderActionAddToCartComponent";
 import AppBuilderActionSetParameterValueComponent from "../actions/AppBuilderActionSetParameterValueComponent";
 import AppBuilderActionSetBrowserLocationComponent from "../actions/AppBuilderActionSetBrowserLocationComponent";
 import AppBuilderActionCloseConfiguratorComponent from "../actions/AppBuilderActionCloseConfiguratorComponent";
 import AppBuilderActionCreateModelStateComponent from "../actions/AppBuilderActionCreateModelStateComponent";
+import { AppBuilderContainerContext } from "../../../../context/AppBuilderContext";
 
 type StylePros = PaperProps;
 
@@ -33,6 +34,8 @@ export default function AppBuilderActionsWidgetComponent(props: Props & AppBuild
 	} = props;
 
 	//const themeProps = useProps("AppBuilderActionsWidgetComponent", defaultStyleProps, rest);
+
+	const context = useContext(AppBuilderContainerContext);
 	
 	if (!actions || actions.length === 0) {
 		return <></>;
@@ -57,8 +60,13 @@ export default function AppBuilderActionsWidgetComponent(props: Props & AppBuild
 		return actionComponents[0];
 
 	return <Paper>
-		<Stack>
-			{ actionComponents }
-		</Stack>
+		{context.orientation === "vertical" ? 
+			<Stack>
+				{ actionComponents }
+			</Stack> : 
+			<Group>
+				{ actionComponents }
+			</Group>
+		}
 	</Paper>;
 }
