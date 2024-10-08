@@ -1,7 +1,8 @@
-import { Button, ButtonProps, Tooltip, PolymorphicComponentProps } from "@mantine/core";
+import { Button, ButtonProps, Tooltip, PolymorphicComponentProps, CloseButton } from "@mantine/core";
 import React from "react";
 import Icon from "../../../ui/Icon";
 import { IAppBuilderActionPropsCommon } from "../../../../types/shapediver/appbuilder";
+import { IconTypeEnum } from "../../../../types/shapediver/icons";
 
 type ButtonComponentProps<C = "button"> = PolymorphicComponentProps<C, ButtonProps>;
 
@@ -14,12 +15,15 @@ type Props = IAppBuilderActionPropsCommon & ButtonComponentProps;
  */
 export default function AppBuilderActionComponent(props: Props) {
 	const { label, icon, tooltip, ...rest } = props;
+	const iconOnly = !label && icon;
+	const useCloseButton = iconOnly && icon === IconTypeEnum.X;
 
-	const button = <Button 
-		leftSection={icon ? <Icon type={icon} /> : undefined} 
+	const button = useCloseButton ? <CloseButton/> : <Button 
+		leftSection={!iconOnly && icon ? <Icon type={icon} /> : undefined} 
 		{...rest} 
+		
 	>
-		{label}
+		{iconOnly ? <Icon type={icon} /> : label}
 	</Button>;
 
 	if (tooltip) {
