@@ -2,6 +2,7 @@ import ExportButtonComponent from "../../../components/shapediver/exports/Export
 import ExportLabelComponent from "../../../components/shapediver/exports/ExportLabelComponent";
 import ParameterBooleanComponent from "../../../components/shapediver/parameter/ParameterBooleanComponent";
 import ParameterColorComponent from "../../../components/shapediver/parameter/ParameterColorComponent";
+import ParameterDrawingComponent from "shared/components/shapediver/parameter/ParameterDrawingComponent";
 import ParameterFileInputComponent from "../../../components/shapediver/parameter/ParameterFileInputComponent";
 import ParameterGumballComponent from "../../../components/shapediver/parameter/ParameterGumballComponent";
 import ParameterLabelComponent from "../../../components/shapediver/parameter/ParameterLabelComponent";
@@ -35,6 +36,7 @@ const parameterComponentsMap: ComponentsMapType = {
 	[PARAMETER_TYPE.STRINGLIST]: {c: ParameterSelectComponent, extraBottomPadding: false},
 	[PARAMETER_TYPE.COLOR]: {c: ParameterColorComponent, extraBottomPadding: false},
 	[PARAMETER_TYPE.FILE]: {c: ParameterFileInputComponent, extraBottomPadding: false},
+	[PARAMETER_TYPE.DRAWING]: {c: ParameterDrawingComponent, extraBottomPadding: true},
 };
 
 const interactionParameterComponentsMap: ComponentsMapType = {

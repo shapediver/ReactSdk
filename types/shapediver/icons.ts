@@ -46,6 +46,7 @@ export enum IconTypeEnum {
 	MoonStars = "moon-stars",
 	Network = "network",
 	NetworkOff = "network-off",
+	Pencil = "pencil",
 	Photo = "photo",
 	PhotoOff = "photo-off",
 	Refresh = "refresh",
