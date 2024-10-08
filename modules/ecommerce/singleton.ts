@@ -6,6 +6,8 @@ const TOGGLE_CONFIGURATOR_VISIBILITY_NUM_EVENTS = 3;
 const TOGGLE_CONFIGURATOR_VISIBILITY_MSEC = 750;
 /** Key for toggling configurator visibility. */
 const TOGGLE_CONFIGURATOR_VISIBILITY_KEY = "Escape";
+/** Timeout for establishing the cross-window API connection. */
+const CROSSWINDOW_API_TIMEOUT = 20000;
 
 export const ECommerceApiSingleton = (async () => {
 	// if window.parent === window return a dummy api for testing
@@ -13,7 +15,7 @@ export const ECommerceApiSingleton = (async () => {
 		return new DummyECommerceApi();
 	}
 
-	const eCommerceApi = await ECommerceApiFactory.getApplicationApi("app", "plugin", {timeout: 10000, debug: false});
+	const eCommerceApi = await ECommerceApiFactory.getApplicationApi("app", "plugin", {timeout: CROSSWINDOW_API_TIMEOUT, debug: false});
 	console.log("Successfully resolved ECommerceApi", eCommerceApi);
 	
 	// event handler for toggling configurator visibility

@@ -53,8 +53,9 @@ class CrossWindowApi implements ICrossWindowApi {
 				this.log("Peer answered ready event", result);
 				clearInterval(intervalId);
 			}
-			catch (error) {
-				this.log("Peer not ready", error);
+			catch //(error) 
+			{
+				//this.log("Peer not ready", error);
 			}
 		}, SETUP_INTERVAL);
 
@@ -62,9 +63,10 @@ class CrossWindowApi implements ICrossWindowApi {
 		this.peerIsReady = new Promise<ICrossWindowPeerInfo>((resolve, reject) => {
 			
 			const timeoutId = this.timeout ? setTimeout(() => {
-				const msg = `Peer did not respond within ${this.timeout}ms`;
+				const msg = `Peer did not respond within ${this.timeout}ms, giving up`;
 				this.log(msg);
 				token.cancel();
+				clearInterval(intervalId);
 				reject(new Error(msg));
 			}, this.timeout) : undefined;
 
@@ -107,9 +109,10 @@ class CrossWindowApi implements ICrossWindowApi {
 		return new Promise<ICrossWindowPeerInfo>((resolve, reject) => {
 					
 			const timeoutId = timeout ? setTimeout(() => {
-				const msg = `Peer did not respond to handshake "${type}" within ${timeout}ms`;
+				const msg = `Peer did not respond to handshake "${type}" within ${timeout}ms, giving up`;
 				this.log(msg);
 				token.cancel();
+				clearInterval(intervalId);
 				reject(new Error(msg));
 			}, timeout) : undefined;
 
