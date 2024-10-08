@@ -4,6 +4,7 @@ import {
 	AppShellResponsiveSize, 
 	Button, 
 	CSSVariablesResolver, 
+	CloseButton, 
 	ColorInput, 
 	DEFAULT_THEME, 
 	Group,
@@ -163,6 +164,15 @@ export const useCustomTheme = (props: Props = {}) => {
 				defaultProps: {
 					variant: "default",
 					fw: "500",
+				}
+			}),
+			/** 
+			 * CloseButton
+			 * @see https://mantine.dev/core/close-button/?t=props
+			 */
+			CloseButton: CloseButton.extend({
+				defaultProps: {
+					size: "3rem"
 				}
 			}),
 			/** 
@@ -465,7 +475,7 @@ export const useCustomTheme = (props: Props = {}) => {
 			 * Icon component used by AppBuilder.
 			 */
 			Icon: IconThemeProps({
-				// size: 14,
+				// size: "1.5rem",
 				// stroke: 1,
 			}),
 			/**
