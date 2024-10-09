@@ -8,14 +8,14 @@ import { useState, useEffect } from "react";
  * Hook that converts user-defined name filters to filter patterns used by interaction hooks. 
  * 
  * @param sessionId The ID of the session to create the filter pattern for. 
- * 					This is required to match output names to output IDs.
+ * 					If not provided, the filter pattern will be created for all sessions.
  * @param nameFilter The user-defined name filters to convert.
  */
-export function useCreateNameFilterPattern(sessionId: string, nameFilter?: string[]): {
+export function useCreateNameFilterPattern(sessionId?: string, nameFilter?: string[]): {
     patterns: OutputNodeNameFilterPatterns
 } {
 	// get the session API
-	const sessionApi = useShapeDiverStoreViewer(state => { return state.sessions[sessionId]; });
+	const sessions = useShapeDiverStoreViewer(state => { return state.sessions; });
 
 	// create a state for the pattern
 	const [patterns, setPatterns] = useState<OutputNodeNameFilterPatterns>({});
@@ -23,10 +23,17 @@ export function useCreateNameFilterPattern(sessionId: string, nameFilter?: strin
 	useEffect(() => {
 		if (nameFilter !== undefined) {
 			const outputIdsToNamesMapping: { [key: string]: string } = {};
-			Object.entries(sessionApi.outputs).forEach(([outputId, output]) => outputIdsToNamesMapping[outputId] = output.name);
+			if(sessionId) {
+				const sessionApi = sessions[sessionId];
+				Object.entries(sessionApi.outputs).forEach(([outputId, output]) => outputIdsToNamesMapping[outputId] = output.name);
+			} else {
+				Object.values(sessions).forEach(sessionApi => {
+					Object.entries(sessionApi.outputs).forEach(([outputId, output]) => outputIdsToNamesMapping[outputId] = output.name);
+				});
+			}
 			setPatterns(convertUserDefinedNameFilters(nameFilter, outputIdsToNamesMapping));
 		}
-	}, [nameFilter, sessionApi]);
+	}, [nameFilter, sessions]);
 
 	return {
 		patterns

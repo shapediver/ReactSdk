@@ -3,6 +3,7 @@ import { IDrawingToolsApi, PointsData, Settings } from "@shapediver/viewer.featu
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useDrawingToolsApi } from "./useDrawingToolsApi";
 import { useDrawingToolsEvents } from "./useDrawingToolsEvents";
+import { useRestrictions } from "./useRestrictions";
 
 // #region Functions (1)
 
@@ -43,18 +44,22 @@ export function useDrawingTools(
 	// use the drawing tools events
 	const { pointsData, setPointsData } = useDrawingToolsEvents(viewportId, initialPointsData);
 
+	// use the restrictions
+	const restrictions = useRestrictions(drawingParameterProps.restrictions);
+
 	// set the drawing tools settings
 	const drawingToolsSettings: Partial<Settings> = useMemo(
 		() => {
-			// TODO restrictions
+
 			return {
 				geometry: {
 					points: initialPointsData || [],
-					...drawingParameterProps?.geometry,
+					...drawingParameterProps?.geometry
 				},
+				restrictions
 			};
 		},
-		[drawingParameterProps, initialPointsData]
+		[drawingParameterProps, initialPointsData, restrictions]
 	);
 
 	// reference for the drawing tools API
