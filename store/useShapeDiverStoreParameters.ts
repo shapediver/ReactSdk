@@ -23,6 +23,7 @@ import {
 } from "../types/store/shapediverStoreParameters";
 import { IShapeDiverExport, IShapeDiverExportDefinition } from "../types/shapediver/export";
 import { ShapeDiverRequestCustomization, ShapeDiverRequestExport } from "@shapediver/api.geometry-api-dto-v2";
+import { addValidator } from "../utils/parameterValidation";
 
 /**
  * Create an IShapeDiverParameterExecutor for a single parameter, 
@@ -550,6 +551,7 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 				...parameters[sessionId]
 					? {} // Keep existing parameter stores
 					: {	[sessionId]: (Array.isArray(definitions) ? definitions : [definitions]).reduce((acc, def) => {
+						def = addValidator(def);
 						const paramId = def.definition.id;
 						const acceptRejectMode = acceptRejectModeSelector(def.definition);
 						acc[paramId] = createParameterStore(createParameterExecutor(sessionId, def, 
@@ -583,6 +585,7 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 		const parameterStores: IParameterStores = {};
 		
 		definitions.forEach(def => {
+			def = addValidator(def);
 			const paramId = def.definition.id;
 			// check if a matching parameter store already exists
 			if (paramId in existingParameterStores && isMatchingParameterDefinition(existingParameterStores[paramId], def)) {
