@@ -6,6 +6,7 @@ import {
 	IECommerceApiActions, 
 	IECommerceApiConnector, 
 	IECommerceApiFactory, 
+	IGetParentPageInfoReply, 
 	IGetUserProfileReply 
 } from "./types/ecommerceapi";
 import { CrossWindowApiFactory } from "../crosswindowapi/crosswindowapi";
@@ -17,6 +18,7 @@ import { CrossWindowApiFactory } from "../crosswindowapi/crosswindowapi";
 const MESSAGE_TYPE_ADD_ITEM_TO_CART = "ADD_ITEM_TO_CART";
 const MESSAGE_TYPE_GET_USER_PROFILE = "GET_USER_PROFILE";
 const MESSAGE_TYPE_CLOSE_CONFIGURATOR = "CLOSE_CONFIGURATOR";
+const MESSAGE_TYPE_GET_PARENT_PAGE_INFO = "GET_PARENT_PAGE_INFO";
 const MESSAGE_TYPE_HANDSHAKE = "HANDSHAKE";
 
 export class ECommerceApi implements IECommerceApi {
@@ -57,6 +59,12 @@ export class ECommerceApi implements IECommerceApi {
 		
 		return this.crossWindowApi.send(MESSAGE_TYPE_GET_USER_PROFILE, undefined, this.timeout);
 	}
+
+	async getParentPageInfo(): Promise<IGetParentPageInfoReply> {
+		await this.peerIsReady;
+		
+		return this.crossWindowApi.send(MESSAGE_TYPE_GET_PARENT_PAGE_INFO, undefined, this.timeout);
+	}
 	
 	peerIsReady: Promise<ICrossWindowPeerInfo>;
 }
@@ -94,6 +102,7 @@ export class ECommerceApiConnector implements IECommerceApiConnector {
 				this.crossWindowApi.on(MESSAGE_TYPE_ADD_ITEM_TO_CART, (data: IAddItemToCartData) => this.actions.addItemToCart(data));
 				this.crossWindowApi.on(MESSAGE_TYPE_GET_USER_PROFILE, () => this.actions.getUserProfile());
 				this.crossWindowApi.on(MESSAGE_TYPE_CLOSE_CONFIGURATOR, () => this.actions.closeConfigurator());
+				this.crossWindowApi.on(MESSAGE_TYPE_GET_PARENT_PAGE_INFO, () => this.actions.getParentPageInfo());
 				
 				return peerInfo;
 			});
@@ -102,6 +111,10 @@ export class ECommerceApiConnector implements IECommerceApiConnector {
 }
 
 export class DummyECommerceApiActions implements IECommerceApiActions {
+	
+	getParentPageInfo(): Promise<IGetParentPageInfoReply> {
+		return Promise.resolve({href: window.location.href});
+	}
 
 	closeConfigurator(): Promise<boolean> {
 		return Promise.resolve(false);
@@ -136,6 +149,10 @@ export class DummyECommerceApi implements IECommerceApi {
 	constructor() {
 		this.peerIsReady = Promise.resolve({ origin: "dummy", name: "dummy" });
 		this.actions = new DummyECommerceApiActions();
+	}
+
+	getParentPageInfo(): Promise<IGetParentPageInfoReply> {
+		return this.actions.getParentPageInfo();
 	}
 
 	addItemToCart(data: IAddItemToCartData): Promise<IAddItemToCartReply> {

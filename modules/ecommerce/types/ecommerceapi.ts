@@ -55,6 +55,16 @@ export interface IGetUserProfileReply {
 }
 
 /**
+ * Information about the parent page (the page embedding an App Builder iframe).
+ */
+export interface IGetParentPageInfoReply {
+    /**
+     * The URL of the parent page.
+     */
+    href: string
+}
+
+/**
  * Generic e-commerce API actions.
  */
 export interface IECommerceApiActions {
@@ -75,6 +85,11 @@ export interface IECommerceApiActions {
      * @returns true if the configurator was closed successfully, false otherwise.
      */
     closeConfigurator(): Promise<boolean>
+
+    /**
+     * Get information about the parent page (the page embedding an App Builder iframe).
+     */
+    getParentPageInfo(): Promise<IGetParentPageInfoReply>
 }
 
 
