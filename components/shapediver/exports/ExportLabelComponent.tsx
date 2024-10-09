@@ -34,7 +34,7 @@ export default function ExportLabelComponent(props: PropsExport & Partial<StyleP
 
 	const labelcomp = <Text pb={4} size="sm" fw={fontWeight}>
 		{label}
-	</Text>
+	</Text>;
 
 	return <Text pb={4} size="sm" fw={fontWeight}>
 		{tooltip ? <Tooltip label={tooltip} position="top">{labelcomp}</Tooltip> : labelcomp}

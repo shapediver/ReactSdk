@@ -41,7 +41,7 @@ export default function ParameterLabelComponent(props: Props & Partial<StyleProp
 
 	const labelcomp = <Text pb={4} size="sm" fw={fontWeight}>
 		{label}
-	</Text>
+	</Text>;
 
 	return <Group justify="space-between" w="100%" wrap="nowrap">
 		{tooltip ? <Tooltip label={tooltip} position="top">{labelcomp}</Tooltip> : labelcomp}
