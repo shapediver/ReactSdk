@@ -1,6 +1,7 @@
-import { createDrawingTools, IDrawingToolsApi, PointsData, Settings } from "@shapediver/viewer.features.drawing-tools";
+import { createDrawingTools, GeometryRestrictionApi, IDrawingToolsApi, PlaneRestrictionApi, PointsData, Settings } from "@shapediver/viewer.features.drawing-tools";
 import { useEffect, useState } from "react";
 import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
+import { useDrawingOptionsStore } from "shared/store/useDrawingOptionsStore";
 
 // #region Variables (1)
 
@@ -28,6 +29,9 @@ export function useDrawingToolsApi(
 	onUpdate: (pointsData: PointsData) => void,
 	onCancel: () => void
 ): IDrawingToolsApi | undefined {
+	// get the drawing tools options from the store
+	const { showPointLabels, showDistanceLabels, gridSize, angleStep, snapToVertices, snapToEdges, snapToFaces } = useDrawingOptionsStore();
+
 	// get the viewport API
 	const viewportApi = useShapeDiverStoreViewer(state => { return state.viewports[viewportId]; });
 	// state for the drawing tools API
@@ -36,6 +40,16 @@ export function useDrawingToolsApi(
 	useEffect(() => {
 		if (viewportApi && drawingToolsSettings && !drawingToolsApis[viewportId]) {
 			const drawingToolsApi = createDrawingTools(viewportApi, { onUpdate, onCancel }, drawingToolsSettings);
+
+			// set the drawing tools options from the store
+			drawingToolsApi.showPointLabels = showPointLabels;
+			drawingToolsApi.showDistanceLabels = showDistanceLabels;
+			Object.values(drawingToolsApi.restrictions).filter(r => r instanceof PlaneRestrictionApi).forEach(p => p.gridRestrictionApi.gridUnit = gridSize);
+			Object.values(drawingToolsApi.restrictions).filter(r => r instanceof PlaneRestrictionApi).forEach(p => p.angularRestrictionApi.angleStep = Math.PI / angleStep);
+			Object.values(drawingToolsApi.restrictions).filter(r => r instanceof GeometryRestrictionApi).forEach(p => p.snapToVertices = snapToVertices);
+			Object.values(drawingToolsApi.restrictions).filter(r => r instanceof GeometryRestrictionApi).forEach(p => p.snapToEdges = snapToEdges);
+			Object.values(drawingToolsApi.restrictions).filter(r => r instanceof GeometryRestrictionApi).forEach(p => p.snapToFaces = snapToFaces);
+
 			drawingToolsApis[viewportId] = drawingToolsApi;
 			setDrawingToolsApi(drawingToolsApi);
 		}
