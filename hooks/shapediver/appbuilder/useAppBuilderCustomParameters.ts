@@ -1,5 +1,5 @@
 import { IAppBuilder } from "../../../types/shapediver/appbuilder";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useParameterStateless } from "../parameters/useParameterStateless";
 import { useDefineGenericParameters } from "../parameters/useDefineGenericParameters";
 import { ISessionApi, PARAMETER_TYPE } from "@shapediver/viewer";
@@ -123,14 +123,17 @@ export function useAppBuilderCustomParameters(props: Props) {
 		return () => removePreExecutionHook(sessionId);
 	}, [appBuilderParam, appBuilderFileParam]);
 
+	// create stateful definition of custom parameters
+	const parameterDefinitions = useMemo(() => (appBuilderData?.parameters ?? []).map(p => {
+		const {value, ...rest} = p;
+		
+		return {definition: rest, value};
+	}), [appBuilderData?.parameters]);
+
 	// define custom parameters and an execution callback for them
 	useDefineGenericParameters(sessionIdAppBuilder, 
 		acceptRejectMode ?? false, 
-		(appBuilderData?.parameters ?? []).map(p => {
-			const {value, ...rest} = p;
-			
-			return {definition: rest, value};
-		}),
+		parameterDefinitions,
 		executor,
 		sessionId
 	);
