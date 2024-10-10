@@ -1,6 +1,6 @@
 import Icon from "../../ui/Icon";
 import ParameterLabelComponent from "./ParameterLabelComponent";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Button, Group, Loader, Space, Stack, Text } from "@mantine/core";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import { IDrawingParameterSettings as IDrawingParameterProps } from "@shapediver/viewer";
@@ -10,6 +10,8 @@ import { useDrawingTools } from "shared/hooks/shapediver/viewer/drawing/useDrawi
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
 import { useViewportId } from "../../../hooks/shapediver/viewer/useViewportId";
 import DrawingOptionsComponent from "../ui/DrawingOptionsComponent";
+import { ParameterDrawingContext } from "shared/context/ParameterDrawingContext";
+import { NotificationContext } from "shared/context/NotificationContext";
 
 /**
  * Parse the value of a drawing parameter and extract the points data.
@@ -46,6 +48,11 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 	// get the viewport ID
 	const { viewportId } = useViewportId();
 
+	// get the parameter drawing context, which includes the active parameter ID
+	const parameterDrawingContext = useContext(ParameterDrawingContext);
+	// get the notification context
+	const notifications = useContext(NotificationContext);
+
 	// get the drawing parameter properties
 	const drawingProps = definition.settings as IDrawingParameterProps;
 
@@ -55,12 +62,39 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 	const [parsedUiValue, setParsedUiValue] = useState<PointsData>(parsePointsData(state.uiValue));
 
 	/**
+	 * Callback function to activate the drawing.
+	 * 
+	 * If another drawing parameter is already active, a notification is shown.
+	 * Otherwise, the drawing is activated and the active parameter ID is set.
+	 */
+	const activateDrawing = useCallback(() => {
+		if (parameterDrawingContext.activeParameterId === undefined) {
+			setDrawingActive(true);
+			parameterDrawingContext.activeParameterId = definition.id;
+		} else {
+			notifications.show({
+				title: "A drawing parameter is already active",
+				message: "Please confirm or cancel the current drawing parameter first."
+			});
+		}
+	}, [parameterDrawingContext]);
+
+	/**
+	 * Callback function to deactivate the drawing.
+	 * The drawing is deactivated and the active parameter ID is reset.
+	 */
+	const deactivateDrawing = useCallback(() => {
+		setDrawingActive(false);
+		parameterDrawingContext.activeParameterId = undefined;
+	}, [parameterDrawingContext]);
+
+	/**
 	 * Callback function to change the value of the parameter.
 	 * This function is called when the drawing is confirmed.
 	 * It also ends the drawing process.
 	 */
 	const confirmDrawing = useCallback((pointsData?: PointsData) => {
-		setDrawingActive(false);
+		deactivateDrawing();
 		handleChange(JSON.stringify({ points: pointsData }), 0);
 	}, []);
 
@@ -70,7 +104,7 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 	 */
 	const cancelDrawing = useCallback(() => {
 		if (drawingToolsApi) drawingToolsApi.close();
-		setDrawingActive(false);
+		deactivateDrawing();
 	}, []);
 
 	// use the drawing tools
@@ -90,7 +124,7 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 		if (parsed.length !== pointsData?.length ||
 			!parsed.every((p, i) => p === pointsData[i])
 		) {
-			setDrawingActive(false);
+			deactivateDrawing();
 			setPointsData(parsed);
 			setParsedUiValue(parsed);
 		}
@@ -98,7 +132,7 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 
 	// extend the onCancel callback to reset the drawing state
 	const _onCancel = useMemo(() => onCancel ? () => {
-		setDrawingActive(false);
+		deactivateDrawing();
 		onCancel?.();
 	} : undefined, [onCancel]);
 
@@ -179,7 +213,7 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 		<Button justify="space-between" fullWidth={true} disabled={disabled}
 			rightSection={<Icon type={IconTypeEnum.Pencil} />}
 			variant={pointsData?.length === 0 ? "light" : "filled"}
-			onClick={() => setDrawingActive(true)}>
+			onClick={activateDrawing}>
 			<Text size="sm">
 				Start drawing
 			</Text>
