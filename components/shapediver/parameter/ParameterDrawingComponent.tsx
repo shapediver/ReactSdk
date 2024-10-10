@@ -10,8 +10,8 @@ import { useDrawingTools } from "shared/hooks/shapediver/viewer/drawing/useDrawi
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
 import { useViewportId } from "../../../hooks/shapediver/viewer/useViewportId";
 import DrawingOptionsComponent from "../ui/DrawingOptionsComponent";
-import { ParameterDrawingContext } from "shared/context/ParameterDrawingContext";
 import { NotificationContext } from "shared/context/NotificationContext";
+import { useDrawingOptionsStore } from "shared/store/useDrawingOptionsStore";
 
 /**
  * Parse the value of a drawing parameter and extract the points data.
@@ -48,8 +48,8 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 	// get the viewport ID
 	const { viewportId } = useViewportId();
 
-	// get the parameter drawing context, which includes the active parameter ID
-	const parameterDrawingContext = useContext(ParameterDrawingContext);
+	// get the active parameter from the store
+	const { activeParameter, setActiveParameter } = useDrawingOptionsStore();
 	// get the notification context
 	const notifications = useContext(NotificationContext);
 
@@ -68,16 +68,16 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 	 * Otherwise, the drawing is activated and the active parameter ID is set.
 	 */
 	const activateDrawing = useCallback(() => {
-		if (parameterDrawingContext.activeParameterId === undefined) {
+		if (activeParameter === undefined) {
 			setDrawingActive(true);
-			parameterDrawingContext.activeParameterId = definition.id;
+			setActiveParameter(definition.id);
 		} else {
 			notifications.show({
 				title: "A drawing parameter is already active",
 				message: "Please confirm or cancel the current drawing parameter first."
 			});
 		}
-	}, [parameterDrawingContext]);
+	}, [activeParameter]);
 
 	/**
 	 * Callback function to deactivate the drawing.
@@ -85,8 +85,8 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 	 */
 	const deactivateDrawing = useCallback(() => {
 		setDrawingActive(false);
-		parameterDrawingContext.activeParameterId = undefined;
-	}, [parameterDrawingContext]);
+		setActiveParameter(undefined);
+	}, []);
 
 	/**
 	 * Callback function to change the value of the parameter.

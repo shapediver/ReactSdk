@@ -1,6 +1,9 @@
 import { create } from "zustand";
 
 interface DrawingOptionsStore {
+	// state for the currently active parameter
+	activeParameter?: string,
+	setActiveParameter: (parameter?: string) => void,
 	// state for the point labels
 	showPointLabels: boolean,
 	setShowPointLabels: (show: boolean) => void,
@@ -33,6 +36,8 @@ interface DrawingOptionsStore {
  */
 export const useDrawingOptionsStore = create<DrawingOptionsStore>((set) => (
 	{
+		activeParameter: undefined,
+		setActiveParameter: (parameter?: string) => set({ activeParameter: parameter }),
 		showPointLabels: false,
 		setShowPointLabels: (show: boolean) => set({ showPointLabels: show }),
 		showDistanceLabels: true,
