@@ -32,26 +32,25 @@ export function useFindNodesByPattern(
      * @param node
      */
 	const callback = useCallback((newNode?: ITreeNode, oldNode?: ITreeNode) => {
-		if (!newNode) return;
-		const outputApiData = newNode.data.find((data) => data instanceof OutputApiData) as OutputApiData;
-
-		const availableNodes: { [nodeId: string]: { node: ITreeNode, name: string } } = {};
-		for (const pattern of patterns) {
-			if (pattern.length === 0) {
-				availableNodes[newNode.id] = {
-					node: newNode,
-					name: outputApiData.api.name
-				};
-			} else {
-				gatherNodesForPattern(newNode, pattern, outputApiData.api.name, availableNodes);
-			}
-		}
-
-		setNodes(Object.values(availableNodes).map(n => n.node));
-
-		// clear the available node names if the node is removed
 		if (oldNode && !newNode) {
+			// clear the available node names if the node is removed
 			setNodes([]);
+		} else if (newNode) {
+			const outputApiData = newNode.data.find((data) => data instanceof OutputApiData) as OutputApiData;
+
+			const availableNodes: { [nodeId: string]: { node: ITreeNode, name: string } } = {};
+			for (const pattern of patterns) {
+				if (pattern.length === 0) {
+					availableNodes[newNode.id] = {
+						node: newNode,
+						name: outputApiData.api.name
+					};
+				} else {
+					gatherNodesForPattern(newNode, pattern, outputApiData.api.name, availableNodes);
+				}
+			}
+	
+			setNodes(Object.values(availableNodes).map(n => n.node));
 		}
 
 	}, [patterns]);

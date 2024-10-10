@@ -1,4 +1,4 @@
-import { List, Space, Group, Button, Checkbox, Collapse, NumberInput, Slider, Stack, Switch, Text, Tooltip } from "@mantine/core";
+import { Space, Group, Button, Checkbox, Collapse, NumberInput, Slider, Stack, Switch, Text, Tooltip, MantineSize } from "@mantine/core";
 import { PlaneRestrictionApi, GeometryRestrictionApi, IDrawingToolsApi } from "@shapediver/viewer.features.drawing-tools";
 import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
 import React, { useState, useEffect } from "react";
@@ -6,6 +6,9 @@ import Icon from "shared/components/ui/Icon";
 import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
 import { IconTypeEnum } from "shared/types/shapediver/icons";
 import { useDrawingOptionsStore } from "shared/store/useDrawingOptionsStore";
+import MarkdownWidgetComponent from "./MarkdownWidgetComponent";
+import classes from "./DrawingOptionsComponent.module.css";
+import { defaultStyleProps } from "../parameter/ParameterSliderComponent";
 
 /**
  * Component for the drawing options.
@@ -107,51 +110,38 @@ export default function DrawingOptionsComponent(props: {
 		}
 	}, [drawingToolsApi]);
 
-
-
 	/**
 	 * The description of the drawing tools.
 	 * This description is shown when hovering over the info button.
 	 */
-	const description =
-		<List listStyleType="none" fw={400} size="xs">
-			<List.Item>Adding Points:
-				<List listStyleType="disc" fw={400} size="xs" fs="italic">
-					<List.Item>Starts automatically if no points exist</List.Item>
-					<List.Item>Press Insert to add a point at cursor position</List.Item>
-					<List.Item>Hover over a line segment to add a new point at the center</List.Item>
-				</List>
-			</List.Item>
-			<List.Item>Removing Points:
-				<List listStyleType="disc" fw={400} size="xs" fs="italic">
-					<List.Item>Select points and press Delete</List.Item>
-				</List>
-			</List.Item>
-			<List.Item>Moving Points:
-				<List listStyleType="disc" fw={400} size="xs" fs="italic">
-					<List.Item>Drag individual points or select multiple points to move together</List.Item>
-					<List.Item>Movement restrictions:
-						<List listStyleType="disc" fw={400} size="xs" fs="italic">
-							<List.Item>Press g for grid</List.Item>
-							<List.Item>Press a for angles</List.Item>
-							<List.Item>Press x/y/z for axes</List.Item>
-						</List>
-					</List.Item>
-				</List>
-			</List.Item>
-			<List.Item>History of Operations:
-				<List listStyleType="disc" fw={400} size="xs" fs="italic">
-					<List.Item>Press Ctrl+z to undo</List.Item>
-					<List.Item>Press Ctrl+y to redo</List.Item>
-				</List>
-			</List.Item>
-			<List.Item>Update/Cancel:
-				<List listStyleType="disc" fw={400} size="xs" fs="italic">
-					<List.Item>Press Confirm or Enter to send changes to the server</List.Item>
-					<List.Item>Press Cancel or Escape to discard changes</List.Item>
-				</List>
-			</List.Item>
-		</List>;
+	const markdown = 
+`- Adding Points:
+  - *Starts automatically if no points exist*
+  - *Press Insert to add a point at cursor position*
+  - *Hover over a line segment to add a new point at the center*
+
+- Removing Points:
+  - *Select points and press Delete*
+
+- Moving Points:
+  - *Drag individual points or select multiple points to move together*
+  - Movement restrictions:
+    - *Press g for grid*
+    - *Press a for angles*
+    - *Press x/y/z for axes*
+
+- History of Operations:
+  - *Press Ctrl+z to undo*
+  - *Press Ctrl+y to redo*
+
+- Update/Cancel:
+  - *Press Confirm or Enter to send changes to the server*
+  - *Press Cancel or Escape to discard changes*
+`;
+
+
+	// define the size of the components
+	const size: MantineSize = "xs";
 
 	/**
 	 * The options for the drawing tools.
@@ -161,24 +151,24 @@ export default function DrawingOptionsComponent(props: {
 	 * The settings are set depending on the state of the component.
 	 */
 	const options =
-		<Collapse in={optionsOpened} transitionDuration={250} transitionTimingFunction="linear" w={"100%"} pr="xs" >
+		<Collapse in={optionsOpened} transitionDuration={250} transitionTimingFunction="linear" w={"100%"} className={classes.paddingRight} >
 			<Stack>
-				<Tooltip label={description} >
-					<Button justify="space-between" fullWidth h="100%" p="xs" >
+				<Tooltip label={<MarkdownWidgetComponent>{markdown}</MarkdownWidgetComponent>} >
+					<Button justify="space-between" fullWidth h="100%" className={classes.padding} >
 						<Icon type={IconTypeEnum.IconInfoCircleFilled} />
 						<Space />
-						<Text pl="xs" size="xs" > Hover for Details </Text>
+						<Text className={classes.paddingLeft} size={size}> Hover for Details </Text>
 					</Button>
 				</Tooltip>
 				{drawingToolsApi && <Switch
-					size="xs"
+					size={size}
 					checked={showPointLabels}
 					onChange={() => setShowPointLabels(!showPointLabels)}
 					label="Show Point Labels"
 				/>}
 				{
 					drawingToolsApi && <Switch
-						size="xs"
+						size={size}
 						checked={showDistanceLabels}
 						onChange={() => setShowDistanceLabels(!showDistanceLabels)}
 						label="Show Distance Labels"
@@ -186,11 +176,11 @@ export default function DrawingOptionsComponent(props: {
 				{
 					drawingToolsApi && hasPlaneRestriction &&
 					<>
-						<Text size="xs" > Grid Size </Text>
-						< Group justify="space-between" w="100%" wrap="nowrap" >
+						<Text size={size}> Grid Size </Text>
+						<Group className={classes.sliderGroup} >
 							<Slider
-								w={"60%"}
-								size="xs"
+								size={size}
+								w={defaultStyleProps.sliderWidth}
 								min={0.01}
 								max={100}
 								step={0.01}
@@ -198,8 +188,8 @@ export default function DrawingOptionsComponent(props: {
 								onChange={setGridSize}
 							/>
 							<NumberInput
-								size="xs"
-								w={"35%"}
+								size={size}
+								w={defaultStyleProps.numberWidth}
 								min={0.01}
 								max={100}
 								step={0.01}
@@ -212,11 +202,11 @@ export default function DrawingOptionsComponent(props: {
 				{
 					drawingToolsApi && hasPlaneRestriction &&
 					<>
-						<Text size="xs" > Angle Step </Text>
-						< Group justify="space-between" w="100%" wrap="nowrap" >
+						<Text size={size} > Angle Step </Text>
+						<Group className={classes.sliderGroup} >
 							<Slider
-								w={"60%"}
-								size="xs"
+								w={defaultStyleProps.sliderWidth}
+								size={size}
 								min={1}
 								max={32}
 								step={1}
@@ -224,8 +214,8 @@ export default function DrawingOptionsComponent(props: {
 								onChange={setAngleStep}
 							/>
 							<NumberInput
-								size="xs"
-								w={"35%"}
+								size={size}
+								w={defaultStyleProps.numberWidth}
 								min={1}
 								max={32}
 								step={1}
@@ -238,22 +228,22 @@ export default function DrawingOptionsComponent(props: {
 				{
 					drawingToolsApi && hasGeometryRestriction &&
 					<>
-						<Text size="xs"> Snap to </Text>
-						< Group >
+						<Text size={size}> Snap to </Text>
+						<Group >
 							<Checkbox
-								size="xs"
+								size={size}
 								checked={snapToVertices}
 								onChange={() => setSnapToVertices(!snapToVertices)}
 								label="Vertices"
 							/>
 							<Checkbox
-								size="xs"
+								size={size}
 								checked={snapToEdges}
 								onChange={() => setSnapToEdges(!snapToEdges)}
 								label="Edges"
 							/>
 							<Checkbox
-								size="xs"
+								size={size}
 								checked={snapToFaces}
 								onChange={() => setSnapToFaces(!snapToFaces)}
 								label="Faces"
@@ -266,7 +256,7 @@ export default function DrawingOptionsComponent(props: {
 
 	return <Stack p="sm">
 		<Group justify="space-between" onClick={() => setOptionsOpened((t) => !t)}>
-			<Text size="xs" fw={400} fs="italic" ta="left">
+			<Text size={size} fw={400} fs="italic" ta="left">
 				{optionsOpened ? "Hide Options" : "Show Options"}
 			</Text>
 			{optionsOpened ? <IconChevronUp /> : <IconChevronDown />}

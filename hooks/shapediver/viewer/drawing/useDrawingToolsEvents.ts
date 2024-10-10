@@ -1,7 +1,7 @@
 import { addListener, EVENTTYPE_DRAWING_TOOLS, IEvent, removeListener } from "@shapediver/viewer";
 import { DrawingToolsEventResponseMapping, PointsData } from "@shapediver/viewer.features.drawing-tools";
-import { notifications } from "@mantine/notifications";
-import { useEffect, useState } from "react";
+import { NotificationContext } from "shared/context/NotificationContext";
+import { useContext, useEffect, useState } from "react";
 
 // #region Functions (1)
 
@@ -27,6 +27,9 @@ export function useDrawingToolsEvents(
 } {
 	// state for the points data
 	const [pointsData, setPointsData] = useState<PointsData | undefined>(initialPointsData);
+	
+	// get the notification context
+	const notifications = useContext(NotificationContext);
 
 	// register an event handler and listen for updates
 	useEffect(() => {

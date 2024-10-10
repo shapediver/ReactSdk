@@ -50,7 +50,7 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 	const drawingProps = definition.settings as IDrawingParameterProps;
 
 	// state for the drawing application
-	const [drawingActive, setDrawingActive] = useState<boolean>(true);
+	const [drawingActive, setDrawingActive] = useState<boolean>(false);
 	// state for the last confirmed value
 	const [parsedUiValue, setParsedUiValue] = useState<PointsData>(parsePointsData(state.uiValue));
 
@@ -102,6 +102,25 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 		onCancel?.();
 	} : undefined, [onCancel]);
 
+	// state for the constraints
+	const [isWithinConstraints, setIsWithinConstraints] = useState<boolean>(false);
+
+	// check if the current selection is within the constraints
+	useEffect(() => {
+		if(pointsData) {
+			const minPoints = drawingProps.geometry?.minPoints;
+			const maxPoints = drawingProps.geometry?.maxPoints;
+
+			const within = 
+				(minPoints === undefined || pointsData.length >= minPoints) &&
+				(maxPoints === undefined || pointsData.length <= maxPoints);
+
+			setIsWithinConstraints(within);
+		} else {
+			setIsWithinConstraints(false);
+		}
+	}, [pointsData]);
+
 
 	/**
 	 * The content of the parameter when it is active.
@@ -113,11 +132,11 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 	 * 
 	 */
 	const contentActive =
-		<Stack w="100%" gap={0}>
+		<Stack gap={0}>
 			<Button justify="space-between" fullWidth h="100%" disabled={disabled} m=""
 				rightSection={<Loader type="dots" />}
 			>
-				<Stack w="100%">
+				<Stack>
 					<Space />
 					<Text size="sm" fw={500} ta="left" onClick={cancelDrawing}>
 						Created a drawing with {pointsData?.length} points
@@ -133,7 +152,7 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 
 			<Group justify="space-between" w="100%" wrap="nowrap">
 				<Button
-					disabled={pointsData?.length === 0}
+					disabled={!isWithinConstraints}
 					fullWidth={true}
 					variant="filled"
 					onClick={() => confirmDrawing(pointsData)}
