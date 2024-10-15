@@ -6,7 +6,7 @@ import classes from "./AppBuilderImage.module.css";
 
 type Props = IAppBuilderWidgetPropsAnchor;
 
-type ImageStyleProps = Pick<ImageProps, "radius"> & { fit?: "contain" | "scale-down", withBorder?: boolean};
+type ImageStyleProps = Pick<ImageProps, "radius" | "mah" | "maw"> & { fit?: "contain" | "scale-down", withBorder?: boolean};
 
 type ImageNonStyleProps = Pick<ImageProps, "src"> & { alt?: string};
 
@@ -38,7 +38,7 @@ export function AppBuilderImageThemeProps(props: AppBuilderImageThemePropsType):
 export default function AppBuilderImage(props: ImageNonStyleProps & ImageStyleProps & Props ) {
 	
 	const { anchor, target, ...rest } = props;
-	const { radius, fit, withBorder } = useProps("AppBuilderImage", defaultStyleProps, rest);
+	const { radius, fit, withBorder, mah, maw } = useProps("AppBuilderImage", defaultStyleProps, rest);
 
 	const context = useContext(AppBuilderContainerContext);
 	const orientation = context.orientation;
@@ -50,9 +50,10 @@ export default function AppBuilderImage(props: ImageNonStyleProps & ImageStylePr
 		radius={radius}
 		h={contain && orientation === "horizontal" ? "100%" : undefined}
 		w={contain && orientation === "vertical" ? "100%" : undefined}
-		mah={!contain && orientation === "horizontal" ? "100%" : undefined}
-		maw={!contain && orientation === "vertical" ? "100%" : undefined}
+		mah={!contain && orientation === "horizontal" ? mah ?? "100%" : undefined}
+		maw={!contain && orientation === "vertical" ? maw ?? "100%" : undefined}
 		className={withBorder ? classes.imgBorder : undefined}
+		src="https://appbuilder.shapediver.com/v1/main/assets/woodtech/Primary_Logo_Black_60.png"
 	/>;
 
 	const elementWithAnchor = anchor ? <Anchor 
