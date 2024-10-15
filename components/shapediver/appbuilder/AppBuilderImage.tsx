@@ -53,7 +53,6 @@ export default function AppBuilderImage(props: ImageNonStyleProps & ImageStylePr
 		mah={!contain && orientation === "horizontal" ? mah ?? "100%" : undefined}
 		maw={!contain && orientation === "vertical" ? maw ?? "100%" : undefined}
 		className={withBorder ? classes.imgBorder : undefined}
-		src="https://appbuilder.shapediver.com/v1/main/assets/woodtech/Primary_Logo_Black_60.png"
 	/>;
 
 	const elementWithAnchor = anchor ? <Anchor 
