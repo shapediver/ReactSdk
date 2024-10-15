@@ -14,14 +14,15 @@ type Props = IAppBuilderActionPropsCommon & ButtonComponentProps;
  * @returns
  */
 export default function AppBuilderActionComponent(props: Props) {
-	const { label, icon, tooltip, ...rest } = props;
+	const { label, icon, tooltip, onClick, ...rest } = props;
 	const iconOnly = !label && icon;
 	const useCloseButton = iconOnly && icon === IconTypeEnum.X;
+	const _onclick = onClick === null ? undefined : onClick;
 
-	const button = useCloseButton ? <CloseButton/> : <Button 
+	const button = useCloseButton ? <CloseButton onClick={_onclick} /> : <Button 
 		leftSection={!iconOnly && icon ? <Icon type={icon} /> : undefined} 
 		{...rest} 
-		
+		onClick={_onclick}
 	>
 		{iconOnly ? <Icon type={icon} /> : label}
 	</Button>;
