@@ -51,7 +51,6 @@ export default function TabsComponent({defaultValue, tabs, ...rest}: ITabsCompon
 						value={tab.name}
 						leftSection={tab.icon ? <Icon type={tab.icon} /> : undefined}
 					>{tab.name}</Tabs.Tab>;
-					console.log(tab);
 			
 					return tab.tooltip ? <Tooltip key={index} label={tab.tooltip}>{tabsTab}</Tooltip> : tabsTab;
 				})

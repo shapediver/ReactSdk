@@ -26,7 +26,7 @@ export default function AppBuilderTabsComponent({ sessionId, tabs }: Props) {
 				return {
 					name: tab.name,
 					icon: tab.icon,
-					tooltib: tab.tooltip,
+					tooltip: tab.tooltip,
 					children: [
 						<AppBuilderWidgetsComponent key={0} sessionId={sessionId} widgets={tab.widgets} />
 					]
