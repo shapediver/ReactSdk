@@ -265,6 +265,8 @@ export interface IAppBuilderTab {
 	name: string
 	/** Optional icon of the tab. */
 	icon?: IconType
+	/** Optional tooltip. */
+	tooltip?: string
 	/** Widgets displayed in the tab. */
 	widgets: IAppBuilderWidget[]
 }

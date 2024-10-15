@@ -220,6 +220,7 @@ const IAppBuilderWidgetSchema = z.discriminatedUnion("type", [
 const IAppBuilderTabSchema = z.object({
 	name: z.string(),
 	icon: z.nativeEnum(IconTypeEnum).optional(),
+	tooltip: z.string().optional(),
 	widgets: z.array(IAppBuilderWidgetSchema),
 }).extend(IAppBuilderWidgetPropsCommonSchema.shape);
 
