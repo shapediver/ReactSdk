@@ -6,6 +6,7 @@ import { validateAppBuilderSettingsJson } from "../../../types/shapediver/appbui
 import { useThemeOverrideStore } from "../../../store/useThemeOverrideStore";
 import { getDefaultPlatformUrl } from "../../../utils/platform/environment";
 import { 
+	QUERYPARAM_CONTEXT,
 	QUERYPARAM_DISABLEFALLBACKUI,
 	QUERYPARAM_MODELSTATEID,
 	QUERYPARAM_MODELVIEWURL,
@@ -64,6 +65,7 @@ export default function useAppBuilderSettings(defaultSession?: IAppBuilderSettin
 	const disableFallbackUi = isTrueish(parameters.get(QUERYPARAM_DISABLEFALLBACKUI));
 	const template = parameters.get(QUERYPARAM_TEMPLATE);
 	const modelStateId = parameters.get(QUERYPARAM_MODELSTATEID) !== null ? parameters.get(QUERYPARAM_MODELSTATEID)! : undefined;
+	const context = parameters.get(QUERYPARAM_CONTEXT);
 	
 	// define fallback session settings to be used in case loading from json failed
 	// in case slug and optionally platformUrl are defined, use them
@@ -104,6 +106,15 @@ export default function useAppBuilderSettings(defaultSession?: IAppBuilderSettin
 	}, [settings?.themeOverrides]);
 	
 	const { settings: resolvedSettings, error: resolveError, loading: resolveLoading } = useResolveAppBuilderSettings(settings);
+
+	// add context as an initial parameter value to all sessions
+	if (context && resolvedSettings?.sessions) {
+		for (let i=0; i<resolvedSettings.sessions.length; i++) {
+			const session = resolvedSettings.sessions[i];
+			if (!session.initialParameterValues) session.initialParameterValues = {};
+			session.initialParameterValues["context"] = context;
+		}
+	}
 	
 	return {
 		settings: resolvedSettings, 

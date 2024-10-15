@@ -1,8 +1,9 @@
-import { createSession, createViewport, ISessionApi, IViewportApi } from "@shapediver/viewer";
+import { createSession, createViewport, ISessionApi, isViewerGeometryBackendResponseError, isViewerValidationError, IViewportApi } from "@shapediver/viewer";
 import { SessionCreateDto, IShapeDiverStoreViewer, ViewportCreateDto } from "../types/store/shapediverStoreViewer";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { devtoolsSettings } from "./storeSettings";
+import { ShapeDiverResponseErrorType } from "@shapediver/api.geometry-api-dto-v2";
 
 /**
  * Helper for comparing sessions.
@@ -111,7 +112,24 @@ export const useShapeDiverStoreViewer = create<IShapeDiverStoreViewer>()(devtool
 
 		let session: ISessionApi|undefined = undefined;
 		try {
-			session = await createSession(dto);
+			try {
+				session = await createSession(dto);
+			}
+			catch (e: any) {
+				if (isViewerGeometryBackendResponseError(e) && 
+					e.geometryBackendErrorType === ShapeDiverResponseErrorType.REQUEST_VALIDATION_ERROR &&
+					e.message.startsWith("Invalid parameter") && e.message.includes("'context'")) 
+				{
+					console.warn("Session creation failed due to invalid or missing 'context' parameter. Retrying without 'context' parameter.");
+
+					const dtoWithoutContext: SessionCreateDto = {...dto, initialParameterValues: {...dto.initialParameterValues}};
+					delete dtoWithoutContext.initialParameterValues!["context"];
+					session = await createSession(dtoWithoutContext);
+				}
+				else {
+					throw e;
+				}
+			}
 		} catch (e: any) {
 			if (callbacks.onError) callbacks.onError(e);
 		}
