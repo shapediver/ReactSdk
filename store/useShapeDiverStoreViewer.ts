@@ -1,4 +1,4 @@
-import { createSession, createViewport, ISessionApi, isViewerGeometryBackendResponseError, isViewerValidationError, IViewportApi } from "@shapediver/viewer";
+import { createSession, createViewport, ISessionApi, isViewerGeometryBackendResponseError, IViewportApi } from "@shapediver/viewer";
 import { SessionCreateDto, IShapeDiverStoreViewer, ViewportCreateDto } from "../types/store/shapediverStoreViewer";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
