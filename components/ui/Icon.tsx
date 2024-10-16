@@ -45,6 +45,7 @@ import {
 	IconMoonStars,
 	IconNetwork,
 	IconNetworkOff,
+	IconPencil,
 	IconPhoto,
 	IconPhotoOff,
 	IconProps,
@@ -192,6 +193,8 @@ const Icon = forwardRef<_TablerIconType, Props>( function Icon({type, size, stro
 		return <IconNetwork {...iconProps} />;
 	case IconTypeEnum.NetworkOff:
 		return <IconNetworkOff {...iconProps} />;
+	case IconTypeEnum.Pencil:
+		return <IconPencil {...iconProps} />;
 	case IconTypeEnum.Photo:
 		return <IconPhoto {...iconProps} />;
 	case IconTypeEnum.PhotoOff:

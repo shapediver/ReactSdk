@@ -26,7 +26,7 @@ interface StyleProps {
 	numberWidth: string | number | undefined;
 }
 
-const defaultStyleProps: Partial<StyleProps> = {
+export const defaultStyleProps: Partial<StyleProps> = {
 	sliderWidth: "60%",
 	numberWidth: "35%",
 };
