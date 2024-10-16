@@ -1,5 +1,5 @@
 import { Button, Group, Loader, Space, Stack, Text } from "@mantine/core";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
@@ -21,7 +21,7 @@ const parseNames = (value?: string): string[] => {
 		
 		return parsed.names;
 	}
-	catch (e) {
+	catch {
 		return [];
 	}
 };

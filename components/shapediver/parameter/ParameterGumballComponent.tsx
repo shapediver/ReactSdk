@@ -1,5 +1,5 @@
 import { Button, Group, Loader, Space, Stack, Text } from "@mantine/core";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
