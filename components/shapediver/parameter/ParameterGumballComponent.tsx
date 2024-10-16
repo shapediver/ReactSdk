@@ -39,6 +39,7 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 	const {
 		definition,
 		handleChange,
+		setOnCancelCallback,
 		onCancel,
 		disabled,
 		value,
@@ -53,7 +54,7 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 	const { viewportId } = useViewportId();
 
 	// get the transformed nodes and the selected nods
-	const { transformedNodeNames, setTransformedNodeNames, setSelectedNodeNames, restoreTransformedNodeNames, clearTransformedNodeNames } = useGumball(
+	const { transformedNodeNames, setSelectedNodeNames, restoreTransformedNodeNames, clearTransformedNodeNames } = useGumball(
 		props.sessionId, 
 		viewportId, 
 		gumballProps,
@@ -104,30 +105,24 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 	// react to changes of the execValue and reset the last confirmed value
 	useEffect(() => {
 		lastConfirmedValue.current = [];
-	}, [state.execValue]); 
-
-	// react to changes of the uiValue and update the gumball state if necessary
-	useEffect(() => {
-		const parsed = parseTransformation(state.uiValue);
-		// compare names to selectedNodeNames
-		if (parsed.length !== transformedNodeNames.length || 
-			!parsed.every((n, i) => n.name === transformedNodeNames[i].name) ||
-			!parsed.every((n, i) => n.transformation.every((t, j) => t === transformedNodeNames[i].transformation[j]))
-		) {
-			setGumballActive(false);
-			setTransformedNodeNames(parsed);
-			setSelectedNodeNames([]);
-		}
-	}, [state.uiValue]); 
+	}, [state.execValue]);
 
 	// extend the onCancel callback to reset the transformed nodes.
-	const _onCancel = useMemo(() => onCancel ? () =>{
+	const _onCancelCallback = useCallback(() => {
 		lastConfirmedValue.current = [];
 		clearTransformedNodeNames(transformedNodeNamesRef.current);
 		setGumballActive(false);
 		setSelectedNodeNames([]);
-		onCancel?.();
-	} : undefined, [onCancel]);
+	}, []);
+
+	useEffect(() => {
+		if(state.uiValue === state.execValue)
+			_onCancelCallback();
+	}, [state.uiValue, state.execValue, _onCancelCallback]); 
+
+	useEffect(() => {
+		setOnCancelCallback(() => _onCancelCallback);
+	}, [_onCancelCallback]);
 
 	/**
 	 * The content of the parameter when it is active.
@@ -192,7 +187,7 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 		</Button>;
 
 	return <>
-		<ParameterLabelComponent {...props} cancel={_onCancel} />
+		<ParameterLabelComponent {...props} cancel={onCancel} />
 		{
 			definition &&
 				gumballActive ? contentActive : contentInactive

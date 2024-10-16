@@ -43,14 +43,20 @@ export function useParameterComponentCommons<T>(
 		setValue(state.uiValue);
 	}, [state.uiValue]);
 
+	// state for the onCancel callback which can be set from the parameter components
+	const [onCancelCallback, setOnCancelCallback] = useState<(() => void) | undefined>(undefined);
+
 	/**
 	 * Provide a possibility to cancel if
 	 *   - the component is running in acceptRejectMode and the parameter state is dirty, AND
 	 *   - changes are not currently executing
 	 */
 	const onCancel = useMemo( () => acceptRejectMode && state.dirty && !executing ? 
-		() => handleChange(state.execValue, 0) : undefined,
-	[acceptRejectMode, state.dirty, executing, state.execValue] );
+		() => {
+			onCancelCallback?.();
+			handleChange(state.execValue, 0);
+		} : undefined,
+	[acceptRejectMode, state.dirty, executing, state.execValue, onCancelCallback] );
 
 	/** 
 	 * disable the component in case 
@@ -70,6 +76,7 @@ export function useParameterComponentCommons<T>(
 		value,
 		setValue,
 		handleChange,
+		setOnCancelCallback,
 		onCancel,
 		disabled
 	};

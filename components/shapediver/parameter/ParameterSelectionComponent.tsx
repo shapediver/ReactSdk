@@ -35,6 +35,7 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 	const {
 		definition,
 		handleChange,
+		setOnCancelCallback,
 		onCancel,
 		disabled,
 		value,
@@ -168,13 +169,16 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 		</Button>;
 
 	// extend the onCancel callback to reset the selected node names.
-	const _onCancel = useMemo(() => onCancel ? () =>{
+	const _onCancelCallback = useCallback(() => {
 		resetSelection(state.execValue);
-		onCancel?.();
-	} : undefined, [onCancel]);
+	}, []);
+
+	useEffect(() => {
+		setOnCancelCallback(() => _onCancelCallback);
+	}, [_onCancelCallback]);
 
 	return <>
-		<ParameterLabelComponent {...props} cancel={_onCancel} />
+		<ParameterLabelComponent {...props} cancel={onCancel} />
 		{
 			definition &&
 			selectionActive ? contentActive : contentInactive
