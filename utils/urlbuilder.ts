@@ -1,4 +1,5 @@
 import { 
+	QUERYPARAM_CONTEXT,
 	QUERYPARAM_MODELSTATEID,
 	QUERYPARAM_MODELVIEWURL, 
 	QUERYPARAM_SETTINGSURL, 
@@ -41,6 +42,14 @@ export interface IAppBuilderUrlBuilderData {
      * Optional URL (relative or absolute) to a settings JSON file.
      */
     settingsUrl?: string
+
+    /**
+     * Context to be passed to the configurator. Typical values: 
+     *   * undefined (default)
+     *   * "cart" (opened from the cart)
+     *   * "order" (opened from an order)
+     */
+    context?: string
 }
 
 /**
@@ -50,7 +59,7 @@ export interface IAppBuilderUrlBuilderData {
  */
 export function buildAppBuilderUrl(data: IAppBuilderUrlBuilderData): string {
 
-	const { baseUrl, ticket, modelViewUrl, slug, settingsUrl, modelStateId } = data;
+	const { baseUrl, ticket, modelViewUrl, slug, settingsUrl, modelStateId, context } = data;
 
 	const url = new URL(baseUrl);
 	const searchParams = new URLSearchParams();
@@ -71,6 +80,10 @@ export function buildAppBuilderUrl(data: IAppBuilderUrlBuilderData): string {
 
 	if (modelStateId) {
 		searchParams.append(QUERYPARAM_MODELSTATEID, modelStateId);
+	}
+
+	if (context) {
+		searchParams.append(QUERYPARAM_CONTEXT, context);
 	}
 
 	url.search = searchParams.toString();
