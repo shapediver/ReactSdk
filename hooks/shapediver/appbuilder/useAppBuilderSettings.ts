@@ -11,6 +11,7 @@ import {
 	QUERYPARAM_MODELSTATEID,
 	QUERYPARAM_MODELVIEWURL,
 	QUERYPARAM_PLATFORMURL,
+	QUERYPARAM_SETTINGSURL,
 	QUERYPARAM_SLUG,
 	QUERYPARAM_TEMPLATE,
 	QUERYPARAM_TICKET 
@@ -35,7 +36,7 @@ function isTrueish(value: string | null | undefined) {
  * @param queryParamName Name of the query parameter to use for loading settings json.
  * @returns 
  */
-export default function useAppBuilderSettings(defaultSession?: IAppBuilderSettingsSession, queryParamName = "g") {
+export default function useAppBuilderSettings(defaultSession?: IAppBuilderSettingsSession, queryParamName = QUERYPARAM_SETTINGSURL) {
 
 	const parameters = useMemo<URLSearchParams>(() => new URLSearchParams(window.location.search), []);
 	
