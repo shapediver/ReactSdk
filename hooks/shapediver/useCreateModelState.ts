@@ -4,7 +4,7 @@ import { useShallow } from "zustand/react/shallow";
 import { useViewportId } from "./viewer/useViewportId";
 
 interface Props {
-	sessionId: string
+	namespace: string
 }
 
 /**
@@ -15,10 +15,10 @@ interface Props {
  */
 export function useCreateModelState(props: Props) {
 	
-	const { sessionId } = props;
+	const { namespace } = props;
 	const { viewportId } = useViewportId();
 	const { sessionApi, viewportApi } = useShapeDiverStoreViewer(useShallow(state => ({
-		sessionApi: state.sessions[sessionId],
+		sessionApi: state.sessions[namespace],
 		viewportApi: state.viewports[viewportId],
 	})));
 	

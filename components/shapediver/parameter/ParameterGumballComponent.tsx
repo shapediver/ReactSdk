@@ -55,7 +55,7 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 
 	// get the transformed nodes and the selected nods
 	const { transformedNodeNames, setSelectedNodeNames, restoreTransformedNodeNames, clearTransformedNodeNames } = useGumball(
-		props.sessionId, 
+		props.namespace, 
 		viewportId, 
 		gumballProps,
 		gumballActive,

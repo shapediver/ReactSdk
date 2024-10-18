@@ -53,7 +53,7 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 	const { viewportId } = useViewportId();
 	
 	const { selectedNodeNames, setSelectedNodeNames } = useSelection(
-		props.sessionId, 
+		props.namespace, 
 		viewportId, 
 		selectionProps,
 		selectionActive,
