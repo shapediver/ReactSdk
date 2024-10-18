@@ -525,7 +525,7 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 			},
 			sessionDependency: {
 				..._state.sessionDependency,
-				...{ [sessionId]: [] }
+				...{ [sessionId]: [sessionId] }
 			},
 		}), false, "addSession");
 	},

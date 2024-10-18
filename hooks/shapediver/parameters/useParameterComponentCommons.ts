@@ -20,9 +20,12 @@ export function useParameterComponentCommons<T>(
 	const { namespace, disableIfDirty, acceptRejectMode } = props;
 	const { definition, actions, state } = useParameter<T|string>(props);
 	const executing = useShapeDiverStoreParameters(state => {
-		const ids = state.sessionDependency[namespace].concat(namespace);
+		const ids = state.sessionDependency[namespace];
 
 		return !ids.every(id => !state.parameterChanges[id]?.executing);
+	});
+	const sessionDependencies = useShapeDiverStoreParameters(state => {
+		return state.sessionDependency[namespace];
 	});
 	const [value, setValue] = useState(initializer(state));
 
@@ -78,6 +81,7 @@ export function useParameterComponentCommons<T>(
 		handleChange,
 		setOnCancelCallback,
 		onCancel,
-		disabled
+		disabled,
+		sessionDependencies
 	};
 }

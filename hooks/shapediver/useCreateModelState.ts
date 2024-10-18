@@ -15,10 +15,10 @@ interface Props {
  */
 export function useCreateModelState(props: Props) {
 	
-	const { namespace } = props;
+	const { namespace: sessionId } = props;
 	const { viewportId } = useViewportId();
 	const { sessionApi, viewportApi } = useShapeDiverStoreViewer(useShallow(state => ({
-		sessionApi: state.sessions[namespace],
+		sessionApi: state.sessions[sessionId],
 		viewportApi: state.viewports[viewportId],
 	})));
 	
