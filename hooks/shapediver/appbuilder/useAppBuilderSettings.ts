@@ -10,6 +10,7 @@ import {
 	QUERYPARAM_DISABLEFALLBACKUI,
 	QUERYPARAM_MODELSTATEID,
 	QUERYPARAM_MODELVIEWURL,
+	QUERYPARAM_PARAMVALUE_PREFIX,
 	QUERYPARAM_PLATFORMURL,
 	QUERYPARAM_SETTINGSURL,
 	QUERYPARAM_SLUG,
@@ -68,6 +69,13 @@ export default function useAppBuilderSettings(defaultSession?: IAppBuilderSettin
 	const modelStateId = parameters.get(QUERYPARAM_MODELSTATEID) !== null ? parameters.get(QUERYPARAM_MODELSTATEID)! : undefined;
 	const context = parameters.get(QUERYPARAM_CONTEXT);
 	
+	// get all query parameters starting with QUERYPARAM_PARAMVALUE_PREFIX
+	const paramValues = new Map<string, string>();
+	parameters.forEach((value, key) => {
+		if (key.startsWith(QUERYPARAM_PARAMVALUE_PREFIX)) 
+			paramValues.set(key, value);
+	});
+	
 	// define fallback session settings to be used in case loading from json failed
 	// in case slug and optionally platformUrl are defined, use them
 	// otherwise, if ticket and modelViewUrl are defined, use them
@@ -114,6 +122,17 @@ export default function useAppBuilderSettings(defaultSession?: IAppBuilderSettin
 			const session = resolvedSettings.sessions[i];
 			if (!session.initialParameterValues) session.initialParameterValues = {};
 			session.initialParameterValues["context"] = context;
+		}
+	}
+
+	// add parameter values defined in query string to all sessions
+	if (paramValues.size > 0 && resolvedSettings?.sessions) {
+		for (let i=0; i<resolvedSettings.sessions.length; i++) {
+			const session = resolvedSettings.sessions[i];
+			if (!session.initialParameterValues) session.initialParameterValues = {};
+			paramValues.forEach((value, key) => {
+				session.initialParameterValues![key.substring(QUERYPARAM_PARAMVALUE_PREFIX.length)] = value;
+			});
 		}
 	}
 	
