@@ -28,6 +28,8 @@ export default function AppBuilderTextWidgetComponent(props: IAppBuilderWidgetPr
 	const styleProps: MantineStyleProp = {};
 	if (context.orientation === "horizontal") {
 		styleProps.height = "100%";
+	} else if (context.orientation === "vertical") {
+		styleProps.overflowX = "auto";
 	}
 	styleProps.fontWeight = "100";
 	
