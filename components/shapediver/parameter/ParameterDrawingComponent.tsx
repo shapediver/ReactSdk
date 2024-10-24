@@ -3,7 +3,7 @@ import ParameterLabelComponent from "./ParameterLabelComponent";
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Button, Group, Loader, Space, Stack, Text } from "@mantine/core";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
-import { IDrawingParameterSettings as IDrawingParameterProps } from "@shapediver/viewer";
+import { IDrawingParameterSettings as IDrawingParameterProps, SystemInfo } from "@shapediver/viewer";
 import { PointsData } from "@shapediver/viewer.features.drawing-tools";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useDrawingTools } from "shared/hooks/shapediver/viewer/drawing/useDrawingTools";
@@ -217,6 +217,15 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 			</Group>
 		</Stack>;
 
+	/**
+	 * For mobile devices, just show a warning that the drawing is not supported.
+	 */
+	const contentMobile = 
+		<Button justify="space-between" fullWidth={true} disabled={disabled}>
+			<Text size="sm">
+				Not supported on mobile devices
+			</Text>
+		</Button>;
 
 	/**
 	 * The content of the parameter when it is inactive.
@@ -237,8 +246,10 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 	return <>
 		<ParameterLabelComponent {...props} cancel={_onCancel} />
 		{
-			definition &&
-				drawingActive ? contentActive : contentInactive
+			SystemInfo.instance.isMobile ?
+				contentMobile
+				: (definition &&
+					drawingActive ? contentActive : contentInactive)
 		}
 	</>;
 }
