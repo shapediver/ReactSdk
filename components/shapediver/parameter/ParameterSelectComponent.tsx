@@ -54,7 +54,6 @@ export default function ParameterSelectComponent(props: PropsParameter) {
 			}}
 			data={uniqueChoices}
 			disabled={disabled}
-			comboboxProps={{withinPortal: false}}
 		/>
 		: <Select
 			allowDeselect={false}
@@ -62,7 +61,6 @@ export default function ParameterSelectComponent(props: PropsParameter) {
 			onChange={(v) => handleChange(uniqueChoices.indexOf(v!) + "")}
 			data={uniqueChoices}
 			disabled={disabled}
-			comboboxProps={{withinPortal: false}}
 		/>;
 
 	return <>

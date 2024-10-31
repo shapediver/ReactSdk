@@ -160,7 +160,12 @@ export default function ViewportIcons(props: Props & Partial<OptionalProps>) {
 			</div>
 		</Tooltip> }
 
-		{ enableArBtn && <Modal opened={isModalArOpened} onClose={() => setIsModalArOpened(false)} title="Scan the code" centered>
+		{ enableArBtn && <Modal
+			opened={isModalArOpened} 
+			onClose={() => setIsModalArOpened(false)} 
+			title="Scan the code" 
+			centered
+		>
 			{ isModalArError
 				? <Text c="red">{isModalArError}</Text>
 				: <><Text>Scan the QR code below using your mobile device to see the model in AR. The code is compatible with Android and iOS devices.</Text>

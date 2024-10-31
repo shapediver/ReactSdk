@@ -102,7 +102,6 @@ export default function AppBuilderAppShellTemplatePage(props: IAppBuilderTemplat
 		<>
 			<AppShell
 				padding="0"
-				className="viewer-fullscreen-area"
 				// We hide the header in case there is no top and no left container content.
 				// In case there left container content, we only show the header below the navbar breakpoint 
 				// (see hiddenFrom prop of AppShell.Header).

@@ -120,7 +120,7 @@ export default function AppBuilderGridTemplatePage(props: IAppBuilderTemplatePag
 
 	return (
 		<>
-			<section ref={rootRef} className={`${classes.appBuilderTemplatePage} viewer-fullscreen-area`} style={rootStyle}>
+			<section ref={rootRef} className={classes.appBuilderTemplatePage} style={rootStyle}>
 
 				{ top ? <section className={classes.appBuilderTemplatePageTop} style={{background: bgTop}}>
 					<AppBuilderContainerWrapper name="top">{top.node}</AppBuilderContainerWrapper></section> : undefined }

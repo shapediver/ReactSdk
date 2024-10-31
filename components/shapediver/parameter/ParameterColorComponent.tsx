@@ -64,7 +64,6 @@ export default function ParameterColorComponent(props: PropsParameter) {
 			onChange={setValue}
 			onChangeEnd={handleSdColorChange}
 			disabled={disabled}
-			popoverProps={{withinPortal: false}}
 			format={colorFormat}
 		/> }
 	</>;
