@@ -94,8 +94,9 @@ export function useGumball(
 
 	// use an effect to set the selected node names to the first available node name if only one is available
 	useEffect(() => {
-		if(activate && Object.values(availableNodeNames).flat().length === 1) {
-			setSelectedNodeNamesAndRestoreSelection([Object.values(availableNodeNames).flat()[0]]);
+		const singleAvailableNodeName = getSingleAvailableNodeName(availableNodeNames);
+		if(activate && singleAvailableNodeName) {
+			setSelectedNodeNamesAndRestoreSelection([singleAvailableNodeName]);
 		}
 	}, [availableNodeNames, setSelectedNodeNamesAndRestoreSelection]);
 
@@ -211,6 +212,27 @@ const getNodesByName = (sessionApis: ISessionApi[], names: string[]): { name: st
 	}
 
 	return nodes;
+};
+
+/**
+ * Get a single available node name, if there is only one available.
+ * 
+ * @param availableNodeNames 
+ * @returns 
+ */
+const getSingleAvailableNodeName = (availableNodeNames: { [key: string]: { [key: string]: string[] } }): string | undefined => {
+	let availableNodeName: string | undefined = undefined;
+	let count = 0;
+
+	for (const outerObj of Object.values(availableNodeNames)) {
+		for (const arr of Object.values(outerObj)) {
+			count += arr.length;
+			if (count > 1) return;
+			if (arr.length === 1) availableNodeName = arr[0];
+		}
+	}
+
+	return availableNodeName;
 };
 
 // #endregion Functions (1)

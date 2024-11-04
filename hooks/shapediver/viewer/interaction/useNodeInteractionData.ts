@@ -1,7 +1,38 @@
 import { addInteractionData, gatherNodesForPattern, InteractionData, MultiSelectManager, NodeNameFilterPattern, SelectManager } from "@shapediver/viewer.features.interaction";
 import { IOutputApi, ITreeNode, OutputApiData } from "@shapediver/viewer";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useOutputNode } from "../useOutputNode";
+import { vec3 } from "gl-matrix";
+
+// #region Type aliases (2)
+
+type INodeInteractionDataHandlerState = {
+	sessionId: string;
+	componentId: string;
+	outputIdOrName: string;
+	patterns: NodeNameFilterPattern[];
+	interactionSettings: { select?: boolean, hover?: boolean, drag?: boolean, dragOrigin?: vec3, dragAnchors?: { id: string, position: vec3, rotation?: { angle: number, axis: vec3 } }[] };
+	selectManager?: SelectManager | MultiSelectManager;
+	setData?: React.Dispatch<React.SetStateAction<INodeInteractionDataState>>;
+};
+export type INodeInteractionDataState = {
+	/**
+	 * API of the output
+	 * @see https://viewer.shapediver.com/v3/latest/api/interfaces/IOutputApi.html
+	 */
+	outputApi: IOutputApi | undefined,
+	/**
+	 * Scene tree node of the output
+	 * @see https://viewer.shapediver.com/v3/latest/api/interfaces/IOutputApi.html#node
+	 */
+	outputNode: ITreeNode | undefined,
+	/**
+	 * The available node names for the given output and patterns.
+	 */
+	availableNodeNames: string[]
+};
+
+// #endregion Type aliases (2)
 
 // #region Functions (1)
 
@@ -24,37 +55,21 @@ import { useOutputNode } from "../useOutputNode";
  * @returns 
  */
 export function useNodeInteractionData(
-	sessionId: string, 
+	sessionId: string,
 	componentId: string,
-	outputIdOrName: string, 
-	patterns: NodeNameFilterPattern[], 
-	interactionSettings: { select?: boolean, hover?: boolean, drag?: boolean },
+	outputIdOrName: string,
+	patterns: NodeNameFilterPattern[],
+	interactionSettings: { select?: boolean, hover?: boolean, drag?: boolean, dragOrigin?: vec3, dragAnchors?: { id: string, position: vec3, rotation?: { angle: number, axis: vec3 } }[] },
 	selectManager?: SelectManager | MultiSelectManager
-): {
-	/**
-	 * API of the output
-	 * @see https://viewer.shapediver.com/v3/latest/api/interfaces/IOutputApi.html
-	 */
-	outputApi: IOutputApi | undefined,
-	/**
-	 * Scene tree node of the output
-	 * @see https://viewer.shapediver.com/v3/latest/api/interfaces/IOutputApi.html#node
-	 */
-	outputNode: ITreeNode | undefined,
-	/**
-	 * The available node names for the given output and patterns.
-	 */
-	availableNodeNames: string[]
-} {
-
+): INodeInteractionDataState {
 	const [availableNodeNames, setAvailableNodeNames] = useState<string[]>([]);
-	
+
 	/**
 	 * Output update callback for adding interaction data. 
 	 * 
 	 * @param node
 	 */
-	const callback = useCallback((newNode?: ITreeNode, oldNode?: ITreeNode) => {		
+	const callback = useCallback((newNode?: ITreeNode, oldNode?: ITreeNode) => {
 		// remove interaction data on deregistration
 		if (oldNode) {
 			oldNode.traverse(node => {
@@ -73,7 +88,7 @@ export function useNodeInteractionData(
 		if (newNode) {
 			const outputApiData = newNode.data.find((data) => data instanceof OutputApiData) as OutputApiData;
 
-			const availableNodes: {[nodeId: string]: { node: ITreeNode, name: string }} = {};
+			const availableNodes: { [nodeId: string]: { node: ITreeNode, name: string } } = {};
 			for (const pattern of patterns) {
 				if (pattern.length === 0) {
 					availableNodes[newNode.id] = {
@@ -92,7 +107,7 @@ export function useNodeInteractionData(
 		}
 
 		// clear the available node names if the node is removed
-		if(oldNode && !newNode) {
+		if (oldNode && !newNode) {
 			setAvailableNodeNames([]);
 		}
 
@@ -109,3 +124,29 @@ export function useNodeInteractionData(
 }
 
 // #endregion Functions (1)
+
+// #region Variables (1)
+
+/**
+ * Node interaction data handler component.
+ * This component is used to handle the interaction data for the nodes of an output.
+ * It will register the interaction data for the nodes of the output.
+ * 
+ * @param props The props
+ * @returns 
+ */
+export const NodeInteractionDataHandler: React.FC<INodeInteractionDataHandlerState> = ({ sessionId, componentId, outputIdOrName, patterns, interactionSettings, selectManager, setData }: INodeInteractionDataHandlerState) => {
+	const { outputApi, outputNode, availableNodeNames } = useNodeInteractionData(sessionId, componentId, outputIdOrName, patterns, interactionSettings, selectManager);
+	useEffect(() => {
+		if (setData)
+			setData({
+				outputApi,
+				outputNode,
+				availableNodeNames
+			});
+	}, [outputApi, outputNode, availableNodeNames, setData]);
+
+	return null;
+};
+
+// #endregion Variables (1)
