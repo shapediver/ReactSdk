@@ -34,12 +34,16 @@ export default function useResolveAppBuilderSettings(settings : IAppBuilderSetti
 			// in case we are running on the platform and the session is on the same platform,
 			// use a model get call to get ticket, modelViewUrl and token
 			if (shouldUsePlatform() && sdkRef?.platformUrl === session.platformUrl) {
-				const result = await sdkRef?.client.models.get(session.slug, [
-					SdPlatformModelGetEmbeddableFields.BackendSystem,
-					SdPlatformModelGetEmbeddableFields.Ticket,
-					SdPlatformModelGetEmbeddableFields.TokenExportFallback,
-				]);
-				const model = result?.data;
+				const getModel = async () => {
+					const result = await sdkRef?.client.models.get(session.slug!, [
+						SdPlatformModelGetEmbeddableFields.BackendSystem,
+						SdPlatformModelGetEmbeddableFields.Ticket,
+						SdPlatformModelGetEmbeddableFields.TokenExportFallback,
+					]);
+					
+					return result?.data;
+				};
+				const model = await getModel();
 				document.title = `${model?.title ?? model?.slug} | ShapeDiver App Builder`;
 			
 				return {
@@ -50,21 +54,35 @@ export default function useResolveAppBuilderSettings(settings : IAppBuilderSetti
 					...session, 
 					ticket: model!.ticket!.ticket,
 					modelViewUrl: model!.backend_system!.model_view_url,
-					jwtToken: model?.access_token
+					jwtToken: model.access_token,
+					refreshJwtToken: async () => {
+						const model = await getModel();
+
+						return model.access_token!;
+					}
 				};
 			}
 			// otherwise try to use iframe embedding
 			else {
-				const client = create({ clientId: getPlatformClientId(), baseUrl: session.platformUrl });
-				const result = await client.models.iframeEmbedding(session.slug);
-				const iframeData = result.data;
+				const getIframeData = async () => {
+					const client = create({ clientId: getPlatformClientId(), baseUrl: session.platformUrl });
+					const result = await client.models.iframeEmbedding(session.slug!);
+					
+					return result.data;
+				};
+				const iframeData = await getIframeData();
 			
 				return {
 					acceptRejectMode: iframeData.model.settings?.parameters_commit,
 					...session, 
 					ticket: iframeData.ticket,
 					modelViewUrl: iframeData.model_view_url,
-					jwtToken: iframeData.token
+					jwtToken: iframeData.token,
+					refreshJwtToken: async () => {
+						const iframeData = await getIframeData();
+
+						return iframeData.token;
+					}
 				};
 			}
 		}));
