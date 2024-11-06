@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Gumball, updateGumballTransformation } from "@shapediver/viewer.features.gumball";
-import { IGumballParameterProps, ISelectionParameterProps, ISessionApi, ITreeNode } from "@shapediver/viewer";
+import { getNodesByName } from "@shapediver/viewer.features.interaction";
+import { IGumballParameterProps, ISelectionParameterProps } from "@shapediver/viewer";
 import { useShapeDiverStoreViewer } from "../../../../../store/useShapeDiverStoreViewer";
 import { useSelection } from "../selection/useSelection";
 import { useGumballEvents } from "./useGumballEvents";
@@ -153,46 +154,6 @@ export function useGumball(
 		restoreTransformedNodeNames
 	};
 }
-
-/**
- * Get the nodes within the session API by their names.
- * 
- * @param sessionApi The session API.
- * @param names The names of the nodes.
- * @returns 
- */
-const getNodesByName = (sessionApis: ISessionApi[], names: string[]): { name: string, node: ITreeNode }[] => {
-
-	const nodes: { name: string, node: ITreeNode }[] = [];
-
-	for(const sessionApi of sessionApis) {
-		names.forEach(name => {
-			const parts = name.split(".");
-			const outputName = parts[0];
-
-			const outputApi = sessionApi.getOutputByName(outputName)[0];
-			if (!outputApi || !outputApi.node) return;
-
-			if(parts.length === 1) {
-				nodes.push({
-					name: name,
-					node: outputApi.node
-				});
-			} else {
-				outputApi.node.traverse(n => {
-					if (n.getPath().endsWith(parts.slice(1).join("."))) {
-						nodes.push({
-							name: name,
-							node: n
-						});
-					}
-				});
-			}
-		});
-	}
-
-	return nodes;
-};
 
 /**
  * Get a single available node name, if there is only one available.

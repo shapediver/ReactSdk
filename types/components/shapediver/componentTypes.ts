@@ -2,6 +2,7 @@ import ExportButtonComponent from "../../../components/shapediver/exports/Export
 import ExportLabelComponent from "../../../components/shapediver/exports/ExportLabelComponent";
 import ParameterBooleanComponent from "../../../components/shapediver/parameter/ParameterBooleanComponent";
 import ParameterColorComponent from "../../../components/shapediver/parameter/ParameterColorComponent";
+import ParameterDraggingComponent from "shared/components/shapediver/parameter/ParameterDraggingComponent";
 import ParameterDrawingComponent from "shared/components/shapediver/parameter/ParameterDrawingComponent";
 import ParameterFileInputComponent from "../../../components/shapediver/parameter/ParameterFileInputComponent";
 import ParameterGumballComponent from "../../../components/shapediver/parameter/ParameterGumballComponent";
@@ -42,6 +43,7 @@ const parameterComponentsMap: ComponentsMapType = {
 const interactionParameterComponentsMap: ComponentsMapType = {
 	"selection": {c: ParameterSelectionComponent, extraBottomPadding: true},
 	"gumball": {c: ParameterGumballComponent, extraBottomPadding: true},
+	"dragging": {c: ParameterDraggingComponent, extraBottomPadding: false},
 };
 
 export const getParameterComponent = (definition: IShapeDiverParamOrExportDefinition) => {
