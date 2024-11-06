@@ -30,11 +30,12 @@ export function useRestrictions(
 	// iterate over the sessions
 	for (const sessionId in sessions) {
 		const outputs = sessions[sessionId].outputs;
+		const pattern = patterns[sessionId];
 		// iterate over the outputs
 		for (const outputId in outputs) {
 			// add interaction data
-			if (!patterns[outputId]) patterns[outputId] = [];
-			const { nodes: nodesForOutput } = useFindNodesByPattern(sessionId, outputId, patterns[outputId]);
+			if (!pattern[outputId]) pattern[outputId] = [];
+			const { nodes: nodesForOutput } = useFindNodesByPattern(sessionId, outputId, pattern[outputId]);
 
 			// update the available node names
 			useEffect(() => {
