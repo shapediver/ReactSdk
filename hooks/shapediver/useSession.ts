@@ -24,6 +24,11 @@ export interface IUseSessionDto extends SessionCreateDto {
 	 * will be used.
 	 */
 	acceptRejectMode?: boolean | IAcceptRejectModeSelector;
+
+	/**
+	 * Optional callback for refreshinthe JWT token.
+	 */
+	refreshJwtToken: undefined | (() => Promise<string>)
 }
 
 /**
@@ -56,6 +61,8 @@ export function useSession(props: IUseSessionDto | undefined) {
 	
 		promiseChain.current = promiseChain.current.then(async () => {
 			const api = await createSession(props, { onError: setError });
+			if (api)
+				api.refreshJwtToken = props.refreshJwtToken;
 			setSessionApi(api);
 
 			if (registerParametersAndExports && api) {
