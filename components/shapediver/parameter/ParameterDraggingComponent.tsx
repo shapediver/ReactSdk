@@ -9,7 +9,6 @@ import { IconTypeEnum } from "../../../types/shapediver/icons";
 import Icon from "../../ui/Icon";
 import { useViewportId } from "../../../hooks/shapediver/viewer/useViewportId";
 import { useDragging } from "shared/hooks/shapediver/viewer/interaction/dragging/useDragging";
-import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
 
 /**
  * Parse the value of a dragging parameter and extract the dragged objects
@@ -45,14 +44,14 @@ export default function ParameterDraggingComponent(props: PropsParameter) {
 		state,
 		sessionDependencies
 	} = useParameterComponentCommons<string>(props);
-	const sessionApis = useShapeDiverStoreViewer(state => { return sessionDependencies.map(id => state.sessions[id]); });
-
 	const draggingProps = definition.settings?.props as IDraggingParameterProps;
 
 	// is the dragging active or not? 
 	const [draggingActive, setDraggingActive] = useState<boolean>(false);
 	// state for the dirty flag
 	const [dirty, setDirty] = useState<boolean>(false);
+	// parsed execValue
+	const [parsedExecValue, setParsedExecValue] = useState<DraggingParameterValue["objects"]>([]);
 	// reference to the combined dragged nodes
 	const [combinedDraggedNodes, setCombinedDraggedNodes] = useState<DraggingParameterValue["objects"]>([]);
 
@@ -66,60 +65,21 @@ export default function ParameterDraggingComponent(props: PropsParameter) {
 		draggingActive,
 		parseDraggedNodes(value)
 	);
-	
-	// reference to the last executed value
-	const execValueStateRef = useRef(parseDraggedNodes(state.uiValue));
+
 	// reference to the last confirmed value
 	const lastConfirmedValueRef = useRef<DraggingParameterValue["objects"]>(parseDraggedNodes(value));
-	// reference to the dragged nodes
-	const draggedNodesRef = useRef(draggedNodes);
 
 	useEffect(() => {
-		draggedNodesRef.current = draggedNodes;
-	}, [draggedNodes]);
+		setCombinedDraggedNodes(calculateCombinedDraggedNodes(parsedExecValue, draggedNodes));
+	}, [parsedExecValue, draggedNodes]);
 
 	useEffect(() => {
-		setCombinedDraggedNodes(calculateCombinedDraggedNodes(execValueStateRef.current, draggedNodesRef.current));
-	}, [execValueStateRef.current, draggedNodesRef.current]);
-
-	useEffect(() => {
-
-		/**
-		 * 
-		 * THIS IS A WORKAROUND UNTIL THIS BUG IS FIXED:
-		 * https://shapediver.atlassian.net/browse/SS-8175
-		 * 
-		 */
-		
-		// eslint-disable-next-line quotes
-		let execValue = '{"objects":[]}';
-		for (const sessionApi of sessionApis) {
-			const params = sessionApi.getParameterByName("AppBuilder");
-			if (params.length > 0) {
-				const sessionValue = params[0].sessionValue;
-				if (sessionValue !== undefined && sessionValue !== "") {
-					const parsed = JSON.parse(sessionValue as string);
-					if (parsed["dragging_parameter"] !== undefined) {
-						execValue = parsed["dragging_parameter"];
-					}
-				}
-			}
-		}
-		if (parseDraggedNodes(execValue) !== execValueStateRef.current) {
-			execValueStateRef.current = parseDraggedNodes(execValue);
-			setDraggedNodes([]);
-		}
+		const parsed = parseDraggedNodes(state.execValue);
+		setParsedExecValue(parsed);
+		setDraggedNodes([]);
 	}, [state.execValue]);
 
 	useEffect(() => {
-
-		/**
-		 * 
-		 * check again once the bug is fixed:
-		 * https://shapediver.atlassian.net/browse/SS-8175
-		 * 
-		 */
-
 		const parsed = parseDraggedNodes(state.uiValue);
 
 		// compare uiValue to draggedNodes
@@ -137,11 +97,11 @@ export default function ParameterDraggingComponent(props: PropsParameter) {
 	 */
 	const changeValue = useCallback(() => {
 		setDraggingActive(false);
-		const objects = calculateCombinedDraggedNodes(execValueStateRef.current, draggedNodesRef.current);
+		const objects = calculateCombinedDraggedNodes(parsedExecValue, draggedNodes);
 		const parameterValue: DraggingParameterValue = { objects: objects };
-		lastConfirmedValueRef.current = [...draggedNodesRef.current];
+		lastConfirmedValueRef.current = [...draggedNodes];
 		handleChange(JSON.stringify(parameterValue), 0);
-	}, []);
+	}, [parsedExecValue, draggedNodes]);
 
 	/**
 	 * Callback function to reset the dragged nodes.
@@ -149,11 +109,11 @@ export default function ParameterDraggingComponent(props: PropsParameter) {
 	 * It also ends the dragging process.
 	 */
 	const resetValue = useCallback((resetValue?: DraggingParameterValue["objects"]) => {
-		restoreDraggedNodes(resetValue, draggedNodesRef.current);
+		restoreDraggedNodes(resetValue, draggedNodes);
 		setDraggingActive(false);
 		setDraggedNodes(resetValue ?? []);
 		lastConfirmedValueRef.current = [...resetValue ?? []];
-	}, []);
+	}, [draggedNodes]);
 
 	/**
 	 * The content of the parameter when it is active.
