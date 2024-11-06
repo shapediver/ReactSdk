@@ -587,25 +587,27 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 		definitions.forEach(def => {
 			def = addValidator(def);
 			const paramId = def.definition.id;
+			let setUiAndExecValue = false;
 			// check if a matching parameter store already exists
 			if (paramId in existingParameterStores && isMatchingParameterDefinition(existingParameterStores[paramId], def)) {
 				parameterStores[paramId] = existingParameterStores[paramId];
-				if (!isMatchingExecutedParameterValue(existingParameterStores[paramId], def)) {
-					const { actions } = parameterStores[paramId].getState();
-					if (!actions.setUiAndExecValue(def.value)) {
-						console.warn(`Could not update value of generic parameter ${paramId} to ${def.value}`);
-					}
-					else {
-						console.debug(`Updated value of generic parameter ${paramId} to ${def.value}`);
-					}
-				}
-			} 
-			else {
+				setUiAndExecValue = !isMatchingExecutedParameterValue(existingParameterStores[paramId], def);
+			} else {
 				const acceptRejectMode = acceptRejectModeSelector(def.definition);
 				parameterStores[paramId] = createParameterStore(createParameterExecutor(namespace, def, 
 					() => getChanges(namespace, executor, -1)
 				), acceptRejectMode);
 				hasChanges = true;
+				setUiAndExecValue = def.value !== undefined;
+			}
+
+			if(setUiAndExecValue) {
+				const { actions } = parameterStores[paramId].getState();
+				if (!actions.setUiAndExecValue(def.value)) {
+					console.warn(`Could not update value of generic parameter ${paramId} to ${def.value}`);
+				} else {
+					console.debug(`Updated value of generic parameter ${paramId} to ${def.value}`);
+				}
 			}
 		});
 
