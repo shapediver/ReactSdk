@@ -42,14 +42,7 @@ export interface IGumballState {
 	 * @param oldTransformedNodeNames 
 	 * @returns 
 	 */
-	restoreTransformedNodeNames: (newTransformedNodeNames: { name: string, transformation: number[], localTransformations?: number[] }[], oldTransformedNodeNames: { name: string }[]) => void,
-	/**
-	 * Clear the transformed nodes.
-	 * 
-	 * @param transformedNodeNames
-	 * @returns 
-	 */
-	clearTransformedNodeNames: (transformedNodeNames: { name: string, transformation: number[] }[]) => void,
+	restoreTransformedNodeNames: (newTransformedNodeNames: { name: string, transformation: number[], localTransformations?: number[] }[], oldTransformedNodeNames: { name: string }[]) => void
 }
 
 /**
@@ -151,32 +144,12 @@ export function useGumball(
 
 	}, [sessionApis]);
 
-	/**
-	 * Clear the transformed nodes.
-	 * 
-	 * This function is used to clear the transformation of the transformed nodes.
-	 * This means that the transformation of the nodes is reset to the identity matrix.
-	 * 
-	 * @param transformedNodesNames The transformed node names.
-	 * @returns
-	 */
-	const clearTransformedNodeNames = useCallback((transformedNodesNames: { name: string}[]) => {
-		const nodes = getNodesByName(sessionApis, transformedNodesNames.map(tn => tn.name));
-
-		nodes.forEach(tn => {
-			updateGumballTransformation(tn.node, mat4.create());
-		});
-
-		setTransformedNodeNames([]);
-	}, [sessionApis]);
-
 	return {
 		transformedNodeNames,
 		setTransformedNodeNames,
 		selectedNodeNames,
 		setSelectedNodeNames,
-		restoreTransformedNodeNames,
-		clearTransformedNodeNames
+		restoreTransformedNodeNames
 	};
 }
 
@@ -197,16 +170,23 @@ const getNodesByName = (sessionApis: ISessionApi[], names: string[]): { name: st
 			const outputName = parts[0];
 
 			const outputApi = sessionApi.getOutputByName(outputName)[0];
-			if (!outputApi) return;
+			if (!outputApi || !outputApi.node) return;
 
-			outputApi.node?.traverse(n => {
-				if (n.getPath().endsWith(parts.slice(1).join("."))) {
-					nodes.push({
-						name: name,
-						node: n
-					});
-				}
-			});
+			if(parts.length === 1) {
+				nodes.push({
+					name: name,
+					node: outputApi.node
+				});
+			} else {
+				outputApi.node.traverse(n => {
+					if (n.getPath().endsWith(parts.slice(1).join("."))) {
+						nodes.push({
+							name: name,
+							node: n
+						});
+					}
+				});
+			}
 		});
 	}
 

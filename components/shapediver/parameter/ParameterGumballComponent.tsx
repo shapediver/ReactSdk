@@ -1,5 +1,5 @@
 import { Button, Group, Loader, Space, Stack, Text } from "@mantine/core";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
@@ -51,11 +51,15 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 
 	// state for the gumball application
 	const [gumballActive, setGumballActive] = useState<boolean>(false);
+	// store the last confirmed value in a state to reset the transformation
+	const [lastConfirmedValue, setLastConfirmedValue] = useState<{ name: string, transformation: number[], localTransformations?: number[] }[]>([]);
+	// store the parsed exec value in a state to react to changes
+	const [parsedExecValue, setParsedExecValue] = useState<{ name: string, transformation: number[], localTransformations?: number[] }[]>([]);
 
 	const { viewportId } = useViewportId();
 
 	// get the transformed nodes and the selected nods
-	const { transformedNodeNames, setSelectedNodeNames, restoreTransformedNodeNames, clearTransformedNodeNames } = useGumball(
+	const { transformedNodeNames, setSelectedNodeNames, restoreTransformedNodeNames } = useGumball(
 		sessionDependencies, 
 		viewportId, 
 		gumballProps,
@@ -63,14 +67,12 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 		parseTransformation(value)
 	);
 
-	// store the transformed nodes in a ref to access them in the resetTransformation function
-	const transformedNodeNamesRef = useRef(transformedNodeNames);
+	// react to changes of the execValue and reset the last confirmed value
 	useEffect(() => {
-		transformedNodeNamesRef.current = transformedNodeNames;
-	}, [transformedNodeNames]);
-
-	// store the last confirmed value in a ref to access it in the resetTransformation function
-	const lastConfirmedValue = useRef<{ name: string, transformation: number[], localTransformations?: number[] }[]>([]);
+		const parsedExecValue = parseTransformation(state.execValue);
+		setParsedExecValue(parsedExecValue);
+		setLastConfirmedValue(parsedExecValue);
+	}, [state.execValue]);
 
 	/**
 	 * Callback function to change the value of the parameter.
@@ -86,7 +88,7 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 
 		// create a deep copy of the transformed node names
 		const transformedNodeNamesCopy = JSON.parse(JSON.stringify(transformedNodeNames));
-		lastConfirmedValue.current = transformedNodeNamesCopy;
+		setLastConfirmedValue(transformedNodeNamesCopy);
 		handleChange(JSON.stringify(parameterValue), 0);
 		setSelectedNodeNames([]);
 	}, []);
@@ -98,28 +100,18 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 	 * It also ends the gumball.
 	 */
 	const resetTransformation = useCallback(() => {
-		restoreTransformedNodeNames(lastConfirmedValue.current, transformedNodeNamesRef.current);
+		restoreTransformedNodeNames(lastConfirmedValue, transformedNodeNames);
 		setGumballActive(false);
 		setSelectedNodeNames([]);
-	}, []);
-
-	// react to changes of the execValue and reset the last confirmed value
-	useEffect(() => {
-		lastConfirmedValue.current = [];
-	}, [state.execValue]);
+	}, [lastConfirmedValue, transformedNodeNames, restoreTransformedNodeNames]);
 
 	// extend the onCancel callback to reset the transformed nodes.
 	const _onCancelCallback = useCallback(() => {
-		lastConfirmedValue.current = [];
-		clearTransformedNodeNames(transformedNodeNamesRef.current);
+		restoreTransformedNodeNames(parsedExecValue, transformedNodeNames);
 		setGumballActive(false);
 		setSelectedNodeNames([]);
-	}, []);
-
-	useEffect(() => {
-		if(state.uiValue === state.execValue)
-			_onCancelCallback();
-	}, [state.uiValue, state.execValue, _onCancelCallback]); 
+		setLastConfirmedValue(parsedExecValue);
+	}, [parsedExecValue, transformedNodeNames, restoreTransformedNodeNames]);
 
 	useEffect(() => {
 		setOnCancelCallback(() => _onCancelCallback);
