@@ -35,7 +35,7 @@ export interface ISelectionState {
  * 					Note that this initial state is not checked against the filter pattern.
  */
 export function useSelectManagerEvents(
-	patterns: OutputNodeNameFilterPatterns, 
+	patterns: { [key: string]: OutputNodeNameFilterPatterns }, 
 	componentId: string,
 	initialSelectedNodeNames?: string[]
 ): ISelectionState {
@@ -62,7 +62,11 @@ export function useSelectManagerEvents(
 			if (selectEvent.manager.id !== componentId) return;
 
 			const selected = [selectEvent.node];
-			const nodeNames = matchNodesWithPatterns(patterns, selected);
+			const nodeNames = [];
+			for(const sessionId in patterns) {
+				const pattern = patterns[sessionId];
+				nodeNames.push(...matchNodesWithPatterns(pattern, selected));
+			}
 			setSelectedNodeNames(nodeNames);
 		});
 
@@ -98,7 +102,11 @@ export function useSelectManagerEvents(
 			if (multiSelectEvent.manager.id !== componentId) return;
 
 			const selected = multiSelectEvent.nodes;
-			const nodeNames = matchNodesWithPatterns(patterns, selected);
+			const nodeNames = [];
+			for(const sessionId in patterns) {
+				const pattern = patterns[sessionId];
+				nodeNames.push(...matchNodesWithPatterns(pattern, selected));
+			}
 			setSelectedNodeNames(nodeNames);
 		});
 
@@ -116,7 +124,11 @@ export function useSelectManagerEvents(
 
 			// remove the node from the selected nodes
 			const selected = multiSelectEvent.nodes;
-			const nodeNames = matchNodesWithPatterns(patterns, selected);
+			const nodeNames = [];
+			for(const sessionId in patterns) {
+				const pattern = patterns[sessionId];
+				nodeNames.push(...matchNodesWithPatterns(pattern, selected));
+			}
 			setSelectedNodeNames(nodeNames);
 		});
 

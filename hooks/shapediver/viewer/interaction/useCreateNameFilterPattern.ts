@@ -1,6 +1,7 @@
 import { convertUserDefinedNameFilters, OutputNodeNameFilterPatterns } from "@shapediver/viewer.features.interaction";
 import { useShapeDiverStoreViewer } from "../../../../store/useShapeDiverStoreViewer";
 import { useState, useEffect } from "react";
+import { vec3 } from "gl-matrix";
 
 // #region Functions (1)
 
@@ -12,28 +13,30 @@ import { useState, useEffect } from "react";
  * @param nameFilter The user-defined name filters to convert.
  */
 export function useCreateNameFilterPattern(sessionIds?: string[], nameFilter?: string[]): {
-    patterns: OutputNodeNameFilterPatterns
+    patterns: { [key: string]: OutputNodeNameFilterPatterns }
 } {
 	// get the session API
 	const sessions = useShapeDiverStoreViewer(state => { return state.sessions; });
 
 	// create a state for the pattern
-	const [patterns, setPatterns] = useState<OutputNodeNameFilterPatterns>({});
+	const [patterns, setPatterns] = useState<{ [key: string]: OutputNodeNameFilterPatterns }>({});
 
 	useEffect(() => {
 		if (nameFilter !== undefined) {
+
+
+			const patterns: { [key: string]: OutputNodeNameFilterPatterns} = {};
+			const currentSessionIds = sessionIds || Object.keys(sessions);
+
+			currentSessionIds.forEach(sessionId => {
+				const sessionApi = sessions[sessionId];
 			const outputIdsToNamesMapping: { [key: string]: string } = {};
-			if(sessionIds) {
-				sessionIds.forEach(sessionId => {
-					const sessionApi = sessions[sessionId];
 					Object.entries(sessionApi.outputs).forEach(([outputId, output]) => outputIdsToNamesMapping[outputId] = output.name);
-				});
-			} else {
-				Object.values(sessions).forEach(sessionApi => {
-					Object.entries(sessionApi.outputs).forEach(([outputId, output]) => outputIdsToNamesMapping[outputId] = output.name);
-				});
-			}
-			setPatterns(convertUserDefinedNameFilters(nameFilter, outputIdsToNamesMapping));
+				const pattern = convertUserDefinedNameFilters(nameFilter, outputIdsToNamesMapping);
+				if(Object.values(pattern).length > 0)
+					patterns[sessionId] = pattern;
+			});
+			setPatterns(patterns);
 		}
 	}, [nameFilter, sessions]);
 

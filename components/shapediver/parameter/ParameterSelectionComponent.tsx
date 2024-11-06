@@ -55,7 +55,7 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 	// get the viewport ID
 	const { viewportId } = useViewportId();
 	
-	const { selectedNodeNames, setSelectedNodeNames } = useSelection(
+	const { selectedNodeNames, setSelectedNodeNames, nodeInteractionDataHandlers } = useSelection(
 		sessionDependencies, 
 		viewportId, 
 		selectionProps,
@@ -192,6 +192,7 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 	}, [_onCancelCallback]);
 
 	return <>
+		<>{nodeInteractionDataHandlers}</>
 		<ParameterLabelComponent {...props} cancel={onCancel} />
 		{
 			definition &&
