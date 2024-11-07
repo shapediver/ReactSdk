@@ -18,7 +18,7 @@ export function useRestrictions(
 	restrictionProps: IDrawingParameterSettings["restrictions"]
 ): Settings["restrictions"] {
 	// state for available node names
-	const [nodes, setNodes] = useState<{ [key: string]: ITreeNode[] }>({});
+	const [nodes, setNodes] = useState<{ [key: string]: { [key: string]: ITreeNode[] }}>({});
 	// restriction settings state
 	const [restrictions, setRestrictions] = useState<Settings["restrictions"]>({});
 
@@ -30,7 +30,8 @@ export function useRestrictions(
 	// iterate over the sessions
 	for (const sessionId in sessions) {
 		const outputs = sessions[sessionId].outputs;
-		const pattern = patterns[sessionId];
+		const pattern = patterns[sessionId] ?? {};
+
 		// iterate over the outputs
 		for (const outputId in outputs) {
 			// add interaction data
@@ -40,7 +41,13 @@ export function useRestrictions(
 			// update the available node names
 			useEffect(() => {
 				setNodes(prev => {
-					return { ...prev, [outputs[outputId].name]: nodesForOutput };
+					return {
+						...prev,
+						[sessionId]: {
+							...prev[sessionId],
+							[outputId]: nodesForOutput
+						}
+					};
 				});
 			}, [nodesForOutput]);
 		}
@@ -68,10 +75,20 @@ export function useRestrictions(
 					} as PlaneRestrictionProperties;
 					break;
 				case "geometry":
-					restrictions[restrictionName] = {
-						type: "geometry",
-						nodes: Object.values(nodes).flat(),
-					} as GeometryRestrictionProperties;
+					{
+						const nodesArray: ITreeNode[] = [];
+						for (const sessionId in nodes) {
+							for (const outputId in nodes[sessionId]) {
+								nodesArray.push(...nodes[sessionId][outputId]);
+							}
+						}
+
+						restrictions[restrictionName] = {
+							...r,
+							nodes: nodesArray
+						} as GeometryRestrictionProperties;
+					}
+
 					break;
 				default:
 					break;
