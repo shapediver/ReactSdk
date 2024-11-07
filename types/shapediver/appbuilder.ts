@@ -396,9 +396,9 @@ export interface IAppBuilderSettingsSession extends SessionCreateDto {
 	 */
 	modelStateId?: string
 	/**
-	 * Optional callback for refreshinthe JWT token.
+	 * Optional callback for refreshing the JWT token.
 	 */
-	refreshJwtToken: undefined | (() => Promise<string>)
+	refreshJwtToken?: () => Promise<string>
 }
 
 /**
