@@ -1,0 +1,11 @@
+.interactionButton {
+    height: fit-content;
+    text-wrap: wrap;
+    padding-top: calc(0.4375rem* var(--mantine-scale));
+    padding-bottom: calc(0.4375rem* var(--mantine-scale));
+    padding-left: calc(0.475rem* var(--mantine-scale));
+}
+
+.interactionText {
+    text-wrap: wrap;
+}
