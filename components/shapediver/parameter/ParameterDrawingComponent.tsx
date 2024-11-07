@@ -6,12 +6,12 @@ import { IconTypeEnum } from "../../../types/shapediver/icons";
 import { IDrawingParameterSettings as IDrawingParameterProps, SystemInfo } from "@shapediver/viewer";
 import { PointsData } from "@shapediver/viewer.features.drawing-tools";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
-import { useDrawingTools } from "shared/hooks/shapediver/viewer/drawing/useDrawingTools";
+import { useDrawingTools } from "../../../hooks/shapediver/viewer/drawing/useDrawingTools";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
 import { useViewportId } from "../../../hooks/shapediver/viewer/useViewportId";
 import DrawingOptionsComponent from "../ui/DrawingOptionsComponent";
-import { NotificationContext } from "shared/context/NotificationContext";
-import { useDrawingOptionsStore } from "shared/store/useDrawingOptionsStore";
+import { NotificationContext } from "../../../context/NotificationContext";
+import { useDrawingOptionsStore } from "../../../store/useDrawingOptionsStore";
 
 /**
  * Parse the value of a drawing parameter and extract the points data.
@@ -72,7 +72,7 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 			setDrawingActive(true);
 			setActiveParameter(definition.id);
 		} else {
-			notifications.show({
+			notifications.warning({
 				title: "A drawing parameter is already active",
 				message: "Please confirm or cancel the current drawing parameter first."
 			});

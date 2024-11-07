@@ -3,6 +3,7 @@ import { ISessionApi } from "@shapediver/viewer";
 import { IShapeDiverExport } from "../shapediver/export";
 import { IShapeDiverParameter, IShapeDiverParameterDefinition } from "../shapediver/parameter";
 import { StoreApi, UseBoundStore } from "zustand";
+import { IErrorReporting } from "../errorReporting";
 
 /** A store for an individual parameter. */
 export type IParameterStore = UseBoundStore<StoreApi<IShapeDiverParameter<any>>>;
@@ -151,6 +152,11 @@ export type IAcceptRejectModeSelector = (param: IShapeDiverParameterDefinition) 
 export type ISessionDependency = { [namespace: string]: string[] };
 
 /**
+ * Callbacks related to IShapeDiverStoreParameters.
+ */
+export type IShapeDiverStoreParametersCallbacks = IErrorReporting;
+
+/**
  * Interface for the store of parameters and exports. 
  * The parameters and exports managed by this store are abstractions of the 
  * parameters and exports defined by a ShapeDiver 3D Viewer session. 
@@ -213,9 +219,15 @@ export interface IShapeDiverStoreParameters {
 	 * @param session
 	 * @param acceptRejectMode If true, changes are not executed immediately. May be specified as a boolean or a function of the parameter definition.
 	 * @param token Token (JWT) that was used when creating the session. If provided, it will be used for export downloads. Optional.
+	 * @param callbacks Callbacks. Optional.
 	 * @returns
 	 */
-	readonly addSession: (session: ISessionApi, acceptRejectMode: boolean | IAcceptRejectModeSelector, token?: string) => void,
+	readonly addSession: (
+		session: ISessionApi, 
+		acceptRejectMode: boolean | IAcceptRejectModeSelector, 
+		token?: string, 
+		callbacks?: IShapeDiverStoreParametersCallbacks
+	) => void,
 
 	/**
 	 * Add generic parameters. 

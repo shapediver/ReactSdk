@@ -43,7 +43,7 @@ export function useDrawingToolsEvents(
 			// If the event is not based on the viewport ID, we ignore it.
 			if (drawingToolsEvent.viewportId !== viewportId) return;
 
-			notifications.show({
+			notifications.warning({
 				title: "The minimum number of points is not reached.",
 				message: drawingToolsEvent.message,
 			});
@@ -59,7 +59,7 @@ export function useDrawingToolsEvents(
 			// If the event is not based on the viewport ID, we ignore it.
 			if (drawingToolsEvent.viewportId !== viewportId) return;
 
-			notifications.show({
+			notifications.warning({
 				title: "The maximum number of points is reached.",
 				message: drawingToolsEvent.message,
 			});

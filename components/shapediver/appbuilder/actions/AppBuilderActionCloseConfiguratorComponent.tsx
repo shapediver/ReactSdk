@@ -3,7 +3,7 @@ import { IAppBuilderActionPropsCloseConfigurator } from "../../../../types/shape
 import AppBuilderActionComponent from "./AppBuilderActionComponent";
 import { ECommerceApiSingleton } from "../../../../modules/ecommerce/singleton";
 import { NotificationContext } from "../../../../context/NotificationContext";
-import { IconTypeEnum } from "shared/types/shapediver/icons";
+import { IconTypeEnum } from "../../../../types/shapediver/icons";
 
 type Props = IAppBuilderActionPropsCloseConfigurator & {
 };
@@ -28,7 +28,7 @@ export default function AppBuilderActionCloseConfiguratorComponent(props: Props)
 		const api = await ECommerceApiSingleton;
 		const result = await api.closeConfigurator();
 		if (!result)
-			notifications.show({message: "Could not close configurator."});
+			notifications.error({message: "Could not close configurator."});
 	}, []);
 
 	return <AppBuilderActionComponent 
