@@ -38,7 +38,7 @@ export const useShapeDiverStoreViewer = create<IShapeDiverStoreViewer>()(devtool
 
 	createViewport: async (
 		dto: ViewportCreateDto,
-		callbacks = {},
+		callbacks,
 	) => {
 		// in case a viewport with the same identifier exists, skip creating a new one
 		const identifier = createViewportIdentifier(dto);
@@ -52,7 +52,7 @@ export const useShapeDiverStoreViewer = create<IShapeDiverStoreViewer>()(devtool
 		try {
 			viewport = await createViewport(dto);
 		} catch (e: any) {
-			if (callbacks.onError) callbacks.onError(e);
+			callbacks?.onError(e);
 		}
 
 		set((state) => {
@@ -69,7 +69,7 @@ export const useShapeDiverStoreViewer = create<IShapeDiverStoreViewer>()(devtool
 
 	closeViewport: async (
 		viewportId,
-		callbacks = {},
+		callbacks,
 	) => {
 
 		const { viewports } = get();
@@ -79,7 +79,7 @@ export const useShapeDiverStoreViewer = create<IShapeDiverStoreViewer>()(devtool
 		try {
 			await viewport.close();
 		} catch (e) {
-			if (callbacks.onError) callbacks.onError(e);
+			callbacks?.onError(e);
 
 			return;
 		}
@@ -102,7 +102,7 @@ export const useShapeDiverStoreViewer = create<IShapeDiverStoreViewer>()(devtool
 
 	createSession: async (
 		dto: SessionCreateDto,
-		callbacks = {},
+		callbacks,
 	) => {
 		// in case a session with the same identifier exists, skip creating a new one
 		const identifier = createSessionIdentifier(dto);
@@ -131,7 +131,7 @@ export const useShapeDiverStoreViewer = create<IShapeDiverStoreViewer>()(devtool
 				}
 			}
 		} catch (e: any) {
-			if (callbacks.onError) callbacks.onError(e);
+			callbacks?.onError(e);
 		}
 
 		set((state) => {
@@ -148,7 +148,7 @@ export const useShapeDiverStoreViewer = create<IShapeDiverStoreViewer>()(devtool
 
 	closeSession: async (
 		sessionId,
-		callbacks = {},
+		callbacks,
 	) => {
 		const { sessions } = get();
 		const session = sessions[sessionId];
@@ -157,7 +157,7 @@ export const useShapeDiverStoreViewer = create<IShapeDiverStoreViewer>()(devtool
 		try {
 			await session.close();
 		} catch (e) {
-			if (callbacks.onError) callbacks.onError(e);
+			callbacks?.onError(e);
 			
 			return;
 		}
@@ -176,7 +176,7 @@ export const useShapeDiverStoreViewer = create<IShapeDiverStoreViewer>()(devtool
 		}, false, "closeSession");
 	},
 
-	syncSessions: async (sessionDtos: SessionCreateDto[]) : Promise<(ISessionApi | undefined)[]> => {
+	syncSessions: async (sessionDtos: SessionCreateDto[], callbacks) : Promise<(ISessionApi | undefined)[]> => {
 		const { sessions, createSession, closeSession } = get();
 		// Helps to skip typescript filter error
 		const isSession = (session: ISessionCompare | undefined): session is ISessionCompare => !!session;
@@ -200,7 +200,7 @@ export const useShapeDiverStoreViewer = create<IShapeDiverStoreViewer>()(devtool
 
 		// promises
 		const sessionsToDeletePromises = sessionsToDelete.map((sessionToDelete) => closeSession(sessionToDelete.id));
-		const sessionsToCreatePromise = sessionsToCreate.map((sessionDataNew) => createSession(sessionDataNew.data));
+		const sessionsToCreatePromise = sessionsToCreate.map((sessionDataNew) => createSession(sessionDataNew.data, callbacks));
 
 		await Promise.all([
 			...sessionsToDeletePromises,

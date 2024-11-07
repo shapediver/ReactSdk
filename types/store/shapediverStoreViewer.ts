@@ -1,4 +1,5 @@
 import { ISessionApi, IViewportApi, SessionCreationDefinition, ViewportCreationDefinition } from "@shapediver/viewer";
+import { IErrorReporting } from "../errorReporting";
 
 /**
  * Redeclaration of SessionCreationDefinition to always have an id.
@@ -22,9 +23,10 @@ export interface IShapeDiverStoreViewerViewports {
 	[viewportId: string]: IViewportApi;
 }
 
-export interface IShapeDiverStoreViewerCallbacks {
-	onError?: (error: any) => void;
-}
+/**
+ * Callbacks related to IShapeDiverStoreViewer.
+ */
+export type IShapeDiverStoreViewerCallbacks = IErrorReporting;
 
 /**
  * Interface for the store of viewer-related data.
@@ -62,6 +64,7 @@ export interface IShapeDiverStoreViewer {
 	/**
 	 * Create a session and add it to the store.
 	 * @param dto
+	 * @param callbacks
 	 * @returns
 	 */
 	createSession: (
@@ -79,8 +82,12 @@ export interface IShapeDiverStoreViewer {
 
 	/**
 	 * Synchronize the sessions with the given dtos, create and close sessions as required.
-	 * @param sessionsDto
+	 * @param sessionsDtos
+	 * @param callbacks
 	 * @returns
 	 */
-	syncSessions: (sessionDtos: SessionCreateDto[]) => Promise<(ISessionApi | undefined)[]>,
+	syncSessions: (
+		sessionDtos: SessionCreateDto[], 
+		callbacks?: IShapeDiverStoreViewerCallbacks
+	) => Promise<(ISessionApi | undefined)[]>,
 }

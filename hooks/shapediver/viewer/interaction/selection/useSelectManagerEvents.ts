@@ -145,7 +145,7 @@ export function useSelectManagerEvents(
 			if (multiSelectEvent.manager.id !== componentId) return;
 
 			// TODO: refactor this to use a store instead of calling mantine notifications directly
-			notifications.show({
+			notifications.warning({
 				title: "Maximum number of objects has already been selected",
 				message: `Expected at most ${(multiSelectEvent.manager as MultiSelectManager).maximumNodes} objects, but ${multiSelectEvent.nodes.length + 1} were selected.`
 			});

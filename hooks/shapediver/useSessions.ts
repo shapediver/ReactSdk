@@ -4,6 +4,7 @@ import { useShapeDiverStoreViewer } from "../../store/useShapeDiverStoreViewer";
 import { useShapeDiverStoreParameters } from "../../store/useShapeDiverStoreParameters";
 import { IUseSessionDto } from "./useSession";
 import { useShallow } from "zustand/react/shallow";
+import { useErrorReporting } from "../useErrorReporting";
 
 /**
  * Hook for creating multiple sessions with ShapeDiver models using the ShapeDiver 3D Viewer. 
@@ -24,6 +25,8 @@ export function useSessions(props: IUseSessionDto[]) {
 	const [sessionApis, setSessionApis] = useState<(ISessionApi | undefined)[]>([]);
 	const promiseChain = useRef(Promise.resolve());
 
+	const errorReporting = useErrorReporting();
+
 	useEffect(() => {
 		promiseChain.current = promiseChain.current.then(async () => {
 			const apis = await syncSessions(props);
@@ -39,7 +42,8 @@ export function useSessions(props: IUseSessionDto[]) {
 						// in case the session definition defines acceptRejectMode, use it
 						// otherwise fall back to acceptRejectMode defined by the viewer settings
 						dto.acceptRejectMode ?? api.commitParameters, 
-						dto.jwtToken
+						dto.jwtToken,
+						errorReporting
 					);
 				}
 			});

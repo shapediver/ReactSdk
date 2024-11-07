@@ -43,7 +43,8 @@ import { LoaderPageThemeProps } from "../../pages/misc/LoaderPage";
 import { ParameterLabelComponentThemeProps } from "../../components/shapediver/parameter/ParameterLabelComponent";
 import { ExportLabelComponentThemeProps } from "../../components/shapediver/exports/ExportLabelComponent";
 import { ParameterColorComponentThemeProps } from "../../components/shapediver/parameter/ParameterColorComponent";
-import { AppBuilderContainerThemeProps } from "shared/pages/templates/AppBuilderContainer";
+import { AppBuilderContainerThemeProps } from "../../pages/templates/AppBuilderContainer";
+import { NotificationWrapperThemeProps } from "../../components/ui/NotificationWrapper";
 
 /**
  * Helper function for defining CSS variables for the AppBuilderAppShellTemplate
@@ -501,6 +502,12 @@ export const useCustomTheme = (props: Props = {}) => {
 				// anchorTarget: "_blank",
 				// boldFontWeight: "500",
 				// strongFontWeight: "700",
+			}),
+			NotificationWrapper: NotificationWrapperThemeProps({
+				// successColor?: undefined,
+				// warningColor: "yellow",
+				// errorColor?: "red",
+				// autoClose: 20000, // boolean | number
 			}),
 			/**
 			 * ParametersAndExportsAccordionComponent

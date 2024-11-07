@@ -4,7 +4,7 @@ import AppBuilderActionComponent from "./AppBuilderActionComponent";
 import { ECommerceApiSingleton } from "../../../../modules/ecommerce/singleton";
 import { NotificationContext } from "../../../../context/NotificationContext";
 import { useCreateModelState } from "../../../../hooks/shapediver/useCreateModelState";
-import { IconTypeEnum } from "shared/types/shapediver/icons";
+import { IconTypeEnum } from "../../../../types/shapediver/icons";
 
 type Props = IAppBuilderActionPropsAddToCart & {
 	namespace: string;
@@ -55,9 +55,9 @@ export default function AppBuilderActionAddToCartComponent(props: Props) {
 				description,
 			});
 			// TODO display modal instead of notification, offer possibility to hide configurator
-			notifications.show({message: `An item for configuration ID ${modelStateId} has been added to the cart (cart item id ${result.id}).`});
+			notifications.success({message: `An item for configuration ID ${modelStateId} has been added to the cart (cart item id ${result.id}).`});
 		} catch (e) {
-			notifications.show({message: `An error happened while adding configuration ID ${modelStateId} to the cart.`});
+			notifications.error({message: `An error happened while adding configuration ID ${modelStateId} to the cart.`});
 			// TODO report error to sentry
 			throw e;
 		}

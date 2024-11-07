@@ -5,6 +5,7 @@ import { SessionCreateDto } from "../../types/store/shapediverStoreViewer";
 import { useShapeDiverStoreParameters } from "../../store/useShapeDiverStoreParameters";
 import { IAcceptRejectModeSelector } from "../../types/store/shapediverStoreParameters";
 import { useShallow } from "zustand/react/shallow";
+import { useErrorReporting } from "../useErrorReporting";
 
 /**
  * DTO for use with {@link useSession} and {@link useSessions}. 
@@ -51,6 +52,8 @@ export function useSession(props: IUseSessionDto | undefined) {
 	const [error, setError] = useState<Error | undefined>(undefined);
 	const promiseChain = useRef(Promise.resolve());
 
+	const errorReporting = useErrorReporting();
+
 	useEffect(() => {
 		
 		if (!props?.id) {
@@ -60,7 +63,7 @@ export function useSession(props: IUseSessionDto | undefined) {
 		const { registerParametersAndExports = true, acceptRejectMode } = props;
 	
 		promiseChain.current = promiseChain.current.then(async () => {
-			const api = await createSession(props, { onError: setError });
+			const api = await createSession({throwOnCustomizationError: true, ...props}, { onError: setError });
 			if (api)
 				api.refreshJwtToken = props.refreshJwtToken;
 			setSessionApi(api);
@@ -71,7 +74,8 @@ export function useSession(props: IUseSessionDto | undefined) {
 					// in case the session definition defines acceptRejectMode, use it
 					// otherwise fall back to acceptRejectMode defined by the viewer settings 
 					acceptRejectMode ?? api.commitParameters, 
-					props.jwtToken
+					props.jwtToken,
+					errorReporting
 				);
 			}
 		});

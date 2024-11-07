@@ -24,6 +24,7 @@ import {
 import { IShapeDiverExport, IShapeDiverExportDefinition } from "../types/shapediver/export";
 import { ShapeDiverRequestCustomization, ShapeDiverRequestExport } from "@shapediver/api.geometry-api-dto-v2";
 import { addValidator } from "../utils/parameterValidation";
+import { IErrorReporting } from "../types/errorReporting";
 
 /**
  * Create an IShapeDiverParameterExecutor for a single parameter, 
@@ -68,7 +69,7 @@ function createParameterExecutor<T>(namespace: string, param: IGenericParameterD
 				
 				return value;
 			}
-			catch (e)// TODO provide possibility to react to exception
+			catch (e)
 			{
 				console.debug(`Rejecting change of parameter ${paramId} to ${uiValue}, resetting to "${execValue}"`, e ?? "(Unknown error)");
 				
@@ -95,7 +96,8 @@ type HistoryPusher = (entry: ISessionsHistoryState) => void;
 function createGenericParameterExecutorForSession(session: ISessionApi, 
 	getDefaultExports: DefaultExportsGetter, 
 	exportResponseSetter: ExportResponseSetter,
-	historyPusher: HistoryPusher
+	historyPusher: HistoryPusher,
+	callbacks?: IErrorReporting
 ) : IGenericParameterExecutor { 
 	
 	/**
@@ -142,7 +144,9 @@ function createGenericParameterExecutorForSession(session: ISessionApi,
 		{
 			// in case of an error, restore the previous values
 			Object.keys(previousValues).forEach(id => session.parameters[id].value = previousValues[id]);
-			// TODO store error
+			// report the exception
+			callbacks?.onError(e, {namespace});
+			// rethrow the error
 			throw e;
 		}
 	};
@@ -457,7 +461,7 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 		return changes;
 	},
 
-	addSession: (session: ISessionApi, _acceptRejectMode: boolean | IAcceptRejectModeSelector, token?: string) => {
+	addSession: (session: ISessionApi, _acceptRejectMode: boolean | IAcceptRejectModeSelector, token?: string, callbacks?: IErrorReporting) => {
 		const sessionId = session.id;
 		const { 
 			parameterStores: parameters, 
@@ -485,7 +489,7 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 			const entry = pushHistoryState(state);
 			history.pushState(entry, "", "");
 		};
-		const executor = createGenericParameterExecutorForSession(session, getDefaultExports, setExportResponse, historyPusher);
+		const executor = createGenericParameterExecutorForSession(session, getDefaultExports, setExportResponse, historyPusher, callbacks);
 
 		const acceptRejectModeSelector = typeof(_acceptRejectMode) === "boolean" ? () => _acceptRejectMode : _acceptRejectMode;
 
