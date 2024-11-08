@@ -1,9 +1,10 @@
-import { Loader, MantineThemeComponent, Tooltip, useProps } from "@mantine/core";
+import { Loader, MantineThemeComponent, useProps } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
 import { IconType } from "../../types/shapediver/icons";
 import Icon, { useIconProps } from "./Icon";
 import { preventDefault } from "../../utils/misc/events";
 import classes from "./ToggleIcon.module.css";
+import TooltipWrapper from "./TooltipWrapper";
 
 interface Props {
 	/** Value of the toggle */
@@ -112,7 +113,7 @@ export default function ToggleIcon(_props : Props & Partial<StyleProps> ) {
 
 	return <> { loading ? <Loader size={_size} /> :
 		value ? 
-			tooltipActive ? <Tooltip label={tooltipActive} >{icon}</Tooltip> : icon :
-			tooltipInactive ? <Tooltip label={tooltipInactive} >{icon}</Tooltip> : icon
+			tooltipActive ? <TooltipWrapper label={tooltipActive} >{icon}</TooltipWrapper> : icon :
+			tooltipInactive ? <TooltipWrapper label={tooltipInactive} >{icon}</TooltipWrapper> : icon
 	} </>;
 }

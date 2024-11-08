@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ActionIcon, ActionIconVariant, Loader, Menu, Modal, Tooltip, Text, useProps, MantineStyleProp, Box, MantineThemeComponent } from "@mantine/core";
+import { ActionIcon, ActionIconVariant, Loader, Menu, Modal, Text, useProps, MantineStyleProp, Box, MantineThemeComponent } from "@mantine/core";
 import { useClickEventHandler } from "../../../hooks/misc/useClickEventHandler";
 import { isIPhone } from "../../../utils/misc/navigator";
 import { useFullscreen } from "../../../hooks/ui/useFullscreen";
@@ -10,6 +10,7 @@ import classes from "./ViewportIcons.module.css";
 import Icon from "../../ui/Icon";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import { useViewportId } from "../../../hooks/shapediver/viewer/useViewportId";
+import TooltipWrapper from "../../ui/TooltipWrapper";
 
 interface Props {
 	viewportId?: string,
@@ -152,13 +153,13 @@ export default function ViewportIcons(props: Props & Partial<OptionalProps>) {
 
 	return <Box style={style}>
 
-		{ enableArBtn && isArEnabled && <Tooltip label="View in AR">
+		{ enableArBtn && isArEnabled && <TooltipWrapper label="View in AR">
 			<div>
 				<ActionIcon onClick={onArClick} disabled={isArLoading} size={size} variant={isViewableInAr ? variantDisabled : variant} aria-label="View in AR" style={iconStyle}>
 					<Icon type={IconTypeEnum.AugmentedReality} color={isArLoading ? colorDisabled : color} />
 				</ActionIcon>
 			</div>
-		</Tooltip> }
+		</TooltipWrapper> }
 
 		{ enableArBtn && <Modal
 			opened={isModalArOpened} 
@@ -180,17 +181,17 @@ export default function ViewportIcons(props: Props & Partial<OptionalProps>) {
 			}
 		</Modal>}
 
-		{ enableZoomBtn && <Tooltip label="Zoom extents">
+		{ enableZoomBtn && <TooltipWrapper label="Zoom extents">
 			<ActionIcon onClick={zoomClickHandler} size={size} variant={variant} aria-label="Zoom extents" style={iconStyle}>
 				<Icon type={IconTypeEnum.ZoomIn} color={color} />
 			</ActionIcon>
-		</Tooltip> }
+		</TooltipWrapper> }
 
-		{ enableFullscreenBtn && <Tooltip label="Fullscreen">
+		{ enableFullscreenBtn && <TooltipWrapper label="Fullscreen">
 			<ActionIcon onClick={makeElementFullscreen} disabled={isFullscreenDisabled || !isFullScreenAvailable.current} size={size} variant={(isFullscreenDisabled || !isFullScreenAvailable.current) ? variantDisabled : variant} aria-label="Fullscreen" style={iconStyle}>
 				<Icon type={IconTypeEnum.Maximize} color={(isFullscreenDisabled || !isFullScreenAvailable.current) ? colorDisabled : color} />
 			</ActionIcon>
-		</Tooltip> }
+		</TooltipWrapper> }
 
 		{ enableCamerasBtn &&
 			<Menu
@@ -201,11 +202,11 @@ export default function ViewportIcons(props: Props & Partial<OptionalProps>) {
 				position={"bottom-end"}
 			>
 				<ActionIcon onClick={() => setIsCamerasMenuOpened(!isCamerasMenuOpened)} disabled={noCamerasAvailable} size={size} variant={noCamerasAvailable ? variantDisabled : variant} aria-label="Cameras" style={iconStyle}>
-					<Tooltip disabled={isCamerasMenuOpened} label="Cameras">
+					<TooltipWrapper disabled={isCamerasMenuOpened} label="Cameras">
 						<Menu.Target>
 							<Icon type={IconTypeEnum.Video} color={color} />
 						</Menu.Target>
-					</Tooltip>
+					</TooltipWrapper>
 				</ActionIcon>
 				<Menu.Dropdown>
 					{ cameraElements }

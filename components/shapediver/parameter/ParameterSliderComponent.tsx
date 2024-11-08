@@ -1,10 +1,11 @@
-import { Group, MantineThemeComponent, NumberInput, Slider, Tooltip, useProps } from "@mantine/core";
+import { Group, MantineThemeComponent, NumberInput, Slider, useProps } from "@mantine/core";
 import React from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { IShapeDiverParameterDefinition } from "../../../types/shapediver/parameter";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
 import { PARAMETER_TYPE } from "@shapediver/viewer";
+import TooltipWrapper from "../../ui/TooltipWrapper";
 
 /**
  * Round the number depending on the parameter type.
@@ -90,7 +91,7 @@ export default function ParameterSliderComponent(props: PropsParameter & Partial
 				marks={marks}
 				disabled={disabled}
 			/> }
-			{ definition && <Tooltip label={tooltip} ><NumberInput
+			{ definition && <TooltipWrapper label={tooltip} ><NumberInput
 				w={numberWidth}
 				value={+value}
 				min={+definition.min!}
@@ -101,7 +102,7 @@ export default function ParameterSliderComponent(props: PropsParameter & Partial
 				clampBehavior="blur"
 				onChange={v => handleChange(round(definition, +v))}
 				disabled={disabled}
-			/></Tooltip> }
+			/></TooltipWrapper> }
 		</Group>}
 	</>;
 }

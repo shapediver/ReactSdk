@@ -1,7 +1,8 @@
 import React, { ReactElement, useEffect, useState } from "react";
-import { BoxProps, Stack, Tabs, Tooltip } from "@mantine/core";
+import { BoxProps, Stack, Tabs } from "@mantine/core";
 import Icon from "./Icon";
 import { IconType } from "../../types/shapediver/icons";
+import TooltipWrapper from "./TooltipWrapper";
 
 interface PropsTab extends BoxProps {
 	/** Name (value) of tab. */
@@ -52,7 +53,7 @@ export default function TabsComponent({defaultValue, tabs, ...rest}: ITabsCompon
 						leftSection={tab.icon ? <Icon type={tab.icon} /> : undefined}
 					>{tab.name}</Tabs.Tab>;
 			
-					return tab.tooltip ? <Tooltip key={index} label={tab.tooltip}>{tabsTab}</Tooltip> : tabsTab;
+					return tab.tooltip ? <TooltipWrapper key={index} label={tab.tooltip}>{tabsTab}</TooltipWrapper> : tabsTab;
 				})
 			}
 		</Tabs.List>
