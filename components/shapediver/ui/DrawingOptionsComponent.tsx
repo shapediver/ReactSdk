@@ -116,28 +116,28 @@ export default function DrawingOptionsComponent(props: {
 	 * This description is shown when hovering over the info button.
 	 */
 	const markdown = 
-`- Adding Points:
-  - *Starts automatically if no points exist*
-  - *Press Insert to add a point at cursor position*
-  - *Hover over a line segment to add a new point at the center*
+`# Adding Points
+  * Starts automatically if no points exist
+  * Press **Insert** to add a point at cursor position
+  * Hover over a line segment to add a new point at the center
 
-- Removing Points:
-  - *Select points and press Delete*
+# Removing Points
+  * Select points and press **Delete**
 
-- Moving Points:
-  - *Drag individual points or select multiple points to move together*
-  - Movement restrictions:
-    - *Press g for grid*
-    - *Press a for angles*
-    - *Press x/y/z for axes*
+# Moving Points
+  * Drag individual points or select multiple points to move together
+  * Movement restrictions
+    * Press **g** for grid
+    * Press **a** for angles
+    * Press **x**/**y**/**z** for axes
 
-- History of Operations:
-  - *Press Ctrl+z to undo*
-  - *Press Ctrl+y to redo*
+# History of Operations
+  * Press **Ctrl+z** to undo
+  * Press **Ctrl+y** to redo
 
-- Update/Cancel:
-  - *Press Confirm or Enter to send changes to the server*
-  - *Press Cancel or Escape to discard changes*
+# Update/Cancel
+  * Click **Confirm** or press **Enter** to confirm changes
+  * Click **Cancel** or press **Escape** to discard changes
 `;
 
 
@@ -154,7 +154,7 @@ export default function DrawingOptionsComponent(props: {
 	const options =
 		<Collapse in={optionsOpened} transitionDuration={250} transitionTimingFunction="linear" w={"100%"} className={classes.paddingRight} >
 			<Stack>
-				<TooltipWrapper label={<MarkdownWidgetComponent>{markdown}</MarkdownWidgetComponent>} >
+				<TooltipWrapper multiline w={350} label={<MarkdownWidgetComponent>{markdown}</MarkdownWidgetComponent>} >
 					<Button justify="space-between" fullWidth h="100%" className={classes.padding} >
 						<Icon type={IconTypeEnum.IconInfoCircleFilled} />
 						<Space />
