@@ -1,5 +1,5 @@
 import { ISessionApi, IViewportApi, SessionCreationDefinition, ViewportCreationDefinition } from "@shapediver/viewer";
-import { IErrorReporting } from "../errorReporting";
+import { IEventTracking } from "../eventTracking";
 
 /**
  * Redeclaration of SessionCreationDefinition to always have an id.
@@ -26,7 +26,7 @@ export interface IShapeDiverStoreViewerViewports {
 /**
  * Callbacks related to IShapeDiverStoreViewer.
  */
-export type IShapeDiverStoreViewerCallbacks = IErrorReporting;
+export type IShapeDiverStoreViewerCallbacks = Pick<IEventTracking, "onError">;
 
 /**
  * Interface for the store of viewer-related data.

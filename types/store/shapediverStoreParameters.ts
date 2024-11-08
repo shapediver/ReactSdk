@@ -3,7 +3,7 @@ import { ISessionApi } from "@shapediver/viewer";
 import { IShapeDiverExport } from "../shapediver/export";
 import { IShapeDiverParameter, IShapeDiverParameterDefinition } from "../shapediver/parameter";
 import { StoreApi, UseBoundStore } from "zustand";
-import { IErrorReporting } from "../errorReporting";
+import { IEventTracking } from "../eventTracking";
 
 /** A store for an individual parameter. */
 export type IParameterStore = UseBoundStore<StoreApi<IShapeDiverParameter<any>>>;
@@ -154,7 +154,7 @@ export type ISessionDependency = { [namespace: string]: string[] };
 /**
  * Callbacks related to IShapeDiverStoreParameters.
  */
-export type IShapeDiverStoreParametersCallbacks = IErrorReporting;
+export type IShapeDiverStoreParametersCallbacks = IEventTracking;
 
 /**
  * Interface for the store of parameters and exports. 

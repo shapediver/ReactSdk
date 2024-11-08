@@ -5,7 +5,7 @@ import { SessionCreateDto } from "../../types/store/shapediverStoreViewer";
 import { useShapeDiverStoreParameters } from "../../store/useShapeDiverStoreParameters";
 import { IAcceptRejectModeSelector } from "../../types/store/shapediverStoreParameters";
 import { useShallow } from "zustand/react/shallow";
-import { useErrorReporting } from "../useErrorReporting";
+import { useEventTracking } from "../useEventTracking";
 
 /**
  * DTO for use with {@link useSession} and {@link useSessions}. 
@@ -52,7 +52,7 @@ export function useSession(props: IUseSessionDto | undefined) {
 	const [error, setError] = useState<Error | undefined>(undefined);
 	const promiseChain = useRef(Promise.resolve());
 
-	const errorReporting = useErrorReporting();
+	const eventTracking = useEventTracking();
 
 	useEffect(() => {
 		
@@ -75,7 +75,7 @@ export function useSession(props: IUseSessionDto | undefined) {
 					// otherwise fall back to acceptRejectMode defined by the viewer settings 
 					acceptRejectMode ?? api.commitParameters, 
 					props.jwtToken,
-					errorReporting
+					eventTracking
 				);
 			}
 		});

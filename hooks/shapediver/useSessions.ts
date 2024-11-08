@@ -4,7 +4,7 @@ import { useShapeDiverStoreViewer } from "../../store/useShapeDiverStoreViewer";
 import { useShapeDiverStoreParameters } from "../../store/useShapeDiverStoreParameters";
 import { IUseSessionDto } from "./useSession";
 import { useShallow } from "zustand/react/shallow";
-import { useErrorReporting } from "../useErrorReporting";
+import { useEventTracking } from "../useEventTracking";
 
 /**
  * Hook for creating multiple sessions with ShapeDiver models using the ShapeDiver 3D Viewer. 
@@ -25,7 +25,7 @@ export function useSessions(props: IUseSessionDto[]) {
 	const [sessionApis, setSessionApis] = useState<(ISessionApi | undefined)[]>([]);
 	const promiseChain = useRef(Promise.resolve());
 
-	const errorReporting = useErrorReporting();
+	const errorReporting = useEventTracking();
 
 	useEffect(() => {
 		promiseChain.current = promiseChain.current.then(async () => {

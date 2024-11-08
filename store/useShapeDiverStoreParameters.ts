@@ -24,7 +24,7 @@ import {
 import { IShapeDiverExport, IShapeDiverExportDefinition } from "../types/shapediver/export";
 import { ShapeDiverRequestCustomization, ShapeDiverRequestExport } from "@shapediver/api.geometry-api-dto-v2";
 import { addValidator } from "../utils/parameterValidation";
-import { IErrorReporting } from "../types/errorReporting";
+import { EventActionEnum, IEventTracking } from "../types/eventTracking";
 
 /**
  * Create an IShapeDiverParameterExecutor for a single parameter, 
@@ -97,7 +97,7 @@ function createGenericParameterExecutorForSession(session: ISessionApi,
 	getDefaultExports: DefaultExportsGetter, 
 	exportResponseSetter: ExportResponseSetter,
 	historyPusher: HistoryPusher,
-	callbacks?: IErrorReporting
+	callbacks?: IEventTracking
 ) : IGenericParameterExecutor { 
 	
 	/**
@@ -117,12 +117,17 @@ function createGenericParameterExecutorForSession(session: ISessionApi,
 		// get ids of default exports that should be requested
 		const exports = getDefaultExports();
 
+		// start timer
+		const start = performance.now();
+		let action: EventActionEnum = EventActionEnum.CUSTOMIZE;		
+	
 		try {
 			// set values and call customize
 			Object.keys(values).forEach(id => session.parameters[id].value = values[id]);
-		
+
 			if (exports.length > 0) {
 				// prepare body and send request
+				action = EventActionEnum.EXPORT;
 				const body: ShapeDiverRequestExport = { 
 					parameters: session.parameterValues as ShapeDiverRequestCustomization, // TODO fix this
 					exports, 
@@ -139,13 +144,16 @@ function createGenericParameterExecutorForSession(session: ISessionApi,
 				const state: ISessionsHistoryState = { [session.id]: session.parameterValues };
 				historyPusher(state);
 			}
+
+			// report success
+			callbacks?.onSuccess({namespace, duration: Math.round(performance.now() - start), action});
 		}
 		catch (e: any)
 		{
 			// in case of an error, restore the previous values
 			Object.keys(previousValues).forEach(id => session.parameters[id].value = previousValues[id]);
 			// report the exception
-			callbacks?.onError(e, {namespace});
+			callbacks?.onError(e, {namespace, duration: Math.round(performance.now() - start), action});
 			// rethrow the error
 			throw e;
 		}
@@ -461,7 +469,7 @@ export const useShapeDiverStoreParameters = create<IShapeDiverStoreParameters>()
 		return changes;
 	},
 
-	addSession: (session: ISessionApi, _acceptRejectMode: boolean | IAcceptRejectModeSelector, token?: string, callbacks?: IErrorReporting) => {
+	addSession: (session: ISessionApi, _acceptRejectMode: boolean | IAcceptRejectModeSelector, token?: string, callbacks?: IEventTracking) => {
 		const sessionId = session.id;
 		const { 
 			parameterStores: parameters, 
