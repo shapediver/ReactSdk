@@ -8,6 +8,7 @@ import {
 	ColorInput, 
 	DEFAULT_THEME, 
 	Group,
+	List,
 	MantineSize, 
 	MantineSpacing, 
 	MantineThemeOverride, 
@@ -19,7 +20,8 @@ import {
 	Text,
 	Tooltip, 
 	createTheme,
-	mergeThemeOverrides 
+	mergeThemeOverrides, 
+	rem
 } from "@mantine/core";
 import { ViewportIconsThemeProps } from "../../components/shapediver/viewport/ViewportIcons";
 import { ViewportBrandingThemeProps, ViewportComponentThemeProps } from "../../components/shapediver/viewport/ViewportComponent";
@@ -503,6 +505,7 @@ export const useCustomTheme = (props: Props = {}) => {
 				// anchorTarget: "_blank",
 				// boldFontWeight: "500",
 				// strongFontWeight: "700",
+				// setHeadingFontSize: false,
 			}),
 			/**
 			 * NotificationWrapper
@@ -559,6 +562,34 @@ export const useCustomTheme = (props: Props = {}) => {
 				//withArrow: true,
 				//multiline: false,
 				//w: 250,
+				//floating: false,
+				themeOverride: {
+					headings: {
+						sizes: {
+							h1: { fontSize: rem(18) },
+							h2: { fontSize: rem(16) },
+							h3: { fontSize: rem(14) },
+							h4: { fontSize: rem(12) },
+							h5: { fontSize: rem(10) },
+							h6: { fontSize: rem(8) },
+						}
+					},
+					components: {
+						MarkdownWidgetComponent: MarkdownWidgetComponentProps({
+							setHeadingFontSize: true,
+						}),
+						List: List.extend({
+							defaultProps: {
+								size: "sm"
+							}
+						}),
+						Text: Text.extend({
+							defaultProps: {
+								size: "sm"
+							}
+						}),
+					}
+				}
 			}),
 			/**
 			 * ViewportBranding

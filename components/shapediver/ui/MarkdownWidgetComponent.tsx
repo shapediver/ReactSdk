@@ -1,6 +1,6 @@
 import React from "react";
 import Markdown from "react-markdown";
-import { Anchor, Blockquote, Code, Text, Title, Divider, Image, MantineStyleProps, List, Table, MantineThemeComponent, useProps } from "@mantine/core";
+import { Anchor, Blockquote, Code, Text, Title, Divider, Image, MantineStyleProps, List, Table, MantineThemeComponent, useProps, useMantineTheme } from "@mantine/core";
 import { Options } from "react-markdown/lib";
 import remarkDirective from "remark-directive";
 import remarkGfm from "remark-gfm";
@@ -15,6 +15,7 @@ interface StyleProps {
 	anchorTarget: React.HTMLAttributeAnchorTarget
 	boldFontWeight: string
 	strongFontWeight: string
+	setHeadingFontSize: boolean
 }
 
 const defaultStyleProps : Partial<StyleProps> = {
@@ -79,11 +80,15 @@ export default function MarkdownWidgetComponent(props: Props & Partial<StyleProp
 		anchorTarget,
 		boldFontWeight,
 		strongFontWeight,
+		setHeadingFontSize,
 	} = useProps("MarkdownWidgetComponent", defaultStyleProps, rest);
 
 	const styleProps: MantineStyleProps = {
 		mb: "xs"
 	};
+
+	const theme = useMantineTheme();
+	const headingSizes = theme.headings.sizes;
 
 	const config: Options = {
 		remarkPlugins: [
@@ -121,33 +126,33 @@ export default function MarkdownWidgetComponent(props: Props & Partial<StyleProp
 			},
 			h1(props) {
 				const {...rest} = props;
-
-				return <Title order={1} {...rest} {...styleProps} />;
+			
+				return <Title order={1} size={setHeadingFontSize ? headingSizes.h1.fontSize : undefined} {...rest} {...styleProps} />;
 			},
 			h2(props) {
 				const {...rest} = props;
 
-				return <Title order={2} {...rest} {...styleProps} />;
+				return <Title order={2} size={setHeadingFontSize ? headingSizes.h2.fontSize : undefined} {...rest} {...styleProps} />;
 			},
 			h3(props) {
 				const {...rest} = props;
 
-				return <Title order={3} {...rest} {...styleProps} />;
+				return <Title order={3} size={setHeadingFontSize ? headingSizes.h3.fontSize : undefined} {...rest} {...styleProps} />;
 			},
 			h4(props) {
 				const {...rest} = props;
 
-				return <Title order={4} {...rest} {...styleProps} />;
+				return <Title order={4} size={setHeadingFontSize ? headingSizes.h4.fontSize : undefined} {...rest} {...styleProps} />;
 			},
 			h5(props) {
 				const {...rest} = props;
 
-				return <Title order={5} {...rest} {...styleProps} />;
+				return <Title order={5} size={setHeadingFontSize ? headingSizes.h5.fontSize : undefined} {...rest} {...styleProps} />;
 			},
 			h6(props) {
 				const {...rest} = props;
 
-				return <Title order={6} {...rest} {...styleProps} />;
+				return <Title order={6} size={setHeadingFontSize ? headingSizes.h6.fontSize : undefined} {...rest} {...styleProps} />;
 			},
 			hr(props) {
 				const {...rest} = props;
