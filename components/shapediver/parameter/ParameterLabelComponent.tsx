@@ -1,9 +1,10 @@
-import { Group, MantineThemeComponent, Text, Tooltip, useProps } from "@mantine/core";
+import { Group, MantineThemeComponent, Text, useProps } from "@mantine/core";
 import { useParameter } from "../../../hooks/shapediver/parameters/useParameter";
 import React from "react";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import Icon from "../../ui/Icon";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
+import TooltipWrapper from "../../ui/TooltipWrapper";
 
 interface Props extends PropsParameter {
 	cancel?: () => void
@@ -44,7 +45,7 @@ export default function ParameterLabelComponent(props: Props & Partial<StyleProp
 	</Text>;
 
 	return <Group justify="space-between" w="100%" wrap="nowrap">
-		{tooltip ? <Tooltip label={tooltip} position="top">{labelcomp}</Tooltip> : labelcomp}
+		{tooltip ? <TooltipWrapper label={tooltip} position="top">{labelcomp}</TooltipWrapper> : labelcomp}
 		{cancel && <Icon type={IconTypeEnum.X} color="red" onClick={cancel} />}
 	</Group>;
 }

@@ -45,6 +45,7 @@ import { ExportLabelComponentThemeProps } from "../../components/shapediver/expo
 import { ParameterColorComponentThemeProps } from "../../components/shapediver/parameter/ParameterColorComponent";
 import { AppBuilderContainerThemeProps } from "../../pages/templates/AppBuilderContainer";
 import { NotificationWrapperThemeProps } from "../../components/ui/NotificationWrapper";
+import { TooltipWrapperThemeProps } from "../../components/ui/TooltipWrapper";
 
 /**
  * Helper function for defining CSS variables for the AppBuilderAppShellTemplate
@@ -503,6 +504,11 @@ export const useCustomTheme = (props: Props = {}) => {
 				// boldFontWeight: "500",
 				// strongFontWeight: "700",
 			}),
+			/**
+			 * NotificationWrapper
+			 * 
+			 * Global settings for notifications.
+			 */
 			NotificationWrapper: NotificationWrapperThemeProps({
 				// successColor?: undefined,
 				// warningColor: "yellow",
@@ -543,6 +549,16 @@ export const useCustomTheme = (props: Props = {}) => {
 			ParameterSliderComponent: ParameterSliderComponentThemeProps({
 				//sliderWidth: "60%",
 				//numberWidth: "35%",
+			}),
+			/**
+			 * TooltipWrapper
+			 * 
+			 * Global settings for tooltips.
+			 */
+			TooltipWrapper: TooltipWrapperThemeProps({
+				//withArrow: true,
+				//multiline: false,
+				//w: 250,
 			}),
 			/**
 			 * ViewportBranding

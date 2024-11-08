@@ -1,9 +1,10 @@
 import React, { useMemo } from "react";
 import ModelCardOverlayWrapper from "./ModelCardOverlayWrapper";
-import { Avatar, Tooltip } from "@mantine/core";
+import { Avatar } from "@mantine/core";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import ToggleIcon from "../../ui/ToggleIcon";
 import { TModelItem } from "../../../types/store/shapediverStorePlatformModels";
+import TooltipWrapper from "../../ui/TooltipWrapper";
 
 export interface IModelCardOverlayProps {
 	/** If true, show the model's bookmark status. Defaults to false. */
@@ -69,11 +70,11 @@ export default function ModelCardOverlay(props: Props) {
 			</ModelCardOverlayWrapper> : undefined }
 		{ displayUser ? 
 			<ModelCardOverlayWrapper position="top-right">
-				<Tooltip label={username} >
+				<TooltipWrapper label={username} >
 					{ model.user.avatar_url ? 
 						<Avatar src={model.user.avatar_url} alt={username}/> : 
 						<Avatar>{userInitials}</Avatar> }
-				</Tooltip>
+				</TooltipWrapper>
 			</ModelCardOverlayWrapper> : undefined }
 	</>;
 }

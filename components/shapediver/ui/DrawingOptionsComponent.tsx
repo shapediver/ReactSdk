@@ -1,4 +1,4 @@
-import { Space, Group, Button, Checkbox, Collapse, NumberInput, Slider, Stack, Switch, Text, Tooltip, MantineSize } from "@mantine/core";
+import { Space, Group, Button, Checkbox, Collapse, NumberInput, Slider, Stack, Switch, Text, MantineSize } from "@mantine/core";
 import { PlaneRestrictionApi, GeometryRestrictionApi, IDrawingToolsApi } from "@shapediver/viewer.features.drawing-tools";
 import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
 import React, { useState, useEffect } from "react";
@@ -9,6 +9,7 @@ import { useDrawingOptionsStore } from "shared/store/useDrawingOptionsStore";
 import MarkdownWidgetComponent from "./MarkdownWidgetComponent";
 import classes from "./DrawingOptionsComponent.module.css";
 import { defaultStyleProps } from "../parameter/ParameterSliderComponent";
+import TooltipWrapper from "../../ui/TooltipWrapper";
 
 /**
  * Component for the drawing options.
@@ -153,13 +154,13 @@ export default function DrawingOptionsComponent(props: {
 	const options =
 		<Collapse in={optionsOpened} transitionDuration={250} transitionTimingFunction="linear" w={"100%"} className={classes.paddingRight} >
 			<Stack>
-				<Tooltip label={<MarkdownWidgetComponent>{markdown}</MarkdownWidgetComponent>} >
+				<TooltipWrapper label={<MarkdownWidgetComponent>{markdown}</MarkdownWidgetComponent>} >
 					<Button justify="space-between" fullWidth h="100%" className={classes.padding} >
 						<Icon type={IconTypeEnum.IconInfoCircleFilled} />
 						<Space />
 						<Text className={classes.paddingLeft} size={size}> Hover for Details </Text>
 					</Button>
-				</Tooltip>
+				</TooltipWrapper>
 				{drawingToolsApi && <Switch
 					size={size}
 					checked={showPointLabels}
