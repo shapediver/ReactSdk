@@ -32,3 +32,19 @@ export function setDefaultTrackerProps(tracker: ITrackerContext, defaultProps: {
 	};
 }
 
+/**
+ * Combine two trackers into one.
+ * @param trackerA 
+ * @param trackerB 
+ * @returns Combined tracker.
+ */
+export function combineTrackers(trackers: ITrackerContext[]): ITrackerContext {
+	return {
+		trackPageview: function (eventData?: ITrackerEventData, options?: ITrackerEventOptions): void {
+			trackers.forEach(t => t.trackPageview(eventData, options));
+		},
+		trackEvent: function (eventName: string, options?: ITrackerEventOptions, eventData?: ITrackerEventData): void {
+			trackers.forEach(t => t.trackEvent(eventName, options, eventData));
+		}
+	};
+}
