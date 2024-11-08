@@ -4,7 +4,7 @@ import {
 	removeListener
 } from "@shapediver/viewer";
 import { GumballEventResponseMapping } from "@shapediver/viewer.features.gumball";
-import { getNodeData } from "@shapediver/viewer.features.interaction";
+import { getNodeData, checkNodeNameMatch } from "@shapediver/viewer.features.interaction";
 import { useEffect, useRef, useState } from "react";
 
 // #region Functions (1)
@@ -65,7 +65,7 @@ export function useGumballEvents(
 					const nodeData = getNodeData(node);
 
 					// check if the node path matches the selected node name
-					if (nodeData && nodeData.outputName === parts[0] && node.getPath().endsWith(parts.slice(1).join("."))) {
+					if (nodeData && nodeData.outputName === parts[0] && checkNodeNameMatch(node, parts.slice(1).join("."))) {
 
 						// determine if the node is already in the transformed nodes array
 						// if not add it, otherwise update the transformation

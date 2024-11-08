@@ -1,5 +1,5 @@
 import { IOutputApi, ISelectionParameterProps, ITreeNode, OutputApiData } from "@shapediver/viewer";
-import { InteractionData, MultiSelectManager, SelectManager } from "@shapediver/viewer.features.interaction";
+import { checkNodeNameMatch, InteractionData, MultiSelectManager, SelectManager } from "@shapediver/viewer.features.interaction";
 import React, { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { vec3 } from "gl-matrix";
 import { ISelectionState, useSelectManagerEvents } from "./useSelectManagerEvents";
@@ -227,7 +227,7 @@ const restoreNodeSelection = (node: ITreeNode, mgr: SelectManager | MultiSelectM
 		} else {
 			// if the node name matches the pattern, select the node
 			node.traverse(n => {
-				if (n.getPath().endsWith(parts.slice(1).join("."))) {
+				if (checkNodeNameMatch(n, parts.slice(1).join("."))) {
 					const interactionData = n.data.find(d => d instanceof InteractionData) as InteractionData;
 					if (interactionData)
 						mgr.select({ distance: 1, point: vec3.create(), node: n });
