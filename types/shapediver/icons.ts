@@ -62,6 +62,7 @@ export enum IconTypeEnum {
 	ShareOff = "share-off",
 	ShoppingCartPlus = "shopping-cart-plus",
 	Sun = "sun",
+	Trash = "trash",
 	Upload = "upload",
 	User = "user",
 	UserCheck = "user-check",

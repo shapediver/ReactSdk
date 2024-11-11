@@ -52,6 +52,12 @@ export function useSelection(
 	// call the select manager hook
 	const { selectManager } = useSelectManager(viewportId, componentId, activate ? selectionProps : undefined);
 
+	// store the select manager in a ref
+	const selectManagerRef = React.useRef<SelectManager | MultiSelectManager>();
+	useEffect(() => {
+		selectManagerRef.current = selectManager;
+	}, [selectManager]);
+
 	// call the hover manager hook
 	const hoverSettings = useMemo(() => { return { hoverColor: selectionProps.hoverColor }; }, [selectionProps]);
 	useHoverManager(viewportId, componentId, activate ? hoverSettings : undefined);
@@ -140,11 +146,11 @@ export function useSelection(
 		Object.values(interactionDataStateMap).forEach(outputData => {
 			Object.values(outputData).forEach(data => {
 				if(data.outputNode) {
-					restoreSelection(outputsPerSession, selectManager, selectedNodeNames);
+					restoreSelection(outputsPerSession, componentId, selectManager, selectedNodeNames);
 				}
 			});
 		});
-	}, [interactionDataStateMap, selectManager]);
+	}, [interactionDataStateMap, selectManager, componentId]);
 
 	// update the available node names
 	useEffect(() => {
@@ -168,8 +174,8 @@ export function useSelection(
 	 */
 	const setSelectedNodeNamesAndRestoreSelection = useCallback((names: string[]) => {
 		setSelectedNodeNames(names);
-		restoreSelection(outputsPerSession, selectManager, names);
-	}, [selectManager]);
+		restoreSelection(outputsPerSession, componentId, selectManagerRef.current, names);
+	}, [componentId]);
 
 	return {
 		selectedNodeNames,
@@ -188,13 +194,13 @@ export function useSelection(
  * @param selectManager 
  * @param selectedNodeNames 
  */
-const restoreSelection = (outputsPerSession: { [key: string]: { [key: string]: IOutputApi }}, selectManager?: SelectManager | MultiSelectManager, selectedNodeNames: string[] = []) => {
+const restoreSelection = (outputsPerSession: { [key: string]: { [key: string]: IOutputApi }}, componentId: string, selectManager?: SelectManager | MultiSelectManager, selectedNodeNames: string[] = []) => {
 	for (const sessionId in outputsPerSession) {
 		const outputs = outputsPerSession[sessionId];
 		for (const outputId in outputs) {
 			const outputNode = outputs[outputId].node;
 			if (outputNode && selectManager)
-				restoreNodeSelection(outputNode, selectManager, selectedNodeNames);
+				restoreNodeSelection(outputNode, componentId, selectManager, selectedNodeNames);
 		}
 	}
 };
@@ -207,29 +213,36 @@ const restoreSelection = (outputsPerSession: { [key: string]: { [key: string]: I
  * @param selectedNodeNames 
  * @returns 
  */
-const restoreNodeSelection = (node: ITreeNode, mgr: SelectManager | MultiSelectManager, selectedNodeNames: string[]) => {
-	
+const restoreNodeSelection = (node: ITreeNode, componentId: string, mgr: SelectManager | MultiSelectManager, selectedNodeNames: string[]) => {
 	// the node must have an OutputApiData object
 	const apiData = node.data.find(d => d instanceof OutputApiData) as OutputApiData;
 	if (!apiData) return;
 
+	// deselect all nodes restricted to the component id
+	node.traverse(n => {
+		const interactionData = n.data.filter(d => d instanceof InteractionData) as InteractionData[];
+		interactionData.forEach(d => {
+			if(d instanceof InteractionData && d.restrictedManagers.includes(componentId))
+				mgr.deselect(n);
+		});
+	});
+
 	// select child nodes based on selectedNodeNames
 	selectedNodeNames.forEach((name) => {
-	
 		const parts = name.split(".");
 		if (apiData.api.name !== parts[0]) return;
 
 		if (parts.length === 1) {
 			// special case if only the output name is given
-			const interactionData = node.data.find(d => d instanceof InteractionData) as InteractionData;
-			if (interactionData) 
+			const interactionData = node.data.filter(d => d instanceof InteractionData) as InteractionData[];
+			if (interactionData.some(d => d instanceof InteractionData && d.restrictedManagers.includes(componentId)))
 				mgr.select({ distance: 1, point: vec3.create(), node: node });
 		} else {
 			// if the node name matches the pattern, select the node
 			node.traverse(n => {
 				if (checkNodeNameMatch(n, parts.slice(1).join("."))) {
-					const interactionData = n.data.find(d => d instanceof InteractionData) as InteractionData;
-					if (interactionData)
+					const interactionData = n.data.filter(d => d instanceof InteractionData) as InteractionData[];
+					if (interactionData.some(d => d instanceof InteractionData && d.restrictedManagers.includes(componentId)))
 						mgr.select({ distance: 1, point: vec3.create(), node: n });
 				}
 			});
