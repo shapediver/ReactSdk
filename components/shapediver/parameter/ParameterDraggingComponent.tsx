@@ -1,4 +1,4 @@
-import { Button, Group, Loader, Space, Stack, Text } from "@mantine/core";
+import { Button, Group, Loader, Stack, Text } from "@mantine/core";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
@@ -9,6 +9,7 @@ import { IconTypeEnum } from "../../../types/shapediver/icons";
 import Icon from "../../ui/Icon";
 import { useViewportId } from "../../../hooks/shapediver/viewer/useViewportId";
 import { useDragging } from "shared/hooks/shapediver/viewer/interaction/dragging/useDragging";
+import classes from "./ParameterInteractionComponent.module.css";
 
 /**
  * Parse the value of a dragging parameter and extract the dragged objects
@@ -125,19 +126,17 @@ export default function ParameterDraggingComponent(props: PropsParameter) {
 	 */
 	const contentActive =
 		<Stack>
-			<Button justify="space-between" fullWidth h="100%" disabled={disabled}
-				rightSection={<Loader type="dots" />}
+			<Button justify="space-between" fullWidth disabled={disabled} className={classes.interactionButton}
+				rightSection={<Loader size="sm" type="dots" />}
 				onClick={() => resetValue(lastConfirmedValueRef.current)}
 			>
 				<Stack>
-					<Space />
-					<Text size="sm" fw={500} ta="left">
-						Currently dragged objects: {combinedDraggedNodes.length}
+					<Text size="sm" fw={500} ta="left" className={classes.interactionText}>
+						{draggingProps.prompt?.activeTitle ?? `Currently dragged objects: ${combinedDraggedNodes.length}`}
 					</Text>
-					<Text size="sm" fw={400} fs="italic" ta="left">
-						Drag objects in the scene to change their position.
+					<Text size="sm" fw={400} fs="italic" ta="left" className={classes.interactionText}>
+						{draggingProps.prompt?.activeText ?? "Drag objects in the scene to change their position."}
 					</Text>
-					<Space />
 				</Stack>
 			</Button>
 			<Group justify="space-between" w="100%" wrap="nowrap">
@@ -166,12 +165,12 @@ export default function ParameterDraggingComponent(props: PropsParameter) {
 	 * Within the button, the number of dragged nodes is displayed.
 	 */
 	const contentInactive =
-		<Button justify="space-between" fullWidth={true} disabled={disabled}
+		<Button justify="space-between" fullWidth={true} disabled={disabled} className={classes.interactionButton}
 			rightSection={<Icon type={IconTypeEnum.IconHandFinger} />}
 			variant={combinedDraggedNodes.length === 0 ? "light" : "filled"}
 			onClick={() => setDraggingActive(true)}>
-			<Text size="sm">
-				Start dragging ({combinedDraggedNodes.length})
+			<Text size="sm" className={classes.interactionText}>
+				{draggingProps.prompt?.inactiveTitle ?? `Start dragging (${combinedDraggedNodes.length})`}
 			</Text>
 		</Button>;
 

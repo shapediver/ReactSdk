@@ -1,4 +1,4 @@
-import { Button, Group, Loader, Space, Stack, Text } from "@mantine/core";
+import { Button, Group, Loader, Stack, Text } from "@mantine/core";
 import React, { useCallback, useEffect, useState } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
@@ -8,6 +8,7 @@ import { useGumball } from "../../../hooks/shapediver/viewer/interaction/gumball
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import Icon from "../../ui/Icon";
 import { useViewportId } from "../../../hooks/shapediver/viewer/useViewportId";
+import classes from "./ParameterInteractionComponent.module.css";
 
 /**
  * Parse the value of a gumball parameter and extract the transformed node names.
@@ -128,19 +129,17 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 	 */
 	const contentActive =
 		<Stack>
-			<Button justify="space-between" fullWidth h="100%" disabled={disabled}
-				rightSection={<Loader type="dots" />}
+			<Button justify="space-between" fullWidth disabled={disabled} className={classes.interactionButton}
+				rightSection={<Loader size="sm" type="dots" />}
 				onClick={resetTransformation}
 			>
 				<Stack>
-					<Space />
-					<Text size="sm" fw={500} ta="left">
-						Currently transformed: {transformedNodeNames.length}
+					<Text size="sm" fw={500} ta="left" className={classes.interactionText}>
+						{gumballProps.prompt?.activeTitle ?? `Currently transformed: ${transformedNodeNames.length}`}
 					</Text>
-					<Text size="sm" fw={400} fs="italic" ta="left">
-						Select objects to transform
+					<Text size="sm" fw={400} fs="italic" ta="left" className={classes.interactionText}>
+						{gumballProps.prompt?.activeText ?? "Select objects to transform"}
 					</Text>
-					<Space />
 				</Stack>
 			</Button>
 
@@ -170,12 +169,12 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 	 * Within the button, the number of transformed nodes is displayed.
 	 */
 	const contentInactive =
-		<Button justify="space-between" fullWidth={true} disabled={disabled}
+		<Button justify="space-between" fullWidth={true} disabled={disabled} className={classes.interactionButton}
 			rightSection={<Icon type={IconTypeEnum.IconHandFinger} />}
 			variant={transformedNodeNames.length === 0 ? "light" : "filled"}
 			onClick={() => setGumballActive(true)}>
-			<Text size="sm">
-				Start gumball
+			<Text size="sm" className={classes.interactionText}>
+				{gumballProps.prompt?.inactiveTitle ?? "Start gumball"}
 			</Text>
 		</Button>;
 

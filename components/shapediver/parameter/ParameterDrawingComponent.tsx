@@ -1,7 +1,7 @@
 import Icon from "../../ui/Icon";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { Button, Group, Loader, Space, Stack, Text } from "@mantine/core";
+import { Button, Group, Loader, Stack, Text } from "@mantine/core";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import { IDrawingParameterSettings as IDrawingParameterProps, SystemInfo } from "@shapediver/viewer";
 import { PointsData } from "@shapediver/viewer.features.drawing-tools";
@@ -12,6 +12,7 @@ import { useViewportId } from "../../../hooks/shapediver/viewer/useViewportId";
 import DrawingOptionsComponent from "../ui/DrawingOptionsComponent";
 import { NotificationContext } from "../../../context/NotificationContext";
 import { useDrawingOptionsStore } from "../../../store/useDrawingOptionsStore";
+import classes from "./ParameterInteractionComponent.module.css";
 
 /**
  * Parse the value of a drawing parameter and extract the points data.
@@ -182,18 +183,16 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 	 */
 	const contentActive =
 		<Stack gap={0}>
-			<Button justify="space-between" fullWidth h="100%" disabled={disabled} m=""
-				rightSection={<Loader type="dots" />}
+			<Button justify="space-between" fullWidth disabled={disabled} m="" className={classes.interactionButton}
+				rightSection={<Loader size="sm" type="dots" />}
 			>
 				<Stack>
-					<Space />
-					<Text size="sm" fw={500} ta="left" onClick={cancelDrawing}>
-						Created a drawing with {pointsData?.length} points
+					<Text size="sm" fw={500} ta="left" onClick={cancelDrawing} className={classes.interactionText}>
+						{drawingProps.general?.prompt?.activeTitle ?? `Created a drawing with ${pointsData?.length} points`}
 					</Text>
-					<Text size="sm" fw={400} fs="italic" ta="left" onClick={cancelDrawing}>
-						Interact with the drawing to change the points
+					<Text size="sm" fw={400} fs="italic" ta="left" onClick={cancelDrawing} className={classes.interactionText}>
+						{drawingProps.general?.prompt?.activeText ?? "Interact with the drawing to change the points"}
 					</Text>
-					<Space />
 				</Stack>
 			</Button>
 
@@ -221,7 +220,7 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 	 * For mobile devices, just show a warning that the drawing is not supported.
 	 */
 	const contentMobile = 
-		<Button justify="space-between" fullWidth={true} disabled={disabled}>
+		<Button justify="space-between" fullWidth={true} disabled={disabled} className={classes.interactionButton}>
 			<Text size="sm">
 				Not supported on mobile devices
 			</Text>
@@ -234,12 +233,12 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 	 * Within the button, the number of points within the drawing is displayed.
 	 */
 	const contentInactive =
-		<Button justify="space-between" fullWidth={true} disabled={disabled}
+		<Button justify="space-between" fullWidth={true} disabled={disabled} className={classes.interactionButton}
 			rightSection={<Icon type={IconTypeEnum.Pencil} />}
 			variant={pointsData?.length === 0 ? "light" : "filled"}
 			onClick={activateDrawing}>
-			<Text size="sm">
-				Start drawing
+			<Text size="sm" className={classes.interactionText}>
+				{drawingProps.general?.prompt?.inactiveTitle ?? "Start drawing"}
 			</Text>
 		</Button>;
 
