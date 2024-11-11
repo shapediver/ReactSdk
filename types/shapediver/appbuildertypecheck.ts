@@ -31,7 +31,7 @@ const IAppBuilderParameterDefinitionSchema = z.object({
 	tooltip: z.string().optional(),
 	displayname: z.string().optional(),
 	hidden: z.boolean(),
-	settings: IDrawingParameterJsonSchema.optional().or(IInteractionParameterJsonSchema.optional()),
+	settings: z.union([IInteractionParameterJsonSchema, IDrawingParameterJsonSchema]).optional(),
 	value: z.string().optional(),
 });
 
