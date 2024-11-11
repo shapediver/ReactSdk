@@ -40,12 +40,16 @@ export function useDrawingTools(
 	 * @param pointsData The points data.
 	 */
 	setPointsData: (pointsData: PointsData) => void,
+	/**
+	 * The find nodes by pattern handlers.
+	 */
+	findNodesByPatternHandlers: JSX.Element[]
 } {
 	// use the drawing tools events
 	const { pointsData, setPointsData } = useDrawingToolsEvents(viewportId, initialPointsData);
 
 	// use the restrictions
-	const restrictions = useRestrictions(drawingParameterProps.restrictions);
+	const { restrictions, findNodesByPatternHandlers } = useRestrictions(drawingParameterProps.restrictions);
 
 	// set the drawing tools settings
 	const drawingToolsSettings: Partial<Settings> = useMemo(
@@ -87,6 +91,7 @@ export function useDrawingTools(
 		drawingToolsApi: drawingToolsApi,
 		pointsData: pointsData,
 		setPointsData: setPointsData,
+		findNodesByPatternHandlers
 	};
 }
 

@@ -1,7 +1,24 @@
 import { gatherNodesForPattern, NodeNameFilterPattern } from "@shapediver/viewer.features.interaction";
 import { ITreeNode, OutputApiData } from "@shapediver/viewer";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useOutputNode } from "../useOutputNode";
+
+// #region Type aliases (2)
+
+type IFindNodesByPatternHandlerState = {
+	sessionId: string;
+	outputIdOrName: string;
+	patterns: NodeNameFilterPattern[];
+	setData?: React.Dispatch<React.SetStateAction<IFindNodesByPatternState>>;
+};
+export type IFindNodesByPatternState = {
+	/**
+	 * The available nodes for the given output and patterns.
+	 */
+	nodes: ITreeNode[]
+};
+
+// #endregion Type aliases (2)
 
 // #region Functions (1)
 
@@ -64,3 +81,19 @@ export function useFindNodesByPattern(
 }
 
 // #endregion Functions (1)
+
+// #region Variables (1)
+
+export const FindNodesByPatternHandler: React.FC<IFindNodesByPatternHandlerState> = ({ sessionId, outputIdOrName, patterns, setData }: IFindNodesByPatternHandlerState) => {
+	const { nodes } = useFindNodesByPattern(sessionId, outputIdOrName, patterns);
+	useEffect(() => {
+		if (setData)
+			setData({
+				nodes
+			});
+	}, [nodes]);
+
+	return null;
+};
+
+// #endregion Variables (1)
