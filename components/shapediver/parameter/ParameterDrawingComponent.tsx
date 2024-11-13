@@ -1,7 +1,7 @@
 import Icon from "../../ui/Icon";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { Button, Group, Loader, Stack, Text } from "@mantine/core";
+import { ActionIcon, Button, Grid, Group, Loader, Stack, Text } from "@mantine/core";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import { IDrawingParameterSettings as IDrawingParameterProps, SystemInfo } from "@shapediver/viewer";
 import { PointsData } from "@shapediver/viewer.features.drawing-tools";
@@ -109,6 +109,15 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 		deactivateDrawing();
 	}, []);
 
+	/**
+	 * Callback function to clear the drawing.
+	 * This function is called when the user wants to clear the drawing.
+	 */
+	const clearDrawing = useCallback(() => {
+		setPointsData([]);
+		setParsedUiValue([]);
+	}, []);
+
 	// use the drawing tools
 	const { pointsData, setPointsData, drawingToolsApi, findNodesByPatternHandlers } = useDrawingTools(
 		viewportId,
@@ -171,7 +180,6 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 		}
 	}, [pointsData]);
 
-
 	/**
 	 * The content of the parameter when it is active.
 	 * 
@@ -183,18 +191,30 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 	 */
 	const contentActive =
 		<Stack gap={0}>
-			<Button justify="space-between" fullWidth disabled={disabled} m="" className={classes.interactionButton}
-				rightSection={<Loader size="sm" type="dots" />}
-			>
-				<Stack>
-					<Text size="sm" fw={500} ta="left" onClick={cancelDrawing} className={classes.interactionText}>
-						{drawingProps.general?.prompt?.activeTitle ?? `Created a drawing with ${pointsData?.length} points`}
-					</Text>
-					<Text size="sm" fw={400} fs="italic" ta="left" onClick={cancelDrawing} className={classes.interactionText}>
-						{drawingProps.general?.prompt?.activeText ?? "Interact with the drawing to change the points"}
-					</Text>
-				</Stack>
-			</Button>
+			<Group justify="space-between" className={classes.interactionMain}>
+				<Grid>
+					<Grid.Col span={"auto"}>
+						<Text size="sm" fw={500} ta="left" onClick={cancelDrawing} className={classes.interactionText}>
+							{drawingProps.general?.prompt?.activeTitle ?? `Created a drawing with ${pointsData?.length} points`}
+						</Text>
+					</Grid.Col>
+					<Grid.Col span={"content"}>
+						<ActionIcon onClick={clearDrawing} variant={pointsData?.length === 0 ? "light" : "filled"}>
+							<Icon type={IconTypeEnum.CircleOff}/>
+						</ActionIcon>
+					</Grid.Col>
+				</Grid>
+				<Grid>
+					<Grid.Col span={"auto"}>
+						<Text size="sm" fw={400} fs="italic" ta="left" onClick={cancelDrawing} className={classes.interactionText}>
+							{drawingProps.general?.prompt?.activeText ?? "Interact with the drawing to change the points"}
+						</Text>
+					</Grid.Col>
+					<Grid.Col span={"content"}>
+						<Loader size={28} type="dots" />
+					</Grid.Col>
+				</Grid>
+			</Group>
 
 			<DrawingOptionsComponent viewportId={viewportId} drawingToolsApi={drawingToolsApi} />
 

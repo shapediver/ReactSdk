@@ -6,6 +6,14 @@
     padding-left: calc(0.475rem* var(--mantine-scale));
 }
 
+.interactionMain {
+    padding: calc(0.625rem* var(--mantine-scale));
+    background-color: var(--mantine-color-default);
+    border-radius: var(--paper-radius);
+    color: var(--mantine-color-default-color);
+    font-weight: 500;
+}
+
 .interactionText {
     text-wrap: wrap;
 }

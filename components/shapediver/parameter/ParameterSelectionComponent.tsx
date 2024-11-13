@@ -1,4 +1,4 @@
-import { Button, Group, Loader, Stack, Text } from "@mantine/core";
+import { ActionIcon, Button, Grid, Group, Loader, Stack, Text } from "@mantine/core";
 import React, { useCallback, useEffect, useState } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
@@ -56,7 +56,7 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 	// get the viewport ID
 	const { viewportId } = useViewportId();
 	
-	const { selectedNodeNames, setSelectedNodeNames, nodeInteractionDataHandlers } = useSelection(
+	const { selectedNodeNames, setSelectedNodeNames, setSelectedNodeNamesAndRestoreSelection, nodeInteractionDataHandlers } = useSelection(
 		sessionDependencies, 
 		viewportId, 
 		selectionProps,
@@ -117,6 +117,13 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 	}, [state.uiValue]); 
 
 	/**
+	 * Callback function to clear the selection.
+	 */
+	const clearSelection = useCallback(() => {
+		setSelectedNodeNamesAndRestoreSelection([]);
+	}, []);
+
+	/**
 	 * The content of the parameter when it is active.
 	 * 
 	 * It contains a button to confirm the selection and a button to cancel the selection
@@ -128,24 +135,36 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 	 */
 	const contentActive =
 		<Stack>
-			<Button justify="space-between" fullWidth disabled={disabled} className={classes.interactionButton}
-				rightSection={<Loader size="sm" type="dots" />}
-				onClick={() => resetSelection(value)}
-			>
-				<Stack>
-					<Text size="sm" fw={500} ta="left" className={classes.interactionText}>
-						{selectionProps.prompt?.activeTitle ?? `Currently selected: ${selectedNodeNames.length}`}
-					</Text>
-					<Text size="sm" fw={400} fs="italic" ta="left" className={classes.interactionText}>
-						{
-							selectionProps.prompt?.activeText ??
-								minimumSelection === maximumSelection ?
-								`Select ${minimumSelection} object${minimumSelection > 1 ? "s" : ""}` :
-								`Select between ${minimumSelection} and ${maximumSelection} objects`
-						}
-					</Text>
-				</Stack>
-			</Button>
+			<Group justify="space-between" className={classes.interactionMain}>
+				<Grid w="100%">
+					<Grid.Col span={"auto"}>
+						<Text size="sm" fw={500} ta="left" className={classes.interactionText}>
+							{selectionProps.prompt?.activeTitle ?? `Currently selected: ${selectedNodeNames.length}`}
+						</Text>
+					</Grid.Col>
+					<Grid.Col span={"content"}>
+						<ActionIcon onClick={clearSelection} variant={selectedNodeNames.length === 0 ? "light" : "filled"}>
+							<Icon type={IconTypeEnum.CircleOff} />
+						</ActionIcon>
+					</Grid.Col>
+				</Grid>
+				<Grid w="100%">
+					<Grid.Col span={"auto"}>
+						<Text size="sm" fw={400} fs="italic" ta="left" className={classes.interactionText}>
+							{
+								selectionProps.prompt?.activeText ??
+									minimumSelection === maximumSelection ?
+									`Select ${minimumSelection} object${minimumSelection > 1 ? "s" : ""}` :
+									`Select between ${minimumSelection} and ${maximumSelection} objects`
+							}
+						</Text>
+					</Grid.Col>
+					<Grid.Col span={"content"}>
+						<Loader size={28} type="dots" />
+					</Grid.Col>
+				</Grid>
+			</Group>
+
 			{minimumSelection !== maximumSelection &&
 				<Group justify="space-between" w="100%" wrap="nowrap">
 					<Button

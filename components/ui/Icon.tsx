@@ -21,6 +21,7 @@ import {
 	IconCamera,
 	IconCameraOff,
 	IconCheck,
+	IconCircleOff,
 	IconCopy,
 	IconDeviceDesktop,
 	IconDeviceFloppy,
@@ -145,6 +146,8 @@ const Icon = forwardRef<_TablerIconType, Props>( function Icon({type, size, stro
 		return <IconCameraOff {...iconProps} />;
 	case IconTypeEnum.Check:
 		return <IconCheck {...iconProps} />;
+	case IconTypeEnum.CircleOff:
+		return <IconCircleOff {...iconProps} />;
 	case IconTypeEnum.Copy:
 		return <IconCopy {...iconProps} />;
 	case IconTypeEnum.DeviceDesktop:

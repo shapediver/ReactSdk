@@ -24,6 +24,7 @@ export enum IconTypeEnum {
 	Camera = "camera",
 	CameraOff = "camera-off",
 	Check = "check",
+	CircleOff = "circle-off",
 	Copy = "copy",
 	DeviceDesktop = "device-desktop",
 	DeviceFloppy = "device-floppy",
