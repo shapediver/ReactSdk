@@ -59,7 +59,7 @@ export default function ParameterDraggingComponent(props: PropsParameter) {
 	// get the viewport ID
 	const { viewportId } = useViewportId();
 
-	const { draggedNodes, setDraggedNodes, restoreDraggedNodes, nodeInteractionDataHandlers } = useDragging(
+	const { draggedNodes, setDraggedNodes, restoreDraggedNodes, nodeInteractionDataHandlers, findNodesByPatternHandlers } = useDragging(
 		sessionDependencies,
 		viewportId,
 		draggingProps,
@@ -185,6 +185,7 @@ export default function ParameterDraggingComponent(props: PropsParameter) {
 
 	return (<>
 		<>{nodeInteractionDataHandlers}</>
+		<>{findNodesByPatternHandlers}</>
 		<ParameterLabelComponent {...props} cancel={onCancel} />
 		{
 			definition &&

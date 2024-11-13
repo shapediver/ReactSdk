@@ -13,6 +13,7 @@ import { ConvertedDragObject } from "../useCreateNameFilterPattern";
  */
 export function useDragManagerEvents(
 	convertedDragObjects: ConvertedDragObject[],
+	restrictions: Partial<{ [key: string]: RestrictionProperties }> = {},
 	componentId: string,
 	initialDraggedNodes?: DraggingParameterValue["objects"]
 ): {
@@ -56,8 +57,10 @@ export function useDragManagerEvents(
 					// if there are, add the restrictions to the drag manager
 					if (draggedNodeNames.length > 0) {
 						// add the restrictions
-						convertedDragObjects[i].restrictions.forEach(restriction => {
-							(dragEvent.manager as DragManager).addRestriction(restriction as RestrictionProperties);
+						convertedDragObjects[i].restrictions.forEach(restrictionId => {
+							const restriction = restrictions[restrictionId];
+							if(!restriction) return;
+							(dragEvent.manager as DragManager).addRestriction(restriction);
 						});
 					}
 				}
@@ -127,7 +130,7 @@ export function useDragManagerEvents(
 			removeListener(tokenDragOn);
 			removeListener(tokenDragOff);
 		};
-	}, [convertedDragObjects, componentId]);
+	}, [convertedDragObjects, restrictions, componentId]);
 
 	return {
 		draggedNodes,

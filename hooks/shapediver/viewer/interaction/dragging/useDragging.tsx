@@ -8,7 +8,7 @@ import { useConvertDraggingData } from "../useCreateNameFilterPattern";
 import { NodeInteractionDataHandler } from "../useNodeInteractionData";
 import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
 import { mat4 } from "gl-matrix";
-import { create } from "domain";
+import { useRestrictions } from "../../drawing/useRestrictions";
 
 /**
  * Hook providing stateful object dragging for a viewport and session. 
@@ -47,12 +47,19 @@ export function useDragging(
 	/**
 	 * The node interaction data handlers that have to be added to the document.
 	 */
-	nodeInteractionDataHandlers: JSX.Element[]
+	nodeInteractionDataHandlers: JSX.Element[],
+	/**
+	 * The find nodes by pattern handlers that have to be added to the document.
+	 */
+	findNodesByPatternHandlers: JSX.Element[]
 } {
 	// get the session API
 	const sessionApis = useShapeDiverStoreViewer(state => { return sessionIds.map(id => state.sessions[id]); });
 	// create a unique component ID
 	const componentId = useId();
+
+	// use the restrictions
+	const { restrictions, findNodesByPatternHandlers } = useRestrictions(draggingProps.restrictions);
 
 	// call the drag manager hook
 	useDragManager(viewportId, componentId, activate ? draggingProps : undefined);
@@ -65,7 +72,7 @@ export function useDragging(
 	useHoverManager(viewportId, componentId, activate ? hoverSettings : undefined);
 
 	// call the drag manager events hook
-	const { draggedNodes, setDraggedNodes, resetDraggedNodes } = useDragManagerEvents(objects, componentId, initialDraggedNodes);
+	const { draggedNodes, setDraggedNodes, resetDraggedNodes } = useDragManagerEvents(objects, restrictions, componentId, initialDraggedNodes);
 
 	// create a state for the node interaction data handlers
 	const [nodeInteractionDataHandlers, setNodeInteractionDataHandles] = useState<JSX.Element[]>([]);
@@ -148,6 +155,7 @@ export function useDragging(
 		setDraggedNodes,
 		resetDraggedNodes,
 		nodeInteractionDataHandlers,
+		findNodesByPatternHandlers,
 		restoreDraggedNodes
 	};
 }

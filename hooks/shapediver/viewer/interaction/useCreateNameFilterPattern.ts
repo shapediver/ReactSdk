@@ -1,4 +1,4 @@
-import { convertUserDefinedNameFilters, OutputNodeNameFilterPatterns, RestrictionDefinition } from "@shapediver/viewer.features.interaction";
+import { convertUserDefinedNameFilters, OutputNodeNameFilterPatterns } from "@shapediver/viewer.features.interaction";
 import { useShapeDiverStoreViewer } from "../../../../store/useShapeDiverStoreViewer";
 import { useState, useEffect } from "react";
 import { IDraggingParameterProps } from "@shapediver/viewer";
@@ -12,7 +12,7 @@ import { vec3 } from "gl-matrix";
  */
 export type ConvertedDragObject = {
 	patterns: { [key: string]: OutputNodeNameFilterPatterns },
-	restrictions: RestrictionDefinition[]
+	restrictions: string[]
 	dragOrigin?: vec3,
 	dragAnchors?: {
 		id: string,
@@ -67,7 +67,7 @@ export function useConvertDraggingData(sessionIds?: string[], draggingProps?: ID
 			// create the new object
 			newObjects.push({
 				patterns: patterns,
-				restrictions: object.restrictions?.map(r => draggingProps!.restrictions!.find(restriction => restriction.id === r)!) ?? [],
+				restrictions: object.restrictions ?? [],
 				dragOrigin: object.dragOrigin ? vec3.fromValues(object.dragOrigin[0], object.dragOrigin[1], object.dragOrigin[2]) : undefined,
 				dragAnchors: object.dragAnchors ? object.dragAnchors.map(anchor => {
 					return {

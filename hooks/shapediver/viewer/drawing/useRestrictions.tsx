@@ -101,7 +101,7 @@ export function useRestrictions(
 		if (restrictionProps) {
 			for (let i = 0; i < restrictionProps.length; i++) {
 				const r = restrictionProps![i];
-				const restrictionName = `restriction_${i}`;
+				const restrictionName = r.id || `restriction_${i}`;
 
 				switch (r.type) {
 				case "plane":
