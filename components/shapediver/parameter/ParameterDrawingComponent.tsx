@@ -200,7 +200,7 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 					</Grid.Col>
 					<Grid.Col span={"content"}>
 						<ActionIcon onClick={clearDrawing} variant={pointsData?.length === 0 ? "light" : "filled"}>
-							<Icon type={IconTypeEnum.Trash}/>
+							<Icon type={IconTypeEnum.CircleOff}/>
 						</ActionIcon>
 					</Grid.Col>
 				</Grid>

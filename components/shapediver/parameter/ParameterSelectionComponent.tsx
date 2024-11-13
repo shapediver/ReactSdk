@@ -144,7 +144,7 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 					</Grid.Col>
 					<Grid.Col span={"content"}>
 						<ActionIcon onClick={clearSelection} variant={selectedNodeNames.length === 0 ? "light" : "filled"}>
-							<Icon type={IconTypeEnum.Trash} />
+							<Icon type={IconTypeEnum.CircleOff} />
 						</ActionIcon>
 					</Grid.Col>
 				</Grid>
