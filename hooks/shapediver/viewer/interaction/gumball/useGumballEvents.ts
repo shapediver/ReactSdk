@@ -63,10 +63,10 @@ export function useGumballEvents(
 
 					// get the node data to compare the output name
 					const nodeData = getNodeData(node);
+					if(!nodeData || nodeData.outputName !== parts[0]) return;
 
 					// check if the node path matches the selected node name
-					if (nodeData && nodeData.outputName === parts[0] && checkNodeNameMatch(node, parts.slice(1).join("."))) {
-
+					if (parts.length === 1 || checkNodeNameMatch(node, parts.slice(1).join("."))) {
 						// determine if the node is already in the transformed nodes array
 						// if not add it, otherwise update the transformation
 						const index = newTransformedNodeNames.findIndex(tn => tn.name === name);
