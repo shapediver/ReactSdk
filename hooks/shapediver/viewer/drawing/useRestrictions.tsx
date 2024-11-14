@@ -1,5 +1,5 @@
 import { IDrawingParameterSettings, ITreeNode } from "@shapediver/viewer";
-import { GeometryRestrictionProperties, PlaneRestrictionProperties, Settings } from "@shapediver/viewer.features.drawing-tools";
+import { CameraPlaneRestrictionProperties, GeometryRestrictionProperties, LineRestrictionProperties, PlaneRestrictionProperties, PointRestrictionProperties, Settings } from "@shapediver/viewer.features.drawing-tools";
 import React, { useEffect, useState } from "react";
 import { useCreateNameFilterPattern } from "../interaction/useCreateNameFilterPattern";
 import { FindNodesByPatternHandler, IFindNodesByPatternState } from "../interaction/useFindNodesByPattern";
@@ -103,30 +103,21 @@ export function useRestrictions(
 				const r = restrictionProps![i];
 				const restrictionName = r.id || `restriction_${i}`;
 
-				switch (r.type) {
-				case "plane":
-					restrictions[restrictionName] = {
-						...r
-					} as PlaneRestrictionProperties;
-					break;
-				case "geometry":
-					{
-						const nodesArray: ITreeNode[] = [];
-						for (const sessionId in nodes) {
-							for (const outputId in nodes[sessionId]) {
-								nodesArray.push(...nodes[sessionId][outputId]);
-							}
+				if(r.type === "geometry" && Object.keys(nodes).length !== 0) {
+					const nodesArray: ITreeNode[] = [];
+					for (const sessionId in nodes) {
+						for (const outputId in nodes[sessionId]) {
+							nodesArray.push(...nodes[sessionId][outputId]);
 						}
-
-						restrictions[restrictionName] = {
-							...r,
-							nodes: nodesArray
-						} as GeometryRestrictionProperties;
 					}
 
-					break;
-				default:
-					break;
+					restrictions[restrictionName] = {
+						...r,
+						nodes: nodesArray
+					} as GeometryRestrictionProperties;
+					continue;
+				} else if (r.type !== "geometry") {
+					restrictions[restrictionName] = r as PlaneRestrictionProperties | CameraPlaneRestrictionProperties | LineRestrictionProperties | PointRestrictionProperties;
 				}
 			}
 		}
