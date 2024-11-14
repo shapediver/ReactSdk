@@ -63,7 +63,7 @@ export function useSession(props: IUseSessionDto | undefined) {
 		const { registerParametersAndExports = true, acceptRejectMode } = props;
 	
 		promiseChain.current = promiseChain.current.then(async () => {
-			const api = await createSession({throwOnCustomizationError: true, ...props}, { onError: setError });
+			const api = await createSession({throwOnCustomizationError: false, ...props}, { onError: setError });
 			if (api)
 				api.refreshJwtToken = props.refreshJwtToken;
 			setSessionApi(api);
