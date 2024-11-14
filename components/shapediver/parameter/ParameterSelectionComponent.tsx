@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Grid, Group, Loader, Stack, Text } from "@mantine/core";
+import { ActionIcon, Box, Button, Flex, Group, Loader, Stack, Text } from "@mantine/core";
 import React, { useCallback, useEffect, useState } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
@@ -136,20 +136,20 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 	const contentActive =
 		<Stack>
 			<Group justify="space-between" className={classes.interactionMain}>
-				<Grid w="100%">
-					<Grid.Col span={"auto"}>
+				<Flex align="center" justify="flex-start" w={"100%"}>
+					<Box style={{ flex: 1 }}>
 						<Text size="sm" fw={500} ta="left" className={classes.interactionText}>
 							{selectionProps.prompt?.activeTitle ?? `Currently selected: ${selectedNodeNames.length}`}
 						</Text>
-					</Grid.Col>
-					<Grid.Col span={"content"}>
+					</Box>
+					<Box style={{ width: "auto" }}>
 						<ActionIcon onClick={clearSelection} variant={selectedNodeNames.length === 0 ? "light" : "filled"}>
 							<Icon type={IconTypeEnum.CircleOff} />
 						</ActionIcon>
-					</Grid.Col>
-				</Grid>
-				<Grid w="100%">
-					<Grid.Col span={"auto"}>
+					</Box>
+				</Flex>
+				<Flex align="center" justify="flex-start" w={"100%"}>
+					<Box style={{ flex: 1 }}>
 						<Text size="sm" fw={400} fs="italic" ta="left" className={classes.interactionText}>
 							{
 								selectionProps.prompt?.activeText ??
@@ -158,11 +158,11 @@ export default function ParameterSelectionComponent(props: PropsParameter) {
 									`Select between ${minimumSelection} and ${maximumSelection} objects`
 							}
 						</Text>
-					</Grid.Col>
-					<Grid.Col span={"content"}>
+					</Box>
+					<Box style={{ width: "auto" }}>
 						<Loader size={28} type="dots" />
-					</Grid.Col>
-				</Grid>
+					</Box>
+				</Flex>
 			</Group>
 
 			{minimumSelection !== maximumSelection &&
