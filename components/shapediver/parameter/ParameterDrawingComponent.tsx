@@ -119,7 +119,7 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 	}, []);
 
 	// use the drawing tools
-	const { pointsData, setPointsData, drawingToolsApi, findNodesByPatternHandlers } = useDrawingTools(
+	const { pointsData, setPointsData, drawingToolsApi, handlers } = useDrawingTools(
 		viewportId,
 		drawingProps,
 		confirmDrawing,
@@ -263,7 +263,7 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 		</Button>;
 
 	return <>
-		<>{findNodesByPatternHandlers}</>
+		<>{handlers}</>
 		<ParameterLabelComponent {...props} cancel={_onCancel} />
 		{
 			SystemInfo.instance.isMobile ?
