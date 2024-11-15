@@ -3,6 +3,7 @@ import { useContext, useMemo } from "react";
 import { IEventTracking, IEventTrackingProps } from "../types/eventTracking";
 import { NotificationContext } from "../context/NotificationContext";
 import { TrackerContext } from "../context/TrackerContext";
+import { roundToBracket } from "shared/utils/numerics";
 
 
 
@@ -30,18 +31,28 @@ export const useEventTracking = () => {
 					const title = status ? `${_title} (${status})` : _title;
 					console.warn(title, e);
 					notifications.error({title, message: e.message});
-					tracker.trackEvent(`${action}_error`, { props: { namespace, duration, status } });
+					tracker.trackEvent(`${action}_error`, { props: { 
+						namespace, 
+						duration: duration ? roundToBracket(duration, 100) : undefined, 
+						status 
+					}});
 				} else {
 					const _title = namespace ? `Error while executing changes for session "${namespace}"` : "Error while executing changes";
 					const title = duration ? `${_title} after ${duration} ms` : _title;
 					console.error(title, e);
 					notifications.error({title, message: e.message});
-					tracker.trackEvent(`${action}_error`, { props: { namespace, duration } });
+					tracker.trackEvent(`${action}_error`, { props: { 
+						namespace, 
+						duration: duration ? roundToBracket(duration, 100) : undefined,  
+					}});
 				}
 			},
 			onSuccess: (context: IEventTrackingProps) => {
-				const { action, ...props } = context;
-				tracker.trackEvent(`${action}_success`, { props });
+				const { namespace, duration, action } = context;
+				tracker.trackEvent(`${action}_success`, { props: {
+					namespace, 
+					duration: duration ? roundToBracket(duration, 100) : undefined, 
+				}});
 			},
 		};
 	}, []);
