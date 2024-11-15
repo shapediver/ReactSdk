@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { useDragManager } from "./useDragManager";
 import { useHoverManager } from "../selection/useHoverManager";
 import { useDragManagerEvents } from "./useDragManagerEvents";
-import { useConvertDraggingData } from "../useCreateNameFilterPattern";
+import { useConvertDraggingData } from "../useConvertDraggingData";
 import { NodeInteractionDataHandler } from "../useNodeInteractionData";
 import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
 import { mat4 } from "gl-matrix";
@@ -45,13 +45,9 @@ export function useDragging(
 	 */
 	restoreDraggedNodes: (lastDraggedNodes: DraggingParameterValue["objects"] | undefined, currentDraggedNodes: DraggingParameterValue["objects"]) => void,
 	/**
-	 * The node interaction data handlers that have to be added to the document.
+	 * The handlers to be added to the document.
 	 */
-	nodeInteractionDataHandlers: JSX.Element[],
-	/**
-	 * The find nodes by pattern handlers that have to be added to the document.
-	 */
-	findNodesByPatternHandlers: JSX.Element[]
+	handlers: JSX.Element[]
 } {
 	// get the session API
 	const sessionApis = useShapeDiverStoreViewer(state => { return sessionIds.map(id => state.sessions[id]); });
@@ -59,7 +55,7 @@ export function useDragging(
 	const componentId = useId();
 
 	// use the restrictions
-	const { restrictions, findNodesByPatternHandlers } = useRestrictions(draggingProps.restrictions);
+	const { restrictions, handlers } = useRestrictions(draggingProps.restrictions);
 
 	// call the drag manager hook
 	useDragManager(viewportId, componentId, activate ? draggingProps : undefined);
@@ -154,8 +150,7 @@ export function useDragging(
 		draggedNodes,
 		setDraggedNodes,
 		resetDraggedNodes,
-		nodeInteractionDataHandlers,
-		findNodesByPatternHandlers,
+		handlers: nodeInteractionDataHandlers.concat(handlers),
 		restoreDraggedNodes
 	};
 }

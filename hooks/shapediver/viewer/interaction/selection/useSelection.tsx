@@ -43,7 +43,7 @@ export function useSelection(
 	/**
 	 * The handlers for the node interaction data.
 	 */
-	nodeInteractionDataHandlers: JSX.Element[]
+	handlers: JSX.Element[]
 } {
 
 	// create a unique component ID
@@ -183,7 +183,7 @@ export function useSelection(
 		resetSelectedNodeNames,
 		availableNodeNames,
 		setSelectedNodeNamesAndRestoreSelection,
-		nodeInteractionDataHandlers
+		handlers: nodeInteractionDataHandlers
 	};
 }
 

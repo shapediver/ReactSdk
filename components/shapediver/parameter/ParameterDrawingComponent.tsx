@@ -1,7 +1,7 @@
 import Icon from "../../ui/Icon";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { ActionIcon, Button, Grid, Group, Loader, Stack, Text } from "@mantine/core";
+import { ActionIcon, Box, Button, Flex, Group, Loader, Stack, Text } from "@mantine/core";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import { IDrawingParameterSettings as IDrawingParameterProps, SystemInfo } from "@shapediver/viewer";
 import { PointsData } from "@shapediver/viewer.features.drawing-tools";
@@ -119,7 +119,7 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 	}, []);
 
 	// use the drawing tools
-	const { pointsData, setPointsData, drawingToolsApi, findNodesByPatternHandlers } = useDrawingTools(
+	const { pointsData, setPointsData, drawingToolsApi, handlers } = useDrawingTools(
 		viewportId,
 		drawingProps,
 		confirmDrawing,
@@ -192,28 +192,28 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 	const contentActive =
 		<Stack gap={0}>
 			<Group justify="space-between" className={classes.interactionMain}>
-				<Grid>
-					<Grid.Col span={"auto"}>
+				<Flex align="center" justify="flex-start" w={"100%"}>
+					<Box style={{ flex: 1 }}>
 						<Text size="sm" fw={500} ta="left" onClick={cancelDrawing} className={classes.interactionText}>
 							{drawingProps.general?.prompt?.activeTitle ?? `Created a drawing with ${pointsData?.length} points`}
 						</Text>
-					</Grid.Col>
-					<Grid.Col span={"content"}>
+					</Box>
+					<Box style={{ width: "auto" }}>
 						<ActionIcon onClick={clearDrawing} variant={pointsData?.length === 0 ? "light" : "filled"}>
-							<Icon type={IconTypeEnum.CircleOff}/>
+							<Icon type={IconTypeEnum.CircleOff} />
 						</ActionIcon>
-					</Grid.Col>
-				</Grid>
-				<Grid>
-					<Grid.Col span={"auto"}>
+					</Box>
+				</Flex>
+				<Flex align="center" justify="flex-start" w={"100%"}>
+					<Box style={{ flex: 1 }}>
 						<Text size="sm" fw={400} fs="italic" ta="left" onClick={cancelDrawing} className={classes.interactionText}>
 							{drawingProps.general?.prompt?.activeText ?? "Interact with the drawing to change the points"}
 						</Text>
-					</Grid.Col>
-					<Grid.Col span={"content"}>
+					</Box>
+					<Box style={{ width: "auto" }}>
 						<Loader size={28} type="dots" />
-					</Grid.Col>
-				</Grid>
+					</Box>
+				</Flex>
 			</Group>
 
 			<DrawingOptionsComponent viewportId={viewportId} drawingToolsApi={drawingToolsApi} />
@@ -263,7 +263,7 @@ export default function ParameterDrawingComponent(props: PropsParameter) {
 		</Button>;
 
 	return <>
-		<>{findNodesByPatternHandlers}</>
+		<>{handlers}</>
 		<ParameterLabelComponent {...props} cancel={_onCancel} />
 		{
 			SystemInfo.instance.isMobile ?

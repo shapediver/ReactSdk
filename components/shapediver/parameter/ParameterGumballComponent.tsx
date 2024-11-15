@@ -60,7 +60,7 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 	const { viewportId } = useViewportId();
 
 	// get the transformed nodes and the selected nods
-	const { transformedNodeNames, setSelectedNodeNames, restoreTransformedNodeNames, nodeInteractionDataHandlers } = useGumball(
+	const { transformedNodeNames, setSelectedNodeNames, restoreTransformedNodeNames, handlers } = useGumball(
 		sessionDependencies, 
 		viewportId, 
 		gumballProps,
@@ -179,7 +179,7 @@ export default function ParameterGumballComponent(props: PropsParameter) {
 		</Button>;
 
 	return <>
-		<>{nodeInteractionDataHandlers}</>
+		<>{handlers}</>
 		<ParameterLabelComponent {...props} cancel={onCancel} />
 		{
 			definition &&

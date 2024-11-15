@@ -1,7 +1,7 @@
 import { IDrawingParameterSettings, ITreeNode } from "@shapediver/viewer";
 import { CameraPlaneRestrictionProperties, GeometryRestrictionProperties, LineRestrictionProperties, PlaneRestrictionProperties, PointRestrictionProperties, Settings } from "@shapediver/viewer.features.drawing-tools";
 import React, { useEffect, useState } from "react";
-import { useCreateNameFilterPattern } from "../interaction/useCreateNameFilterPattern";
+import { CreateNameFilterPatternHandler, ICreateNameFilterPatternState } from "../interaction/useCreateNameFilterPattern";
 import { FindNodesByPatternHandler, IFindNodesByPatternState } from "../interaction/useFindNodesByPattern";
 
 // #region Functions (1)
@@ -21,67 +21,103 @@ export function useRestrictions(
 	 */
 	restrictions: Settings["restrictions"]
 	/**
-	 * The find nodes by pattern handlers.
+	 * The handlers to be added to the document.
 	 */
-	findNodesByPatternHandlers: JSX.Element[]
+	handlers: JSX.Element[]
 } {
 	// state for available node names
-	const [nodes, setNodes] = useState<{ [key: string]: { [key: string]: ITreeNode[] }}>({});
+	const [nodes, setNodes] = useState<{ [key: string]: { [key: string]: { [key: string]: ITreeNode[] } } }>({});
 	// state for the find nodes by pattern state map
-	const [findNodesByPatternStateMap, setFindNodesByPatternStateMap] = useState<{ [key: string]: { [key: string]: IFindNodesByPatternState }}>({});
+	const [findNodesByPatternStateMap, setFindNodesByPatternStateMap] = useState<{ [key: string]: { [key: string]: { [key: string]: IFindNodesByPatternState } } }>({});
+	// state for the create name filter pattern state map
+	const [createNameFilterPatternStateMap, setCreateNameFilterPatternStateMap] = useState<{ [key: string]: ICreateNameFilterPatternState }>({});
 	// state for the find nodes by pattern handlers
 	const [findNodesByPatternHandlers, setFindNodesByPatternHandlers] = useState<JSX.Element[]>([]);
+	// state for the create name filter pattern handlers
+	const [createNameFilterPatternHandlers, setCreateNameFilterPatternHandlers] = useState<JSX.Element[]>([]);
 	// restriction settings state
 	const [restrictions, setRestrictions] = useState<Settings["restrictions"]>({});
 
-	// create the name filter patterns
-	const { patterns } = useCreateNameFilterPattern(undefined, restrictionProps?.find(r => r.type === "geometry")?.nameFilter);
-
 	useEffect(() => {
-		const findNodesByPatternHandlers: JSX.Element[] = [];
-		Object.entries(patterns).forEach(([sessionId, pattern]) => {
-			Object.entries(pattern).forEach(([outputId, pattern]) => {
-				if (!findNodesByPatternStateMap[sessionId]?.[outputId]) {
-					setFindNodesByPatternStateMap({
-						...findNodesByPatternStateMap,
-						[sessionId]: {
-							...findNodesByPatternStateMap[sessionId],
-							[outputId]: {
-								nodes: []
-							}
-						}
-					});
-				}
-
-				findNodesByPatternHandlers.push(
-					<FindNodesByPatternHandler
-						key={`FindNodesByPatternHandler_${sessionId}_${outputId}`}
-						sessionId={sessionId}
-						outputIdOrName={outputId}
-						patterns={pattern}
+		const createNameFilterPatternHandlers: JSX.Element[] = [];
+		if (restrictionProps) {
+			restrictionProps.forEach((restrictionDefinition, index) => {
+				if(restrictionDefinition.type !== "geometry") return;
+				createNameFilterPatternHandlers.push(
+					<CreateNameFilterPatternHandler
+						key={`CreateNameFilterPatternHandler_${restrictionDefinition.id || `restriction_${index}`}`}
+						nameFilter={restrictionDefinition.nameFilter}
 						setData={(data) => {
-							setFindNodesByPatternStateMap(prev => ({
+							setCreateNameFilterPatternStateMap(prev => ({
 								...prev,
-								[sessionId]: {
-									...prev[sessionId],
-									[outputId]: data as IFindNodesByPatternState
-								}
+								[restrictionDefinition.id || `restriction_${index}`]: data as ICreateNameFilterPatternState
 							}));
 						}}
 					/>
 				);
 			});
+		}
+
+		setCreateNameFilterPatternHandlers(createNameFilterPatternHandlers);
+	}, [restrictionProps]);
+
+
+	useEffect(() => {
+		const findNodesByPatternHandlers: JSX.Element[] = [];
+		Object.entries(createNameFilterPatternStateMap).forEach(([restrictionId, patterns]) => {
+			Object.entries(patterns.patterns).forEach(([sessionId, pattern]) => {
+				Object.entries(pattern).forEach(([outputId, pattern]) => {
+					if (!findNodesByPatternStateMap[sessionId]?.[outputId]) {
+						setFindNodesByPatternStateMap({
+							...findNodesByPatternStateMap,
+							[restrictionId]: {
+								...(findNodesByPatternStateMap[restrictionId] || {}),
+								[sessionId]: {
+									...(findNodesByPatternStateMap[restrictionId]?.[sessionId] || {}),
+									[outputId]: {
+										nodes: []
+									}
+								}
+							}
+						});
+					}
+
+					findNodesByPatternHandlers.push(
+						<FindNodesByPatternHandler
+							key={`FindNodesByPatternHandler_${restrictionId}_${sessionId}_${outputId}`}
+							sessionId={sessionId}
+							outputIdOrName={outputId}
+							patterns={pattern}
+							setData={(data) => {
+								setFindNodesByPatternStateMap(prev => ({
+									...prev,
+									[restrictionId]: {
+										...(prev[restrictionId] || {}),
+										[sessionId]: {
+											...(prev[restrictionId]?.[sessionId] || {}),
+											[outputId]: data as IFindNodesByPatternState
+										}
+									}
+								}));
+							}}
+						/>
+					);
+				});
+			});
 		});
 
 		setFindNodesByPatternHandlers(findNodesByPatternHandlers);
-	}, [patterns]);
+	}, [createNameFilterPatternStateMap]);
 
 	useEffect(() => {
-		const gatheredNodes: { [key: string]: { [key: string]: ITreeNode[] }} = {};
-		Object.entries(findNodesByPatternStateMap).forEach(([sessionId, dataPerSession]) => {
-			Object.entries(dataPerSession).forEach(([outputId, dataPerOutput]) => {
-				if(!gatheredNodes[sessionId]) gatheredNodes[sessionId] = {};
-				gatheredNodes[sessionId][outputId] = dataPerOutput.nodes;
+		const gatheredNodes: { [key: string]: { [key: string]: { [key: string]: ITreeNode[] } } } = {};
+		Object.entries(findNodesByPatternStateMap).forEach(([restrictionId, dataPerRestriction]) => {
+			Object.entries(dataPerRestriction).forEach(([sessionId, dataPerSession]) => {
+				Object.entries(dataPerSession).forEach(([outputId, dataPerOutput]) => {
+					if (!gatheredNodes[restrictionId]) gatheredNodes[restrictionId] = {};
+					if (!gatheredNodes[restrictionId][sessionId]) gatheredNodes[restrictionId][sessionId] = {};
+					gatheredNodes[restrictionId][sessionId][outputId] = dataPerOutput.nodes;
+				});
 			});
 		});
 
@@ -102,12 +138,13 @@ export function useRestrictions(
 			for (let i = 0; i < restrictionProps.length; i++) {
 				const r = restrictionProps![i];
 				const restrictionName = r.id || `restriction_${i}`;
+				const nodesPerRestriction = nodes[restrictionName];
 
-				if(r.type === "geometry" && Object.keys(nodes).length !== 0) {
+				if (r.type === "geometry" && nodesPerRestriction && Object.keys(nodesPerRestriction).length !== 0) {
 					const nodesArray: ITreeNode[] = [];
-					for (const sessionId in nodes) {
-						for (const outputId in nodes[sessionId]) {
-							nodesArray.push(...nodes[sessionId][outputId]);
+					for (const sessionId in nodesPerRestriction) {
+						for (const outputId in nodesPerRestriction[sessionId]) {
+							nodesArray.push(...nodesPerRestriction[sessionId][outputId]);
 						}
 					}
 
@@ -121,11 +158,12 @@ export function useRestrictions(
 				}
 			}
 		}
+
 		setRestrictions(restrictions);
 	}, [restrictionProps, nodes]);
 
 	return {
-		findNodesByPatternHandlers,
+		handlers: findNodesByPatternHandlers.concat(createNameFilterPatternHandlers),
 		restrictions
 	};
 }
