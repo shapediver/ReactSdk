@@ -9,8 +9,7 @@ import {
 export function createNotificationsWithDefaults(props: NotificationStyleProps = {}): INotificationContext {
 	const { show, hide, update } = notifications;
 	const { autoClose, successColor, warningColor = "yellow", errorColor = "red" } = props;
-	console.debug("autoClose", autoClose);
-
+	
 	return {
 		show,
 		hide,
