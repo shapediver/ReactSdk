@@ -1,7 +1,8 @@
 import { addListener, DraggingParameterValue, EVENTTYPE_INTERACTION, IEvent, removeListener } from "@shapediver/viewer";
 import { DragManager, InteractionEventResponseMapping, matchNodesWithPatterns, RestrictionProperties } from "@shapediver/viewer.features.interaction";
 import { useState, useEffect, useRef } from "react";
-import { ConvertedDragObject } from "../useCreateNameFilterPattern";
+import { RESTRICTION_TYPE } from "@shapediver/viewer.features.drawing-tools";
+import { ConvertedDragObject } from "../useConvertDraggingData";
 
 // #region Functions (1)
 
@@ -56,12 +57,27 @@ export function useDragManagerEvents(
 					const draggedNodeNames = matchNodesWithPatterns(patterns, dragged);
 					// if there are, add the restrictions to the drag manager
 					if (draggedNodeNames.length > 0) {
-						// add the restrictions
-						convertedDragObjects[i].restrictions.forEach(restrictionId => {
-							const restriction = restrictions[restrictionId];
-							if(!restriction) return;
-							(dragEvent.manager as DragManager).addRestriction(restriction);
-						});
+						let addedRestrictions = false;
+						if(convertedDragObjects[i].restrictions && convertedDragObjects[i].restrictions.length > 0) {
+							// add the restrictions
+							convertedDragObjects[i].restrictions.forEach(restrictionId => {
+								const restriction = restrictions[restrictionId];
+								if(!restriction) return;
+								(dragEvent.manager as DragManager).addRestriction(restriction);
+								addedRestrictions = true;
+							});
+						} 
+					
+						if(!addedRestrictions) {
+							// add a default plane restriction if no restrictions were added
+							(dragEvent.manager as DragManager).addRestriction(restrictions["default"] = {
+								type: RESTRICTION_TYPE.PLANE,
+								id: "default",
+								origin: [0, 0, 0],
+								vector_u: [1, 0, 0],
+								vector_v: [0, 1, 0]
+							});
+						}
 					}
 				}
 			}

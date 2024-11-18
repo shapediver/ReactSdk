@@ -134,7 +134,7 @@ export function useRestrictions(
 	 */
 	useEffect(() => {
 		const restrictions: Settings["restrictions"] = {};
-		if (restrictionProps) {
+		if (restrictionProps && restrictionProps.length > 0) {
 			for (let i = 0; i < restrictionProps.length; i++) {
 				const r = restrictionProps![i];
 				const restrictionName = r.id || `restriction_${i}`;
