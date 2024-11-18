@@ -89,11 +89,12 @@ export default function AppBuilderAppShellTemplatePage(props: IAppBuilderTemplat
 	const isLandscape = useIsLandscape();
 	const theme = useMantineTheme();
 	const aboveNavbarBreakpoint = useMediaQuery(`(min-width: ${theme.breakpoints[navbarBreakpoint]})`);
-	const showBottomInGrid = !!bottom && aboveNavbarBreakpoint && isLandscape;
+	const showBottomInGrid = !!bottom && aboveNavbarBreakpoint;
+	const showRightAtBottom = !showBottomInGrid && !isLandscape;
 	const hasNavbarContent = !!left || (!!bottom && !showBottomInGrid);
 	const showHeader = !!top || (!!left && !aboveNavbarBreakpoint) || (!!bottom && !showBottomInGrid && !aboveNavbarBreakpoint);
-	const hasRight = !!right && isLandscape;
-	const hasBottom = (!!right && !isLandscape) || (!!bottom && showBottomInGrid);
+	const hasRight = !!right && !showRightAtBottom;
+	const hasBottom = (!!right && showRightAtBottom) || (!!bottom && showBottomInGrid);
 	
 	const columns = useResponsiveValueSelector(_columns);
 	const rows = useResponsiveValueSelector(_rows);
@@ -154,7 +155,7 @@ export default function AppBuilderAppShellTemplatePage(props: IAppBuilderTemplat
 						{ left?.node }
 					</AppBuilderContainerWrapper>
 					{
-						!bottom ? undefined : showBottomInGrid ? undefined : <AppBuilderContainerWrapper name="bottom">
+						!bottom ? undefined : showBottomInGrid ? undefined : <AppBuilderContainerWrapper name="bottom" orientation="vertical">
 							{ bottom.node }
 						</AppBuilderContainerWrapper>
 					}
@@ -169,7 +170,7 @@ export default function AppBuilderAppShellTemplatePage(props: IAppBuilderTemplat
 					</section>
 					{ !right ? undefined : 
 						<section
-							className={`${isLandscape ? classes.appShellGridAreaRight : classes.appShellGridAreaBottomPortrait}`}
+							className={`${!showRightAtBottom ? classes.appShellGridAreaRight : classes.appShellGridAreaBottomPortrait}`}
 						>
 							<AppBuilderContainerWrapper name="right">
 								{ right.node }
