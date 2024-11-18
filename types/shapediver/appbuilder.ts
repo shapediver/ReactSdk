@@ -402,6 +402,16 @@ export interface IAppBuilderSettingsSession extends SessionCreateDto {
 }
 
 /**
+ * Settings for a session used by the AppBuilder.
+ */
+export interface IAppBuilderSettingsJsonSession extends Omit<IAppBuilderSettingsSession, "modelViewUrl"> {
+	/**
+	 * Override modelViewUrl to be optional.
+	 */
+	modelViewUrl?: string,
+}
+
+/**
  * AppBuilder-related settings.
  */
 export interface IAppBuilderSettingsSettings {
@@ -418,7 +428,7 @@ export interface IAppBuilderSettingsSettings {
 export interface IAppBuilderSettingsJson {
 	version: "1.0",
 	/** Session to load. */
-    sessions?: IAppBuilderSettingsSession[]
+    sessions?: IAppBuilderSettingsJsonSession[]
 	/** Settings */
 	settings?: IAppBuilderSettingsSettings
 	/** 
@@ -438,6 +448,14 @@ export interface IAppBuilderSettingsJson {
  * Settings for initializing an AppBuilder application. This defines the sessions to create.
  */
 export interface IAppBuilderSettings extends IAppBuilderSettingsJson {
+	/** Session to load. */
+    sessions: IAppBuilderSettingsJsonSession[]
+}
+
+/**
+ * Settings for initializing an AppBuilder application. This defines the sessions to create.
+ */
+export interface IAppBuilderSettingsResolved extends IAppBuilderSettings {
 	/** Session to load. */
     sessions: IAppBuilderSettingsSession[]
 }

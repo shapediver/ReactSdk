@@ -247,7 +247,7 @@ export const validateAppBuilder = (value: any) => {
 const IAppBuilderSettingsSessionSchema = z.object({
 	ticket: z.string().optional(),
 	guid: z.string().optional(),
-	modelViewUrl: z.string(),
+	modelViewUrl: z.string().optional(),
 	jwtToken: z.string().optional(),
 	id: z.string(),
 	waitForOutputs: z.boolean().optional(),

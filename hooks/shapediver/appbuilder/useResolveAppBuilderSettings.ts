@@ -1,5 +1,5 @@
 import useAsync from "../../misc/useAsync";
-import { IAppBuilderSettings } from "../../../types/shapediver/appbuilder";
+import { IAppBuilderSettings, IAppBuilderSettingsResolved, IAppBuilderSettingsSession } from "../../../types/shapediver/appbuilder";
 import { SdPlatformModelGetEmbeddableFields, create } from "@shapediver/sdk.platform-api-sdk-v1";
 import { getPlatformClientId, shouldUsePlatform } from "../../../utils/platform/environment";
 import { useShapeDiverStorePlatform } from "../../../store/useShapeDiverStorePlatform";
@@ -28,8 +28,11 @@ export default function useResolveAppBuilderSettings(settings : IAppBuilderSetti
 		if (!settings) return;
 		
 		const sessions = await Promise.all(settings.sessions.map(async session => {
-			if (!session.slug || !session.platformUrl)
-				return session;
+			if (!session.slug || !session.platformUrl) {
+				if (!session.ticket || !session.modelViewUrl) 
+					throw new Error("Session definition must either contain slug, or ticket and modelViewUrl.");
+				return session as IAppBuilderSettingsSession;
+			}
 			
 			// in case we are running on the platform and the session is on the same platform,
 			// use a model get call to get ticket, modelViewUrl and token
@@ -60,7 +63,7 @@ export default function useResolveAppBuilderSettings(settings : IAppBuilderSetti
 
 						return model.access_token!;
 					}
-				};
+				} as IAppBuilderSettingsSession;
 			}
 			// otherwise try to use iframe embedding
 			else {
@@ -83,11 +86,11 @@ export default function useResolveAppBuilderSettings(settings : IAppBuilderSetti
 
 						return iframeData.token;
 					}
-				};
+				} as IAppBuilderSettingsSession;
 			}
 		}));
 
-		const settingsResolved: IAppBuilderSettings = { 
+		const settingsResolved: IAppBuilderSettingsResolved = { 
 			...settings, 
 			sessions, 
 		};
