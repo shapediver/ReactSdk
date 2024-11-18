@@ -390,7 +390,12 @@ export const useCustomTheme = (props: Props = {}) => {
 				// headerHeight: "4em",
 				// headerHeight: { base: "4em", md: "6em"},
 				// navbarBreakpoint: "md",
-				// navbarWidth: { md: 200, lg: 250 }
+				// navbarWidth: { md: 200, lg: 250 },
+				// columns: 3, // responsive example: { base: 2, lg: 3 },
+				// rows: 3, // responsive example: { base: 2, lg: 3 },
+				// rightColumns: 1, 
+				// bottomRows: 1,
+				// bottomFullWidth: false,
 			}),
 			/**
 			 * AppBuilderGridTemplatePage

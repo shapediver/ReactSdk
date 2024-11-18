@@ -7,6 +7,7 @@ import { AppShellSize } from "@mantine/core/lib/components/AppShell/AppShell.typ
 import AppBuilderContainerWrapper from "./AppBuilderContainerWrapper";
 import { createGridLayout } from "../../utils/misc/layout";
 import { IAppBuilderTemplatePageProps } from "../../types/pages/appbuildertemplates";
+import { ResponsiveValueType, useResponsiveValueSelector } from "../../hooks/ui/useResponsiveValueSelector";
 
 interface StyleProps {
 	/** Height of the header (responsive) */
@@ -15,12 +16,27 @@ interface StyleProps {
 	navbarBreakpoint: MantineBreakpoint;
 	/** Width of the navigation bar */
 	navbarWidth: AppShellResponsiveSize | AppShellSize;
+	/** Main area (viewport, bottom, and right container): Number of grid columns */
+	columns: ResponsiveValueType<number>;
+	/** Main area (viewport, bottom, and right container): Number of grid rows */
+	rows: ResponsiveValueType<number>;
+	/** Main area (viewport, bottom, and right container): Number of columns for right container */
+	rightColumns: ResponsiveValueType<number>;
+	/** Main area (viewport, bottom, and right container): Number of rows for bottom container */
+	bottomRows: ResponsiveValueType<number>;
+	/** Main area (viewport, bottom, and right container): Shall the bottom container use the full width? */
+	bottomFullWidth: ResponsiveValueType<boolean>;
 }
 
 const defaultStyleProps: StyleProps = {
-	headerHeight:{ base: "4em", md: "4em"},
+	headerHeight: { base: "4em", md: "4em"},
 	navbarBreakpoint: "md",
-	navbarWidth: { md: 250, lg: 300 }
+	navbarWidth: { md: 250, lg: 300 },
+	columns: 3,
+	rows: 3,
+	rightColumns: 1,
+	bottomRows: 1,
+	bottomFullWidth: false,
 };
 
 type AppBuilderAppShellTemplatePageThemePropsType = Partial<StyleProps>;
@@ -30,9 +46,6 @@ export function AppBuilderAppShellTemplatePageThemeProps(props: AppBuilderAppShe
 		defaultProps: props
 	};
 }
-
-const COLUMNS = 3;
-const ROWS = 3;
 
 /**
  * AppShell layout template page for AppBuilder. 
@@ -65,6 +78,11 @@ export default function AppBuilderAppShellTemplatePage(props: IAppBuilderTemplat
 		headerHeight,
 		navbarBreakpoint,
 		navbarWidth,
+		columns: _columns,
+		rows: _rows,
+		rightColumns: _rightColumns,
+		bottomRows: _bottomRows,
+		bottomFullWidth: _bottomFullWidth,
 	} = useProps("AppBuilderAppShellTemplatePage", defaultStyleProps, props);
 
 	const [opened, { toggle }] = useDisclosure();
@@ -76,13 +94,22 @@ export default function AppBuilderAppShellTemplatePage(props: IAppBuilderTemplat
 	const showHeader = !!top || (!!left && !aboveNavbarBreakpoint) || (!!bottom && !showBottomInGrid && !aboveNavbarBreakpoint);
 	const hasRight = !!right && isLandscape;
 	const hasBottom = (!!right && !isLandscape) || (!!bottom && showBottomInGrid);
+	
+	const columns = useResponsiveValueSelector(_columns);
+	const rows = useResponsiveValueSelector(_rows);
+	const rightColumns = useResponsiveValueSelector(_rightColumns);
+	const bottomRows = useResponsiveValueSelector(_bottomRows);
+	const bottomFullWidth = useResponsiveValueSelector(_bottomFullWidth);
 
 	const [rootStyle, setRootStyle] = useState<React.CSSProperties>({
 		...(createGridLayout({
 			hasRight,
 			hasBottom,
-			rows: ROWS,
-			columns: COLUMNS
+			rows,
+			columns,
+			rightColumns,
+			bottomRows,
+			bottomFullWidth,
 		}))
 	});
 
@@ -92,11 +119,14 @@ export default function AppBuilderAppShellTemplatePage(props: IAppBuilderTemplat
 			...(createGridLayout({
 				hasRight,
 				hasBottom,
-				rows: ROWS,
-				columns: COLUMNS
+				rows,
+				columns,
+				rightColumns,
+				bottomRows,
+				bottomFullWidth,
 			}))
 		});
-	}, [hasRight, hasBottom]);
+	}, [hasRight, hasBottom, columns, rows, rightColumns, bottomRows, bottomFullWidth]);
 
 	return (
 		<>
