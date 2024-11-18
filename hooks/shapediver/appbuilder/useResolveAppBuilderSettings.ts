@@ -1,7 +1,7 @@
 import useAsync from "../../misc/useAsync";
 import { IAppBuilderSettings, IAppBuilderSettingsResolved, IAppBuilderSettingsSession } from "../../../types/shapediver/appbuilder";
 import { SdPlatformModelGetEmbeddableFields, create } from "@shapediver/sdk.platform-api-sdk-v1";
-import { getPlatformClientId, shouldUsePlatform } from "../../../utils/platform/environment";
+import { getDefaultPlatformUrl, getPlatformClientId, shouldUsePlatform } from "../../../utils/platform/environment";
 import { useShapeDiverStorePlatform } from "../../../store/useShapeDiverStorePlatform";
 
 /**
@@ -28,17 +28,19 @@ export default function useResolveAppBuilderSettings(settings : IAppBuilderSetti
 		if (!settings) return;
 		
 		const sessions = await Promise.all(settings.sessions.map(async session => {
-			if (!session.slug || !session.platformUrl) {
+			if (!session.slug) {
 				if (!session.ticket || !session.modelViewUrl) 
 					throw new Error("Session definition must either contain slug, or ticket and modelViewUrl.");
 				return session as IAppBuilderSettingsSession;
 			}
+
+			const platformUrl = session.platformUrl ?? getDefaultPlatformUrl();
 			
 			// in case we are running on the platform and the session is on the same platform,
 			// use a model get call to get ticket, modelViewUrl and token
-			if (shouldUsePlatform() && sdkRef?.platformUrl === session.platformUrl) {
+			if (shouldUsePlatform() && sdkRef!.platformUrl === platformUrl) {
 				const getModel = async () => {
-					const result = await sdkRef?.client.models.get(session.slug!, [
+					const result = await sdkRef!.client.models.get(session.slug!, [
 						SdPlatformModelGetEmbeddableFields.BackendSystem,
 						SdPlatformModelGetEmbeddableFields.Ticket,
 						SdPlatformModelGetEmbeddableFields.TokenExportFallback,
@@ -68,7 +70,7 @@ export default function useResolveAppBuilderSettings(settings : IAppBuilderSetti
 			// otherwise try to use iframe embedding
 			else {
 				const getIframeData = async () => {
-					const client = create({ clientId: getPlatformClientId(), baseUrl: session.platformUrl });
+					const client = create({ clientId: getPlatformClientId(), baseUrl: platformUrl });
 					const result = await client.models.iframeEmbedding(session.slug!);
 					
 					return result.data;

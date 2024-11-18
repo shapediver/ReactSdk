@@ -31,7 +31,8 @@ export function getDefaultPlatformUrl() {
 
 /** 
  * Test whether the application should behave like it is running in the ShapeDiver platform.
- * This is the case if it is running on localhost and the query parameter `useDevPlatform=true` is set to `true`,
+ * This is the case if it is running on localhost and one of the query parameters `useDevPlatform`, 
+ * `useStagingPlatform` or `useSandboxPlatform` is set to `true`,
  * or if it is actually running on the ShapeDiver platform.
  */
 export function shouldUsePlatform() {
