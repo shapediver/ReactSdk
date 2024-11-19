@@ -1,6 +1,6 @@
 import { InteractionEngine } from "@shapediver/viewer.features.interaction";
 import { useEffect } from "react";
-import { useShapeDiverStoreViewer } from "../../../../store/useShapeDiverStoreViewer";
+import { useShapeDiverStoreViewport } from "../../../../store/useShapeDiverStoreViewport";
 
 // #region Functions (1)
 
@@ -19,7 +19,7 @@ export function useInteractionEngine(viewportId: string): {
 	interactionEngine?: InteractionEngine
 } {
 	// get the viewport API
-	const viewportApi = useShapeDiverStoreViewer(state => { return state.viewports[viewportId]; });
+	const viewportApi = useShapeDiverStoreViewport(state => { return state.viewports[viewportId]; });
 
 	// use an effect to create the interaction engine
 	useEffect(() => {

@@ -6,7 +6,7 @@ import { useHoverManager } from "../selection/useHoverManager";
 import { useDragManagerEvents } from "./useDragManagerEvents";
 import { useConvertDraggingData } from "../useConvertDraggingData";
 import { NodeInteractionDataHandler } from "../useNodeInteractionData";
-import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
+import { useShapeDiverStoreSession } from "shared/store/useShapeDiverStoreSession";
 import { mat4 } from "gl-matrix";
 import { useRestrictions } from "../../drawing/useRestrictions";
 
@@ -50,7 +50,7 @@ export function useDragging(
 	handlers: JSX.Element[]
 } {
 	// get the session API
-	const sessionApis = useShapeDiverStoreViewer(state => { return sessionIds.map(id => state.sessions[id]); });
+	const sessionApis = useShapeDiverStoreSession(state => { return sessionIds.map(id => state.sessions[id]); });
 	// create a unique component ID
 	const componentId = useId();
 

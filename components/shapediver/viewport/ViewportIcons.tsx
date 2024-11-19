@@ -4,7 +4,7 @@ import { useClickEventHandler } from "../../../hooks/misc/useClickEventHandler";
 import { isIPhone } from "../../../utils/misc/navigator";
 import { useFullscreen } from "../../../hooks/ui/useFullscreen";
 import { firstLetterUppercase } from "../../../utils/misc/strings";
-import { useShapeDiverStoreViewer } from "../../../store/useShapeDiverStoreViewer";
+import { useShapeDiverStoreViewport } from "../../../store/useShapeDiverStoreViewport";
 import { FLAG_TYPE } from "@shapediver/viewer";
 import classes from "./ViewportIcons.module.css";
 import Icon from "../../ui/Icon";
@@ -74,7 +74,7 @@ export default function ViewportIcons(props: Props & Partial<OptionalProps>) {
 	const { viewportId: defaultViewportId } = useViewportId();
 	const viewportId = _viewportId ?? defaultViewportId;
 
-	const viewport = useShapeDiverStoreViewer(state => state.viewports[viewportId]);
+	const viewport = useShapeDiverStoreViewport(state => state.viewports[viewportId]);
 
 	const isArEnabled = viewport ? viewport.enableAR : false;
 	const isViewableInAr = viewport ? viewport.viewableInAR() : false;

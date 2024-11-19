@@ -1,7 +1,7 @@
 import { IShapeDiverExportDefinition } from "./export";
 import { IShapeDiverParameterDefinition } from "./parameter";
 import { IconType } from "./icons";
-import { SessionCreateDto } from "../store/shapediverStoreViewer";
+import { SessionCreateDto } from "../store/shapediverStoreSession";
 import { 
 	IAppBuilderWidgetPropsAreaChart, 
 	IAppBuilderWidgetPropsBarChart, 

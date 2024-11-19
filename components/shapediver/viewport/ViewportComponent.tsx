@@ -1,6 +1,6 @@
 import React from "react";
 import { useViewport } from "../../../hooks/shapediver/viewer/useViewport";
-import { ViewportCreateDto } from "../../../types/store/shapediverStoreViewer";
+import { ViewportCreateDto } from "../../../types/store/shapediverStoreViewport";
 import classes from "./ViewportComponent.module.css";
 import { MantineThemeComponent, useComputedColorScheme, useProps } from "@mantine/core";
 import { BUSY_MODE_DISPLAY, SPINNER_POSITIONING } from "@shapediver/viewer";

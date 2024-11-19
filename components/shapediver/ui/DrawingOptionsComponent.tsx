@@ -3,7 +3,7 @@ import { PlaneRestrictionApi, GeometryRestrictionApi, IDrawingToolsApi } from "@
 import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
 import React, { useState, useEffect } from "react";
 import Icon from "shared/components/ui/Icon";
-import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
+import { useShapeDiverStoreViewport } from "shared/store/useShapeDiverStoreViewport";
 import { IconTypeEnum } from "shared/types/shapediver/icons";
 import { useDrawingOptionsStore } from "shared/store/useDrawingOptionsStore";
 import MarkdownWidgetComponent from "./MarkdownWidgetComponent";
@@ -45,7 +45,7 @@ export default function DrawingOptionsComponent(props: {
 	// state for the options
 	const [optionsOpened, setOptionsOpened] = useState(false);
 	// get the viewport API
-	const viewportApi = useShapeDiverStoreViewer(state => { return state.viewports[viewportId]; });
+	const viewportApi = useShapeDiverStoreViewport(state => { return state.viewports[viewportId]; });
 
 	// state for the plane restriction availability
 	const [hasPlaneRestriction, setHasPlaneRestriction] = useState(false);

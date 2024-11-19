@@ -1,5 +1,6 @@
 import { useCallback } from "react";
-import { useShapeDiverStoreViewer } from "../../store/useShapeDiverStoreViewer";
+import { useShapeDiverStoreViewport } from "../../store/useShapeDiverStoreViewport";
+import { useShapeDiverStoreSession } from "../../store/useShapeDiverStoreSession";
 import { useShallow } from "zustand/react/shallow";
 import { useViewportId } from "./viewer/useViewportId";
 
@@ -17,8 +18,10 @@ export function useCreateModelState(props: Props) {
 	
 	const { namespace: sessionId } = props;
 	const { viewportId } = useViewportId();
-	const { sessionApi, viewportApi } = useShapeDiverStoreViewer(useShallow(state => ({
+	const { sessionApi } = useShapeDiverStoreSession(useShallow(state => ({
 		sessionApi: state.sessions[sessionId],
+	})));
+	const { viewportApi } = useShapeDiverStoreViewport(useShallow(state => ({
 		viewportApi: state.viewports[viewportId],
 	})));
 	

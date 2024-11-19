@@ -1,5 +1,5 @@
 import { convertUserDefinedNameFilters, OutputNodeNameFilterPatterns } from "@shapediver/viewer.features.interaction";
-import { useShapeDiverStoreViewer } from "../../../../store/useShapeDiverStoreViewer";
+import { useShapeDiverStoreSession } from "../../../../store/useShapeDiverStoreSession";
 import { useState, useEffect } from "react";
 
 // #region Type aliases (2)
@@ -31,7 +31,7 @@ export function useCreateNameFilterPattern(sessionIds?: string[], nameFilter?: s
 	patterns: { [key: string]: OutputNodeNameFilterPatterns }
 } {
 	// get the session API
-	const sessions = useShapeDiverStoreViewer(state => { return state.sessions; });
+	const sessions = useShapeDiverStoreSession(state => { return state.sessions; });
 
 	// create a state for the pattern
 	const [patterns, setPatterns] = useState<{ [key: string]: OutputNodeNameFilterPatterns }>({});

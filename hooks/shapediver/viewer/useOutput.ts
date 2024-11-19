@@ -1,5 +1,5 @@
 import { IOutputApi } from "@shapediver/viewer";
-import { useShapeDiverStoreViewer } from "../../../store/useShapeDiverStoreViewer";
+import { useShapeDiverStoreSession } from "../../../store/useShapeDiverStoreSession";
 
 /**
  * Hook providing access to outputs by id or name. 
@@ -18,7 +18,7 @@ export function useOutput(sessionId: string, outputIdOrName: string) : {
 	outputApi: IOutputApi | undefined,
 } {
 	
-	const outputApi = useShapeDiverStoreViewer(state => {
+	const outputApi = useShapeDiverStoreSession(state => {
 		const sessionApi = state.sessions[sessionId];
 		if (!sessionApi || !sessionApi.outputs)
 			return;

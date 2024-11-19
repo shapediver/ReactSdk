@@ -1,6 +1,6 @@
 import { createDrawingTools, GeometryRestrictionApi, IDrawingToolsApi, PlaneRestrictionApi, PointsData, Settings } from "@shapediver/viewer.features.drawing-tools";
 import { useEffect, useState } from "react";
-import { useShapeDiverStoreViewer } from "shared/store/useShapeDiverStoreViewer";
+import { useShapeDiverStoreViewport } from "shared/store/useShapeDiverStoreViewport";
 import { useDrawingOptionsStore } from "shared/store/useDrawingOptionsStore";
 
 // #region Variables (1)
@@ -33,7 +33,7 @@ export function useDrawingToolsApi(
 	const { showPointLabels, showDistanceLabels, gridSize, angleStep, snapToVertices, snapToEdges, snapToFaces } = useDrawingOptionsStore();
 
 	// get the viewport API
-	const viewportApi = useShapeDiverStoreViewer(state => { return state.viewports[viewportId]; });
+	const viewportApi = useShapeDiverStoreViewport(state => { return state.viewports[viewportId]; });
 	// state for the drawing tools API
 	const [drawingToolsApi, setDrawingToolsApi] = useState<IDrawingToolsApi | undefined>(undefined);
 

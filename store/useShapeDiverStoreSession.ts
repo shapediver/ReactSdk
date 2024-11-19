@@ -1,9 +1,9 @@
-import { createSession, createViewport, ISessionApi, isViewerGeometryBackendResponseError, IViewportApi } from "@shapediver/viewer";
-import { SessionCreateDto, IShapeDiverStoreViewer, ViewportCreateDto } from "../types/store/shapediverStoreViewer";
+import { createSession, ISessionApi, isViewerGeometryBackendResponseError } from "@shapediver/viewer";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { devtoolsSettings } from "./storeSettings";
 import { ShapeDiverResponseErrorType } from "@shapediver/api.geometry-api-dto-v2";
+import { IShapeDiverStoreSession, SessionCreateDto } from "shared/types/store/shapediverStoreSession";
 
 /**
  * Helper for comparing sessions.
@@ -20,84 +20,10 @@ const createSessionIdentifier =  function(parameters: Pick<SessionCreateDto, "id
 };
 
 /**
- * Helper for comparing viewports.
+ * Store data related to the ShapeDiver 3D Viewer Session.
+ * @see {@link IShapeDiverStoreSession}
  */
-const createViewportIdentifier =  function(parameters: Pick<ViewportCreateDto, "id">) {
-	return JSON.stringify({
-		id: parameters.id,
-	});
-};
-
-/**
- * Store data related to the ShapeDiver 3D Viewer.
- * @see {@link IShapeDiverStoreViewer}
- */
-export const useShapeDiverStoreViewer = create<IShapeDiverStoreViewer>()(devtools((set, get) => ({
-
-	viewports: {},
-
-	createViewport: async (
-		dto: ViewportCreateDto,
-		callbacks,
-	) => {
-		// in case a viewport with the same identifier exists, skip creating a new one
-		const identifier = createViewportIdentifier(dto);
-		const { viewports } = get();
-
-		if ( Object.values(viewports).findIndex(v => identifier === createViewportIdentifier(v)) >= 0 )
-			return;
-
-		let viewport: IViewportApi|undefined = undefined;
-
-		try {
-			viewport = await createViewport(dto);
-		} catch (e: any) {
-			callbacks?.onError(e);
-		}
-
-		set((state) => {
-			return {
-				viewports: {
-					...state.viewports,
-					...viewport ? {[viewport.id]: viewport} : {},
-				},
-			};
-		}, false, "createViewport");
-
-		return viewport;
-	},
-
-	closeViewport: async (
-		viewportId,
-		callbacks,
-	) => {
-
-		const { viewports } = get();
-		const viewport = viewports[viewportId];
-		if (!viewport) return;
-
-		try {
-			await viewport.close();
-		} catch (e) {
-			callbacks?.onError(e);
-
-			return;
-		}
-
-		return set((state) => {
-			// create a new object, omitting the session which was closed
-			const newViewports : {[id: string]: IViewportApi} = {};
-			Object.keys(state.viewports).forEach(id => {
-				if (id !== viewportId)
-					newViewports[id] = state.viewports[id];
-			});
-
-			return {
-				viewports: newViewports,
-			};
-		}, false, "closeViewport");
-	},
-
+export const useShapeDiverStoreSession = create<IShapeDiverStoreSession>()(devtools((set, get) => ({
 	sessions: {},
 
 	createSession: async (
