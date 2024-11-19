@@ -1,4 +1,4 @@
-import { IDrawingParameterSettings, ITreeNode } from "@shapediver/viewer";
+import { IDrawingParameterSettings, ITreeNode } from "@shapediver/viewer.session";
 import { CameraPlaneRestrictionProperties, GeometryRestrictionProperties, LineRestrictionProperties, PlaneRestrictionProperties, PointRestrictionProperties, Settings } from "@shapediver/viewer.features.drawing-tools";
 import React, { useEffect, useState } from "react";
 import { CreateNameFilterPatternHandler, ICreateNameFilterPatternState } from "../interaction/useCreateNameFilterPattern";

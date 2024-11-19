@@ -1,4 +1,4 @@
-import { addListener, DraggingParameterValue, EVENTTYPE_INTERACTION, IEvent, removeListener } from "@shapediver/viewer";
+import { addListener, DraggingParameterValue, EVENTTYPE_INTERACTION, IEvent, removeListener } from "@shapediver/viewer.session";
 import { DragManager, InteractionEventResponseMapping, matchNodesWithPatterns, RestrictionProperties } from "@shapediver/viewer.features.interaction";
 import { useState, useEffect, useRef } from "react";
 import { RESTRICTION_TYPE } from "@shapediver/viewer.features.drawing-tools";

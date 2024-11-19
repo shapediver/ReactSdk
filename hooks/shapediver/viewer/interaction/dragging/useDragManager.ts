@@ -1,4 +1,4 @@
-import { IDraggingParameterProps, MaterialStandardData } from "@shapediver/viewer";
+import { IDraggingParameterProps, MaterialStandardData } from "@shapediver/viewer.session";
 import { DragManager, InteractionEngine } from "@shapediver/viewer.features.interaction";
 import { useEffect, useState } from "react";
 import { useInteractionEngine } from "../useInteractionEngine";

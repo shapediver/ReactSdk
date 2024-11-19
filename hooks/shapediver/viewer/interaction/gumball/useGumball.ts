@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Gumball, updateGumballTransformation } from "@shapediver/viewer.features.gumball";
 import { getNodesByName } from "@shapediver/viewer.features.interaction";
-import { IGumballParameterProps, ISelectionParameterProps } from "@shapediver/viewer";
+import { IGumballParameterProps, ISelectionParameterProps } from "@shapediver/viewer.session";
 import { useShapeDiverStoreSession } from "shared/store/useShapeDiverStoreSession";
 import { useShapeDiverStoreViewport } from "shared/store/useShapeDiverStoreViewport";
 import { useSelection } from "../selection/useSelection";

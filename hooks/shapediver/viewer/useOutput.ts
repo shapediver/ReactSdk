@@ -1,4 +1,4 @@
-import { IOutputApi } from "@shapediver/viewer";
+import { IOutputApi } from "@shapediver/viewer.session";
 import { useShapeDiverStoreSession } from "../../../store/useShapeDiverStoreSession";
 
 /**

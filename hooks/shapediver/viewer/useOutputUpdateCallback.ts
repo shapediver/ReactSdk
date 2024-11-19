@@ -1,4 +1,4 @@
-import { IOutputApi, ITreeNode } from "@shapediver/viewer";
+import { IOutputApi, ITreeNode } from "@shapediver/viewer.session";
 import { useEffect } from "react";
 import { useOutput } from "./useOutput";
 

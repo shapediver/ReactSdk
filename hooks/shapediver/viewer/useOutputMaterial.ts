@@ -2,11 +2,11 @@ import {
 	GeometryData, 
 	IGeometryData, 
 	IMaterialAbstractData,
-	IMaterialAbstractDataProperties, 
-	MaterialEngine,
+	IMaterialAbstractDataProperties,
 	IOutputApi, 
 	ITreeNode
-} from "@shapediver/viewer";
+} from "@shapediver/viewer.session";
+import { MaterialEngine } from "@shapediver/viewer.viewport";
 import { useCallback, useEffect, useRef } from "react";
 import { useOutputNode } from "./useOutputNode";
 

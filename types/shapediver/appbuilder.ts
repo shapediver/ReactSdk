@@ -8,7 +8,7 @@ import {
 	IAppBuilderWidgetPropsLineChart, 
 	IAppBuilderWidgetPropsRoundChart 
 } from "./appbuildercharts";
-import { IInteractionParameterSettings } from "@shapediver/viewer";
+import { IInteractionParameterSettings } from "@shapediver/viewer.session";
 
 /** Type used for parameter definitions */
 export type IAppBuilderParameterDefinition = IShapeDiverParameterDefinition & {

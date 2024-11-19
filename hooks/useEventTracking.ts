@@ -1,4 +1,4 @@
-import { isViewerCustomizationError, ShapeDiverResponseModelComputationStatus } from "@shapediver/viewer";
+import { isViewerCustomizationError, ShapeDiverResponseModelComputationStatus } from "@shapediver/viewer.session";
 import { useContext, useMemo } from "react";
 import { IEventTracking, IEventTrackingProps } from "../types/eventTracking";
 import { NotificationContext } from "../context/NotificationContext";

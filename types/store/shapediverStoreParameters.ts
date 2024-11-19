@@ -1,5 +1,5 @@
 import { ShapeDiverResponseExport } from "@shapediver/api.geometry-api-dto-v2";
-import { ISessionApi } from "@shapediver/viewer";
+import { ISessionApi } from "@shapediver/viewer.session";
 import { IShapeDiverExport } from "../shapediver/export";
 import { IShapeDiverParameter, IShapeDiverParameterDefinition } from "../shapediver/parameter";
 import { StoreApi, UseBoundStore } from "zustand";

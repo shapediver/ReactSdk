@@ -1,4 +1,4 @@
-import { ShapeDiverResponseParameter } from "@shapediver/viewer";
+import { ShapeDiverResponseParameter } from "@shapediver/viewer.session";
 import { IShapeDiverParamOrExport } from "./common";
 
 /**

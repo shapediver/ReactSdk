@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
-import { GumballParameterValue, IGumballParameterProps } from "@shapediver/viewer";
+import { GumballParameterValue, IGumballParameterProps } from "@shapediver/viewer.session";
 import { useGumball } from "../../../hooks/shapediver/viewer/interaction/gumball/useGumball";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import Icon from "../../ui/Icon";

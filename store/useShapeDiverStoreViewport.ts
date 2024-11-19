@@ -1,4 +1,4 @@
-import { createViewport, IViewportApi } from "@shapediver/viewer";
+import { createViewport, IViewportApi } from "@shapediver/viewer.viewport";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { devtoolsSettings } from "./storeSettings";

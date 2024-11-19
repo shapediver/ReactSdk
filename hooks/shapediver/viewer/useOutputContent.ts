@@ -1,4 +1,4 @@
-import { IOutputApi, ShapeDiverResponseOutputContent, EVENTTYPE_OUTPUT, addListener, removeListener, IOutputEvent } from "@shapediver/viewer";
+import { IOutputApi, ShapeDiverResponseOutputContent, EVENTTYPE_OUTPUT, addListener, removeListener, IOutputEvent } from "@shapediver/viewer.session";
 import { useEffect, useState } from "react";
 import { useOutput } from "./useOutput";
 

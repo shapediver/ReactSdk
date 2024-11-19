@@ -5,7 +5,7 @@ import { isIPhone } from "../../../utils/misc/navigator";
 import { useFullscreen } from "../../../hooks/ui/useFullscreen";
 import { firstLetterUppercase } from "../../../utils/misc/strings";
 import { useShapeDiverStoreViewport } from "../../../store/useShapeDiverStoreViewport";
-import { FLAG_TYPE } from "@shapediver/viewer";
+import { FLAG_TYPE } from "@shapediver/viewer.viewport";
 import classes from "./ViewportIcons.module.css";
 import Icon from "../../ui/Icon";
 import { IconTypeEnum } from "../../../types/shapediver/icons";

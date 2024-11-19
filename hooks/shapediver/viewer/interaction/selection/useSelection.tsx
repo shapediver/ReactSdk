@@ -1,4 +1,4 @@
-import { IOutputApi, ISelectionParameterProps, ITreeNode, OutputApiData } from "@shapediver/viewer";
+import { IOutputApi, ISelectionParameterProps, ITreeNode, OutputApiData } from "@shapediver/viewer.session";
 import { checkNodeNameMatch, InteractionData, MultiSelectManager, SelectManager } from "@shapediver/viewer.features.interaction";
 import React, { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { vec3 } from "gl-matrix";

@@ -1,4 +1,4 @@
-import { createSession, ISessionApi, isViewerGeometryBackendResponseError } from "@shapediver/viewer";
+import { createSession, ISessionApi, isViewerGeometryBackendResponseError } from "@shapediver/viewer.session";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { devtoolsSettings } from "./storeSettings";

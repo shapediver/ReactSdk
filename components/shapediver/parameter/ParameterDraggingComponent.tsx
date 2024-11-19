@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
-import { IDraggingParameterProps, DraggingParameterValue } from "@shapediver/viewer";
+import { IDraggingParameterProps, DraggingParameterValue } from "@shapediver/viewer.session";
 import { calculateCombinedDraggedNodes } from "@shapediver/viewer.features.interaction";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import Icon from "../../ui/Icon";

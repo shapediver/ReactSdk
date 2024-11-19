@@ -1,4 +1,4 @@
-import { ISessionApi } from "@shapediver/viewer";
+import { ISessionApi } from "@shapediver/viewer.session";
 import { useEffect, useRef, useState } from "react";
 import { useShapeDiverStoreSession } from "../../store/useShapeDiverStoreSession";
 import { useShapeDiverStoreParameters } from "../../store/useShapeDiverStoreParameters";

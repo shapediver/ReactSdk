@@ -1,4 +1,4 @@
-import { EXPORT_TYPE } from "@shapediver/viewer";
+import { EXPORT_TYPE } from "@shapediver/viewer.session";
 import { useExport } from "../../../../hooks/shapediver/parameters/useExport";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import AppBuilderImage from "../AppBuilderImage";

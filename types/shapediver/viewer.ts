@@ -1,4 +1,4 @@
-import { IFileParameterApi, ShapeDiverResponseParameter } from "@shapediver/viewer";
+import { IFileParameterApi, ShapeDiverResponseParameter } from "@shapediver/viewer.session";
 
 /**
  * Check for type IFileParameterApi

@@ -1,5 +1,5 @@
 import { Button, Loader } from "@mantine/core";
-import { EXPORT_TYPE } from "@shapediver/viewer";
+import { EXPORT_TYPE } from "@shapediver/viewer.session";
 import React, { useState } from "react";
 import ExportLabelComponent from "./ExportLabelComponent";
 import { fetchFileWithToken } from "../../../utils/file";

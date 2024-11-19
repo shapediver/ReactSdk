@@ -1,4 +1,4 @@
-import { ISessionApi, SessionCreationDefinition } from "@shapediver/viewer";
+import { ISessionApi, SessionCreationDefinition } from "@shapediver/viewer.session";
 import { IEventTracking } from "../eventTracking";
 
 /**

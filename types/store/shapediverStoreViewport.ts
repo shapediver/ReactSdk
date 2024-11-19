@@ -1,4 +1,4 @@
-import { IViewportApi, ViewportCreationDefinition } from "@shapediver/viewer";
+import { IViewportApi, ViewportCreationDefinition } from "@shapediver/viewer.viewport";
 import { IEventTracking } from "../eventTracking";
 
 

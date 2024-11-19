@@ -1,4 +1,4 @@
-import { IDraggingParameterProps, DraggingParameterValue } from "@shapediver/viewer";
+import { IDraggingParameterProps, DraggingParameterValue } from "@shapediver/viewer.session";
 import { getNodesByName } from "@shapediver/viewer.features.interaction";
 import React, { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { useDragManager } from "./useDragManager";

@@ -11,7 +11,7 @@ import ParameterSelectComponent from "../../../components/shapediver/parameter/P
 import ParameterSelectionComponent from "../../../components/shapediver/parameter/ParameterSelectionComponent";
 import ParameterSliderComponent from "../../../components/shapediver/parameter/ParameterSliderComponent";
 import ParameterStringComponent from "../../../components/shapediver/parameter/ParameterStringComponent";
-import { EXPORT_TYPE, PARAMETER_TYPE } from "@shapediver/viewer";
+import { EXPORT_TYPE, PARAMETER_TYPE } from "@shapediver/viewer.session";
 import { IShapeDiverParamOrExportDefinition } from "../../shapediver/common";
 import { PropsParameter } from "./propsParameter";
 import { ReactElement } from "react";

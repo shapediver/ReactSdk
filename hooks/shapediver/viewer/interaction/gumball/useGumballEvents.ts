@@ -2,7 +2,7 @@ import {
 	addListener,
 	EVENTTYPE_GUMBALL,
 	removeListener
-} from "@shapediver/viewer";
+} from "@shapediver/viewer.session";
 import { GumballEventResponseMapping } from "@shapediver/viewer.features.gumball";
 import { getNodeData, checkNodeNameMatch } from "@shapediver/viewer.features.interaction";
 import { useEffect, useRef, useState } from "react";

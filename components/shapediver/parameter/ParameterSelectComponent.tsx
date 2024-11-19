@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
-import { PARAMETER_VISUALIZATION } from "@shapediver/viewer";
+import { PARAMETER_VISUALIZATION } from "@shapediver/viewer.session";
 
 /**
  * Functional component that creates a dropdown select component for a string list parameter.

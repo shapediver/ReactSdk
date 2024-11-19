@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { IShapeDiverParameter, IShapeDiverParameterDefinition, IShapeDiverParameterExecutor, IShapeDiverParameterState } from "../types/shapediver/parameter";
-import { IExportApi, IParameterApi, ISessionApi } from "@shapediver/viewer";
+import { IExportApi, IParameterApi, ISessionApi } from "@shapediver/viewer.session";
 import { devtools } from "zustand/middleware";
 import { devtoolsSettings } from "../store/storeSettings";
 import {

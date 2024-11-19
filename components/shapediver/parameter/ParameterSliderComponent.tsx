@@ -4,7 +4,7 @@ import ParameterLabelComponent from "./ParameterLabelComponent";
 import { IShapeDiverParameterDefinition } from "../../../types/shapediver/parameter";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
-import { PARAMETER_TYPE } from "@shapediver/viewer";
+import { PARAMETER_TYPE } from "@shapediver/viewer.session";
 import TooltipWrapper from "../../ui/TooltipWrapper";
 
 /**

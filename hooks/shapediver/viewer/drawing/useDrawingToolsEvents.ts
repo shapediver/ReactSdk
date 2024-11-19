@@ -1,4 +1,4 @@
-import { addListener, EVENTTYPE_DRAWING_TOOLS, IEvent, removeListener } from "@shapediver/viewer";
+import { addListener, EVENTTYPE_DRAWING_TOOLS, IEvent, removeListener } from "@shapediver/viewer.session";
 import { DrawingToolsEventResponseMapping, PointsData } from "@shapediver/viewer.features.drawing-tools";
 import { NotificationContext } from "shared/context/NotificationContext";
 import { useContext, useEffect, useState } from "react";
