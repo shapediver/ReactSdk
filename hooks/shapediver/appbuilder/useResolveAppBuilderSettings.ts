@@ -31,6 +31,7 @@ export default function useResolveAppBuilderSettings(settings : IAppBuilderSetti
 			if (!session.slug) {
 				if (!session.ticket || !session.modelViewUrl) 
 					throw new Error("Session definition must either contain slug, or ticket and modelViewUrl.");
+				
 				return session as IAppBuilderSettingsSession;
 			}
 

@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { ITrackerContext, ITrackerEventData, ITrackerEventOptions } from "../types/context/trackercontext";
+import { ITrackerContext, ITrackerEventData, ITrackerEventOptions, TrackerMetricType } from "../types/context/trackercontext";
 
 export const DummyTracker: ITrackerContext = {
 	trackPageview: function (eventData?: ITrackerEventData, options?: ITrackerEventOptions): void {
@@ -7,6 +7,9 @@ export const DummyTracker: ITrackerContext = {
 	},
 	trackEvent: function (eventName: string, options?: ITrackerEventOptions, eventData?: ITrackerEventData): void {
 		console.debug("Tracking event", eventName, options, eventData);
+	},
+	trackMetric: function (type: TrackerMetricType, metricName: string, value: number, options?: ITrackerEventOptions): void {
+		console.debug("Tracking metric", type, metricName, value, options);
 	}
 };
 
@@ -28,6 +31,10 @@ export function setDefaultTrackerProps(tracker: ITrackerContext, defaultProps: {
 		trackEvent: function (eventName: string, options?: ITrackerEventOptions, eventData?: ITrackerEventData): void {
 			const {props = {}, callback = undefined} = options ?? {};
 			tracker.trackEvent(eventName, { props: {...defaultProps, ...props}, callback}, eventData);
+		},
+		trackMetric: function (type: TrackerMetricType, metricName: string, value: number, options?: ITrackerEventOptions): void {
+			const {props = {}, callback = undefined} = options ?? {};
+			tracker.trackMetric(type, metricName, value, { props: {...defaultProps, ...props}, callback});
 		}
 	};
 }
@@ -45,6 +52,9 @@ export function combineTrackers(trackers: ITrackerContext[]): ITrackerContext {
 		},
 		trackEvent: function (eventName: string, options?: ITrackerEventOptions, eventData?: ITrackerEventData): void {
 			trackers.forEach(t => t.trackEvent(eventName, options, eventData));
-		}
+		},
+		trackMetric: function (type: TrackerMetricType, metricName: string, value: number, options?: ITrackerEventOptions): void {
+			trackers.forEach(t => t.trackMetric(type, metricName, value, options));
+		},
 	};
 }

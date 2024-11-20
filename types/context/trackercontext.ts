@@ -15,6 +15,7 @@ export interface ITrackerEventOptions {
     props?: undefined | {[key: string]: any}
 }
 
+export type TrackerMetricType = "Web vitals";
 
 export interface ITrackerContext {
 
@@ -39,6 +40,21 @@ export interface ITrackerContext {
         eventName: string,
         options?: ITrackerEventOptions,
         eventData?: ITrackerEventData,
+    ): void
+
+    /**
+     * Tracks a custom metric.
+     * Depending on the implementation of the tracker, the metric might be tracked as an event
+     * whose name will be set to the value of type.
+     * @param type Type of the metric to track.
+     * @param metricName Name of the metric to track.
+     * @param value Value of the tracked metric.
+     */
+    trackMetric(
+        type: TrackerMetricType,
+        metricName: string,
+        value: number,
+        options?: ITrackerEventOptions,
     ): void
 
 }

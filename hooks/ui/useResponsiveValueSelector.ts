@@ -17,8 +17,9 @@ export type ResponsiveValueType<T> = {
  * Hook for choosing values according to device with (responsive).
  * @returns 
  */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export function useResponsiveValueSelector<T extends {}>(value: ResponsiveValueType<T>) {
-    const match = useMatches(typeof value === "object" ? value : { base: value });
+	const match = useMatches(typeof value === "object" ? value : { base: value });
 
-    return match;
+	return match;
 }
