@@ -2,7 +2,8 @@ import { createViewport, IViewportApi } from "@shapediver/viewer.viewport";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { devtoolsSettings } from "./storeSettings";
-import { ViewportCreateDto, IShapeDiverStoreViewport } from "../types/store/shapediverStoreViewport";
+import { IShapeDiverStoreViewport } from "../types/store/shapediverStoreViewport";
+import { ViewportCreateDto } from "shared/types/shapediver/viewport";
 
 /**
  * Helper for comparing viewports.

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useShapeDiverStoreViewport } from "../../../store/useShapeDiverStoreViewport";
-import { ViewportCreateDto } from "../../../types/store/shapediverStoreViewport";
 import { useShallow } from "zustand/react/shallow";
 import { useViewportId } from "./useViewportId";
+import { ViewportCreateDto } from "shared/types/shapediver/viewport";
 
 /**
  * Hook for creating a viewport of the ShapeDiver 3D Viewer.

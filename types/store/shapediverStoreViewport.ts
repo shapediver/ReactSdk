@@ -1,13 +1,6 @@
-import { IViewportApi, ViewportCreationDefinition } from "@shapediver/viewer.viewport";
+import { IViewportApi } from "@shapediver/viewer.viewport";
 import { IEventTracking } from "../eventTracking";
-
-
-/**
- * Redeclaration of ViewportCreationDefinition to always have an id.
- */
-export interface ViewportCreateDto extends ViewportCreationDefinition {
-	showStatistics?: boolean,
-}
+import { ViewportCreateDto } from "../shapediver/viewport";
 
 export interface IShapeDiverStoreViewports {
 	[viewportId: string]: IViewportApi;

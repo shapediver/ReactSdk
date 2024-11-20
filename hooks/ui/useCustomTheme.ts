@@ -23,9 +23,6 @@ import {
 	mergeThemeOverrides, 
 	rem
 } from "@mantine/core";
-import { ViewportIconsThemeProps } from "../../components/shapediver/viewport/ViewportIcons";
-import { ViewportBrandingThemeProps, ViewportComponentThemeProps } from "../../components/shapediver/viewport/ViewportComponent";
-import { ViewportOverlayWrapperThemeProps } from "../../components/shapediver/viewport/ViewportOverlayWrapper";
 import { ParameterSliderComponentThemeProps } from "../../components/shapediver/parameter/ParameterSliderComponent";
 import { ParametersAndExportsAccordionComponentThemeProps } from "../../components/shapediver/ui/ParametersAndExportsAccordionComponent";
 import { IconThemeProps } from "../../components/ui/Icon";
@@ -48,6 +45,9 @@ import { ParameterColorComponentThemeProps } from "../../components/shapediver/p
 import { AppBuilderContainerThemeProps } from "../../pages/templates/AppBuilderContainer";
 import { NotificationWrapperThemeProps } from "../../components/ui/NotificationWrapper";
 import { TooltipWrapperThemeProps } from "../../components/ui/TooltipWrapper";
+import { ViewportBrandingThemeProps, ViewportComponentThemeProps } from "shared/types/shapediver/viewport";
+import { ViewportOverlayWrapperThemeProps } from "shared/types/shapediver/viewportOverlayWrapper";
+import { ViewportIconsThemeProps } from "shared/types/shapediver/viewportIcons";
 
 /**
  * Helper function for defining CSS variables for the AppBuilderAppShellTemplate
