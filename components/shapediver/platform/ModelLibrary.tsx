@@ -51,7 +51,7 @@ export default function ModelLibrary(props: IModelLibraryProps) {
 						<ModelCard 
 							key={index} 
 							item={item} 
-							href={`${modelViewBaseUrl}?slug=${item.data.slug}`}
+							href={`${modelViewBaseUrl.endsWith("/") ? modelViewBaseUrl : `${modelViewBaseUrl}/`}?slug=${item.data.slug}`}
 							target="_blank"
 							{...modelCardProps}
 						/>
