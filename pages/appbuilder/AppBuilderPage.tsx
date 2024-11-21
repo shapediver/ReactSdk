@@ -148,9 +148,9 @@ export default function AppBuilderPage(props: Partial<Props>) {
 	// get the component context to get the correct viewport
 	const componentContext = useContext(ComponentContext);
 	const { 
-		viewportComponent: ViewportComponent,
-		viewportOverlayWrapper: ViewportOverlayWrapper,
-		viewportIcons: ViewportIcons
+		viewportComponent: { component: ViewportComponent } = {},
+		viewportOverlayWrapper: { component: ViewportOverlayWrapper } = {},
+		viewportIcons: { component: ViewportIcons } = {}
 	} = componentContext;
 
 	// get settings for app builder from query string

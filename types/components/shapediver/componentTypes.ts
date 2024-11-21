@@ -17,7 +17,7 @@ export const getParameterComponent = (context: IComponentContext, definition: IS
 	if (component) {
 		return {
 			component: component.component,
-			extraBottomPadding: component.extraBottomPadding,
+			extraBottomPadding: component.extraBottomPadding
 		};
 	}
 
@@ -30,5 +30,5 @@ export const getParameterComponent = (context: IComponentContext, definition: IS
 export const getExportComponent = (context: IComponentContext, definition: IShapeDiverParamOrExportDefinition) => {
 	const type = definition.type;
 
-	return context.exports[type] ? context.exports[type] : ExportLabelComponent;
+	return context.exports[type] ? context.exports[type].component : ExportLabelComponent;
 };
