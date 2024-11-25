@@ -3,7 +3,7 @@ import ParameterLabelComponent from "./ParameterLabelComponent";
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { ActionIcon, Box, Button, Flex, Group, Loader, Stack, Text } from "@mantine/core";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
-import { IDrawingParameterSettings as IDrawingParameterProps, SystemInfo } from "@shapediver/viewer";
+import { IDrawingParameterSettings as IDrawingParameterProps, SystemInfo } from "@shapediver/viewer.session";
 import { PointsData } from "@shapediver/viewer.features.drawing-tools";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useDrawingTools } from "../../../hooks/shapediver/viewer/drawing/useDrawingTools";

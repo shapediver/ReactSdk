@@ -1,6 +1,6 @@
-import { ISessionApi } from "@shapediver/viewer";
+import { ISessionApi } from "@shapediver/viewer.session";
 import { useEffect, useRef, useState } from "react";
-import { useShapeDiverStoreViewer } from "../../store/useShapeDiverStoreViewer";
+import { useShapeDiverStoreSession } from "../../store/useShapeDiverStoreSession";
 import { useShapeDiverStoreParameters } from "../../store/useShapeDiverStoreParameters";
 import { IUseSessionDto } from "./useSession";
 import { useShallow } from "zustand/react/shallow";
@@ -11,14 +11,14 @@ import { useEventTracking } from "../useEventTracking";
  * Optionally registers all parameters and exports defined by the models as abstracted 
  * parameters and exports for use by the UI components.
  * 
- * @see {@link useShapeDiverStoreViewer} to access the API of the session.
+ * @see {@link useShapeDiverStoreSession} to access the API of the session.
  * @see {@link useShapeDiverStoreParameters} to access the abstracted parameters and exports.
  * 
  * @param props {@link IUseSessionDto}
  * @returns
  */
 export function useSessions(props: IUseSessionDto[]) {
-	const syncSessions = useShapeDiverStoreViewer(state => state.syncSessions);
+	const syncSessions = useShapeDiverStoreSession(state => state.syncSessions);
 	const { addSession: addSessionParameters, removeSession: removeSessionParameters } = useShapeDiverStoreParameters(
 		useShallow(state => ({ addSession: state.addSession, removeSession: state.removeSession }))
 	);

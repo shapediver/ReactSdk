@@ -1,21 +1,23 @@
 import { useEffect, useRef, useState } from "react";
-import { useShapeDiverStoreViewer } from "../../../store/useShapeDiverStoreViewer";
-import { ViewportCreateDto } from "../../../types/store/shapediverStoreViewer";
+import { useShapeDiverStoreViewport } from "../../../store/useShapeDiverStoreViewport";
 import { useShallow } from "zustand/react/shallow";
 import { useViewportId } from "./useViewportId";
+import { ViewportCreateDto } from "shared/types/shapediver/viewport";
+import { useShapeDiverStoreViewportAccessFunctions } from "shared/store/useShapeDiverStoreViewportAccessFunctions";
 
 /**
  * Hook for creating a viewport of the ShapeDiver 3D Viewer.
  * Typically, you want to directly use the {@link ViewportComponent} instead
  * of calling this hook yourself.
- * @see {@link useShapeDiverStoreViewer} to access the API of the viewport.
+ * @see {@link useShapeDiverStoreViewport} to access the API of the viewport.
  * @param props
  * @returns
  */
 export function useViewport(props: ViewportCreateDto) {
-	const { createViewport, closeViewport } = useShapeDiverStoreViewer(
+	const { createViewport, closeViewport } = useShapeDiverStoreViewport(
 		useShallow(state => ({ createViewport: state.createViewport, closeViewport: state.closeViewport }))
 	);
+	const { addViewportAccessFunctions, removeViewportAccessFunctions } = useShapeDiverStoreViewportAccessFunctions();
 	const [error, setError] = useState<Error | undefined>(undefined);
 	const promiseChain = useRef(Promise.resolve());
 	const canvasRef = useRef(null);
@@ -30,10 +32,21 @@ export function useViewport(props: ViewportCreateDto) {
 			}, { onError: setError });
 			if (viewportApi && props.showStatistics)
 				viewportApi.showStatistics = true;
+
+			if(viewportApi)
+				addViewportAccessFunctions(
+					_props.id, 
+					{
+						convertToGlTF: viewportApi.convertToGlTF.bind(viewportApi),
+						getScreenshot: viewportApi.getScreenshot.bind(viewportApi)
+					}
+				);
 		});
 
 		return () => {
-			promiseChain.current = promiseChain.current.then(() => closeViewport(_props.id));
+			promiseChain.current = promiseChain.current
+				.then(() => closeViewport(_props.id))
+				.then(() => removeViewportAccessFunctions(_props.id));
 		};
 	}, [props.id]);
 

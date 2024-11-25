@@ -1,5 +1,4 @@
-import { IOutputApi, ShapeDiverResponseOutputContent } from "@shapediver/viewer";
-import * as SDV from "@shapediver/viewer";
+import { IOutputApi, ShapeDiverResponseOutputContent, EVENTTYPE_OUTPUT, addListener, removeListener, IOutputEvent } from "@shapediver/viewer.session";
 import { useEffect, useState } from "react";
 import { useOutput } from "./useOutput";
 
@@ -33,8 +32,8 @@ export function useOutputContent(sessionId: string, outputIdOrName: string) : {
 
 	// register an event handler and listen for output updates
 	useEffect(() => {
-		const token = SDV.addListener(SDV.EVENTTYPE_OUTPUT.OUTPUT_UPDATED, (e) => {
-			const event = (e as SDV.IOutputEvent);
+		const token = addListener(EVENTTYPE_OUTPUT.OUTPUT_UPDATED, (e) => {
+			const event = (e as IOutputEvent);
 			if (event.outputId !== outputApi?.id)
 				return;
 			if (content !== outputApi?.content)
@@ -44,7 +43,7 @@ export function useOutputContent(sessionId: string, outputIdOrName: string) : {
 		setContent(outputApi?.content);
 
 		return () => {
-			SDV.removeListener(token);
+			removeListener(token);
 		};
 	}, [outputApi]);
 

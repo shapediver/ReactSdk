@@ -1,7 +1,8 @@
 import { useCallback } from "react";
-import { useShapeDiverStoreViewer } from "../../store/useShapeDiverStoreViewer";
+import { useShapeDiverStoreSession } from "../../store/useShapeDiverStoreSession";
 import { useShallow } from "zustand/react/shallow";
 import { useViewportId } from "./viewer/useViewportId";
+import { useShapeDiverStoreViewportAccessFunctions } from "shared/store/useShapeDiverStoreViewportAccessFunctions";
 
 interface Props {
 	namespace: string
@@ -17,10 +18,14 @@ export function useCreateModelState(props: Props) {
 	
 	const { namespace: sessionId } = props;
 	const { viewportId } = useViewportId();
-	const { sessionApi, viewportApi } = useShapeDiverStoreViewer(useShallow(state => ({
+	const { sessionApi } = useShapeDiverStoreSession(useShallow(state => ({
 		sessionApi: state.sessions[sessionId],
-		viewportApi: state.viewports[viewportId],
 	})));
+	const { getScreenshot, convertToGlTF } = useShapeDiverStoreViewportAccessFunctions(useShallow(state => ({
+		getScreenshot: state.viewportAccessFunctions[viewportId]?.getScreenshot,
+		convertToGlTF: state.viewportAccessFunctions[viewportId]?.convertToGlTF
+	})));
+
 	
 	const createModelState = useCallback(async (
 		parameterValues?: {[key: string]: unknown},
@@ -32,11 +37,11 @@ export function useCreateModelState(props: Props) {
 		sessionApi ? sessionApi.createModelState(
 			parameterValues,
 			omitSessionParameterValues,
-			includeImage && viewportApi ? () => viewportApi.getScreenshot() : undefined,
+			includeImage && getScreenshot ? () => getScreenshot() : undefined,
 			data, // <-- custom data
-			includeGltf && viewportApi ? async () => viewportApi.convertToGlTF() : undefined
+			includeGltf && convertToGlTF ? async () => convertToGlTF() : undefined
 		) : undefined, 
-	[sessionApi, viewportApi]);
+	[sessionApi, getScreenshot, convertToGlTF]);
 
 	return {
 		createModelState

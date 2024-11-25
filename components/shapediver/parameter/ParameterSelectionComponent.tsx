@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import ParameterLabelComponent from "./ParameterLabelComponent";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { useParameterComponentCommons } from "../../../hooks/shapediver/parameters/useParameterComponentCommons";
-import { ISelectionParameterProps, SelectionParameterValue } from "@shapediver/viewer";
+import { ISelectionParameterProps, SelectionParameterValue } from "@shapediver/viewer.session";
 import { useSelection } from "../../../hooks/shapediver/viewer/interaction/selection/useSelection";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import Icon from "../../ui/Icon";

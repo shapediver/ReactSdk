@@ -1,4 +1,4 @@
-import { IOutputApi, ISelectionParameterProps, ITreeNode, OutputApiData } from "@shapediver/viewer";
+import { IOutputApi, ISelectionParameterProps, ITreeNode, OutputApiData } from "@shapediver/viewer.session";
 import { checkNodeNameMatch, InteractionData, MultiSelectManager, SelectManager } from "@shapediver/viewer.features.interaction";
 import React, { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { vec3 } from "gl-matrix";
@@ -6,7 +6,7 @@ import { ISelectionState, useSelectManagerEvents } from "./useSelectManagerEvent
 import { useSelectManager } from "./useSelectManager";
 import { useHoverManager } from "./useHoverManager";
 import { useCreateNameFilterPattern } from "../useCreateNameFilterPattern";
-import { useShapeDiverStoreViewer } from "../../../../../store/useShapeDiverStoreViewer";
+import { useShapeDiverStoreSession } from "../../../../../store/useShapeDiverStoreSession";
 import { INodeInteractionDataState, NodeInteractionDataHandler } from "../useNodeInteractionData";
 
 // #region Functions (1)
@@ -126,7 +126,7 @@ export function useSelection(
 		setNodeInteractionDataHandlers(nodeInteractionDataHandlers);
 	}, [patterns, selectManager]);
 
-	const outputsPerSession = useShapeDiverStoreViewer(state => {
+	const outputsPerSession = useShapeDiverStoreSession(state => {
 		const outputs: {
 			[key: string]: {
 				[key: string]: IOutputApi;

@@ -1,5 +1,5 @@
 import { gatherNodesForPattern, NodeNameFilterPattern } from "@shapediver/viewer.features.interaction";
-import { ITreeNode, OutputApiData } from "@shapediver/viewer";
+import { ITreeNode, OutputApiData } from "@shapediver/viewer.session";
 import { useCallback, useEffect, useState } from "react";
 import { useOutputNode } from "../useOutputNode";
 

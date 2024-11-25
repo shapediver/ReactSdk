@@ -1,7 +1,4 @@
-import ViewportComponent from "../../components/shapediver/viewport/ViewportComponent";
-import React, {} from "react";
-import ViewportOverlayWrapper from "../../components/shapediver/viewport/ViewportOverlayWrapper";
-import ViewportIcons from "../../components/shapediver/viewport/ViewportIcons";
+import React, { useContext } from "react";
 import useAppBuilderSettings from "../../hooks/shapediver/appbuilder/useAppBuilderSettings";
 import { useSessionWithAppBuilder } from "../../hooks/shapediver/appbuilder/useSessionWithAppBuilder";
 import { useSessionPropsParameter } from "../../hooks/shapediver/parameters/useSessionPropsParameter";
@@ -19,6 +16,7 @@ import { shouldUsePlatform } from "../../utils/platform/environment";
 import { IAppBuilderTemplatePageContainerHints, IAppBuilderTemplatePageProps } from "../../types/pages/appbuildertemplates";
 import { useParameterHistory } from "../../hooks/shapediver/parameters/useParameterHistory";
 import { useKeyBindings } from "../../hooks/shapediver/useKeyBindings";
+import { ComponentContext } from "shared/context/ComponentContext";
 
 const urlWithoutQueryParams = window.location.origin + window.location.pathname;
 
@@ -146,6 +144,14 @@ export default function AppBuilderPage(props: Partial<Props>) {
 	
 	// get default session dto, if any
 	const { defaultSessionDto } = useDefaultSessionDto(props);
+	
+	// get the component context to get the correct viewport
+	const componentContext = useContext(ComponentContext);
+	const { 
+		viewportComponent: { component: ViewportComponent } = {},
+		viewportOverlayWrapper: { component: ViewportOverlayWrapper } = {},
+		viewportIcons: { component: ViewportIcons } = {}
+	} = componentContext;
 
 	// get settings for app builder from query string
 	const { settings, error: settingsError, loading, hasSettings, hasSession } = useAppBuilderSettings(defaultSessionDto);
@@ -219,11 +225,12 @@ export default function AppBuilderPage(props: Partial<Props>) {
 						right={containers.right}
 						bottom={containers.bottom}
 					>
-						<ViewportComponent>
-							<ViewportOverlayWrapper>
-								<ViewportIcons/>
-							</ViewportOverlayWrapper>
-						</ViewportComponent>
+						{ViewportComponent && <ViewportComponent>
+							{ViewportOverlayWrapper && <ViewportOverlayWrapper>
+								{ViewportIcons && <ViewportIcons />}
+							</ViewportOverlayWrapper>}
+						</ViewportComponent>}
+
 					</AppBuilderTemplateSelector>
 						: <></>
 	);

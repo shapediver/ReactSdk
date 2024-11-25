@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Gumball, updateGumballTransformation } from "@shapediver/viewer.features.gumball";
 import { getNodesByName } from "@shapediver/viewer.features.interaction";
-import { IGumballParameterProps, ISelectionParameterProps } from "@shapediver/viewer";
-import { useShapeDiverStoreViewer } from "../../../../../store/useShapeDiverStoreViewer";
+import { IGumballParameterProps, ISelectionParameterProps } from "@shapediver/viewer.session";
+import { useShapeDiverStoreSession } from "shared/store/useShapeDiverStoreSession";
+import { useShapeDiverStoreViewport } from "shared/store/useShapeDiverStoreViewport";
 import { useSelection } from "../selection/useSelection";
 import { useGumballEvents } from "./useGumballEvents";
 import { mat4 } from "gl-matrix";
@@ -69,9 +70,9 @@ export function useGumball(
 	initialTransformedNodeNames?: { name: string, transformation: number[] }[]
 ): IGumballState {
 	// get the session API
-	const sessionApis = useShapeDiverStoreViewer(state => { return sessionIds.map(id => state.sessions[id]); });
+	const sessionApis = useShapeDiverStoreSession(state => { return sessionIds.map(id => state.sessions[id]); });
 	// get the viewport API
-	const viewportApi = useShapeDiverStoreViewer(state => { return state.viewports[viewportId]; });
+	const viewportApi = useShapeDiverStoreViewport(state => { return state.viewports[viewportId]; });
 	
 	// create the selection settings from the interaction settings
 	const selectionSettings = useMemo(() => {

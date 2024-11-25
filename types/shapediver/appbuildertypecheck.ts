@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { IconTypeEnum } from "./icons";
-import { IDrawingParameterJsonSchema, IInteractionParameterJsonSchema, PARAMETER_TYPE, PARAMETER_VISUALIZATION } from "@shapediver/viewer";
+import { IDrawingParameterJsonSchema, IInteractionParameterJsonSchema, PARAMETER_TYPE, PARAMETER_VISUALIZATION } from "@shapediver/viewer.session";
 import { ShapeDiverResponseParameterStructure } from "@shapediver/api.geometry-api-dto-v2";
 
 // Zod type definition for IAppBuilderParameterDefinition

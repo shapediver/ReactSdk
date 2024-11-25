@@ -1,4 +1,4 @@
-import { addListener, EVENTTYPE_INTERACTION, IEvent, removeListener } from "@shapediver/viewer";
+import { addListener, EVENTTYPE_INTERACTION, IEvent, removeListener } from "@shapediver/viewer.session";
 import { InteractionEventResponseMapping, matchNodesWithPatterns, MultiSelectManager, OutputNodeNameFilterPatterns } from "@shapediver/viewer.features.interaction";
 import { useState, useCallback, useEffect, useContext } from "react";
 import { NotificationContext } from "../../../../../context/NotificationContext";

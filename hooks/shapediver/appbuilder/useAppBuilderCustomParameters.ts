@@ -2,7 +2,7 @@ import { IAppBuilder } from "../../../types/shapediver/appbuilder";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useParameterStateless } from "../parameters/useParameterStateless";
 import { useDefineGenericParameters } from "../parameters/useDefineGenericParameters";
-import { ISessionApi, PARAMETER_TYPE } from "@shapediver/viewer";
+import { ISessionApi, PARAMETER_TYPE } from "@shapediver/viewer.session";
 import { IAcceptRejectModeSelector, IGenericParameterExecutor } from "../../../types/store/shapediverStoreParameters";
 import { useShapeDiverStoreParameters } from "../../../store/useShapeDiverStoreParameters";
 import { useShallow } from "zustand/react/shallow";

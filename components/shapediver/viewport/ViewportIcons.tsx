@@ -1,37 +1,19 @@
 import React, { useState } from "react";
-import { ActionIcon, ActionIconVariant, Loader, Menu, Modal, Text, useProps, MantineStyleProp, Box, MantineThemeComponent } from "@mantine/core";
+import { ActionIcon, Loader, Menu, Modal, Text, useProps, Box } from "@mantine/core";
 import { useClickEventHandler } from "../../../hooks/misc/useClickEventHandler";
 import { isIPhone } from "../../../utils/misc/navigator";
 import { useFullscreen } from "../../../hooks/ui/useFullscreen";
 import { firstLetterUppercase } from "../../../utils/misc/strings";
-import { useShapeDiverStoreViewer } from "../../../store/useShapeDiverStoreViewer";
-import { FLAG_TYPE } from "@shapediver/viewer";
+import { useShapeDiverStoreViewport } from "../../../store/useShapeDiverStoreViewport";
+import { FLAG_TYPE } from "@shapediver/viewer.session";
 import classes from "./ViewportIcons.module.css";
 import Icon from "../../ui/Icon";
 import { IconTypeEnum } from "../../../types/shapediver/icons";
 import { useViewportId } from "../../../hooks/shapediver/viewer/useViewportId";
 import TooltipWrapper from "../../ui/TooltipWrapper";
+import { ViewportIconsOptionalProps, ViewportIconsProps } from "shared/types/shapediver/viewportIcons";
 
-interface Props {
-	viewportId?: string,
-}
-
-interface OptionalProps {
-	color: string
-	colorDisabled: string
-	enableArBtn: boolean,
-	enableCamerasBtn: boolean,
-	enableFullscreenBtn: boolean,
-	enableZoomBtn: boolean,
-	fullscreenId: string,
-	iconStyle: MantineStyleProp,
-	size: number,
-	style: MantineStyleProp,
-	variant: ActionIconVariant,
-	variantDisabled: ActionIconVariant,
-}
-
-const defaultProps: OptionalProps = {
+const defaultProps: ViewportIconsOptionalProps = {
 	color: "black",
 	colorDisabled: "grey",
 	enableArBtn: true,
@@ -46,15 +28,7 @@ const defaultProps: OptionalProps = {
 	variantDisabled: "transparent",
 };
 
-type ViewportIconsThemePropsType = Partial<OptionalProps>;
-
-export function ViewportIconsThemeProps(props: ViewportIconsThemePropsType): MantineThemeComponent {
-	return {
-		defaultProps: props
-	};
-}
-
-export default function ViewportIcons(props: Props & Partial<OptionalProps>) {
+export default function ViewportIcons(props: ViewportIconsProps & Partial<ViewportIconsOptionalProps>) {
 
 	const { viewportId: _viewportId, ...rest }	= props;
 	const {
@@ -74,7 +48,7 @@ export default function ViewportIcons(props: Props & Partial<OptionalProps>) {
 	const { viewportId: defaultViewportId } = useViewportId();
 	const viewportId = _viewportId ?? defaultViewportId;
 
-	const viewport = useShapeDiverStoreViewer(state => state.viewports[viewportId]);
+	const viewport = useShapeDiverStoreViewport(state => state.viewports[viewportId]);
 
 	const isArEnabled = viewport ? viewport.enableAR : false;
 	const isViewableInAr = viewport ? viewport.viewableInAR() : false;

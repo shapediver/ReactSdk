@@ -1,6 +1,8 @@
 import React from "react";
 import { ITrackerContext } from "../types/context/trackercontext";
 import { DummyTracker, TrackerContext } from "../context/TrackerContext";
+import { ComponentContext, DummyComponent } from "shared/context/ComponentContext";
+import { IComponentContext } from "shared/types/context/componentcontext";
 
 interface Props {
 
@@ -15,23 +17,33 @@ interface Props {
 	/**
 	 * The optional tracker to use.
 	 */
-	tracker?: ITrackerContext
+	tracker?: ITrackerContext,
+
+	/**
+	 * The optional component context to use.
+	 */
+	componentContext?: IComponentContext
 }
 
 export default function RootComponent(props: Props) {
 	const { 
 		children, 
 		useStrictMode = false,
-		tracker
+		tracker,
+		componentContext
 	} = props;
 
 	return useStrictMode ? <React.StrictMode>
 		<TrackerContext.Provider value={tracker ?? DummyTracker}>
-			{children}
+			<ComponentContext.Provider value={componentContext ?? DummyComponent}>
+				{children}
+			</ComponentContext.Provider>
 		</TrackerContext.Provider>
 	</React.StrictMode> : 
 		<TrackerContext.Provider value={tracker ?? DummyTracker}>
-			{children}
+			<ComponentContext.Provider value={componentContext ?? DummyComponent}>
+				{children}
+			</ComponentContext.Provider>
 		</TrackerContext.Provider>;
 }
 

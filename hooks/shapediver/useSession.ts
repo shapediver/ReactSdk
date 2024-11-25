@@ -1,7 +1,7 @@
-import { ISessionApi } from "@shapediver/viewer";
+import { ISessionApi } from "@shapediver/viewer.session";
 import { useEffect, useRef, useState } from "react";
-import { useShapeDiverStoreViewer } from "../../store/useShapeDiverStoreViewer";
-import { SessionCreateDto } from "../../types/store/shapediverStoreViewer";
+import { useShapeDiverStoreSession } from "../../store/useShapeDiverStoreSession";
+import { SessionCreateDto } from "../../types/store/shapediverStoreSession";
 import { useShapeDiverStoreParameters } from "../../store/useShapeDiverStoreParameters";
 import { IAcceptRejectModeSelector } from "../../types/store/shapediverStoreParameters";
 import { useShallow } from "zustand/react/shallow";
@@ -37,14 +37,14 @@ export interface IUseSessionDto extends SessionCreateDto {
  * Optionally registers all parameters and exports defined by the model as abstracted 
  * parameters and exports for use by the UI components.
  * 
- * @see {@link useShapeDiverStoreViewer} to access the API of the session.
+ * @see {@link useShapeDiverStoreSession} to access the API of the session.
  * @see {@link useShapeDiverStoreParameters} to access the abstracted parameters and exports.
  *
  * @param props {@link IUseSessionDto}
  * @returns
  */
 export function useSession(props: IUseSessionDto | undefined) {
-	const { createSession, closeSession } = useShapeDiverStoreViewer(useShallow(state => ({ createSession: state.createSession, closeSession: state.closeSession })));
+	const { createSession, closeSession } = useShapeDiverStoreSession(useShallow(state => ({ createSession: state.createSession, closeSession: state.closeSession })));
 	const { addSession: addSessionParameters, removeSession: removeSessionParameters } = useShapeDiverStoreParameters(
 		useShallow(state => ({ addSession: state.addSession, removeSession: state.removeSession }))
 	);

@@ -6,7 +6,7 @@ import { useSessionPropsExport } from "./parameters/useSessionPropsExport";
 import { useDefineGenericParameters } from "./parameters/useDefineGenericParameters";
 import { useParameterStateless } from "./parameters/useParameterStateless";
 import { useOutputContent } from "./viewer/useOutputContent";
-import { ShapeDiverResponseParameter } from "@shapediver/viewer";
+import { ShapeDiverResponseParameter } from "@shapediver/viewer.session";
 
 /** Prefix used to register custom parameters */
 const CUSTOM_SESSION_ID_POSTFIX = "_customui";

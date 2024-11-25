@@ -1,4 +1,4 @@
-import { IDrawingParameterSettings } from "@shapediver/viewer";
+import { IDrawingParameterSettings } from "@shapediver/viewer.session";
 import { IDrawingToolsApi, PointsData, Settings } from "@shapediver/viewer.features.drawing-tools";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useDrawingToolsApi } from "./useDrawingToolsApi";

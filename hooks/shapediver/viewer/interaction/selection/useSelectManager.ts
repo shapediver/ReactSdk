@@ -1,4 +1,4 @@
-import { ISelectionParameterProps, MaterialStandardData } from "@shapediver/viewer";
+import { ISelectionParameterProps, MaterialStandardData } from "@shapediver/viewer.session";
 import { SelectManager, MultiSelectManager, InteractionEngine } from "@shapediver/viewer.features.interaction";
 import { useEffect, useState } from "react";
 import { useInteractionEngine } from "../useInteractionEngine";

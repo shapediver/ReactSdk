@@ -1,9 +1,10 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, useContext } from "react";
 import { Accordion, Group, Loader, MantineThemeComponent, Paper, Stack, useProps } from "@mantine/core";
 import { getExportComponent, getParameterComponent } from "../../../types/components/shapediver/componentTypes";
 import { PropsParameter } from "../../../types/components/shapediver/propsParameter";
 import { PropsExport } from "../../../types/components/shapediver/propsExport";
 import { useSortedParametersAndExports } from "../../../hooks/shapediver/parameters/useSortedParametersAndExports";
+import { ComponentContext } from "shared/context/ComponentContext";
 
 /**
  * Functional component that creates an accordion of parameter and export components.
@@ -67,6 +68,8 @@ export default function ParametersAndExportsAccordionComponent(props: Props) {
 	// get sorted list of parameter and export definitions
 	const sortedParamsAndExports = useSortedParametersAndExports(parameters, exports);
 
+	const componentContext = useContext(ComponentContext);
+
 	// style properties
 	const { pbSlider, avoidSingleComponentGroups, mergeAccordions } = useProps("ParametersAndExportsAccordionComponent", defaultProps, props);
 
@@ -100,7 +103,7 @@ export default function ParametersAndExportsAccordionComponent(props: Props) {
 
 		if (param.parameter) {
 			// Get the element for the parameter and add it to the group
-			const { component: ParameterComponent, extraBottomPadding } = getParameterComponent(param.definition);
+			const { component: ParameterComponent, extraBottomPadding } = getParameterComponent(componentContext, param.definition);
 
 			elementGroups[groupId].elements.push(
 				<Paper key={param.definition.id} pb={extraBottomPadding ? pbSlider : undefined}>
@@ -113,7 +116,7 @@ export default function ParametersAndExportsAccordionComponent(props: Props) {
 		}
 		else if (param.export) {
 			// Get the element for the export and add it to the group
-			const ExportComponent = getExportComponent(param.definition);
+			const ExportComponent = getExportComponent(componentContext, param.definition);
 
 			elementGroups[groupId].elements.push(
 				<Paper key={param.definition.id}>

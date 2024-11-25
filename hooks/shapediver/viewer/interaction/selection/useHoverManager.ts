@@ -1,4 +1,4 @@
-import { IInteractionParameterProps, MaterialStandardData } from "@shapediver/viewer";
+import { IInteractionParameterProps, MaterialStandardData } from "@shapediver/viewer.session";
 import { HoverManager, InteractionEngine } from "@shapediver/viewer.features.interaction";
 import { useEffect, useState } from "react";
 import { useInteractionEngine } from "../useInteractionEngine";
