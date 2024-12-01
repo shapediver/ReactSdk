@@ -70,7 +70,7 @@ export default function AppBuilderWidgetsComponent({ namespace, widgets }: Props
 			else if (isActionsWidget(w))
 				return <AppBuilderActionsWidgetComponent key={i} namespace={namespace} {...w.props} />;
 			else if (isAgentWidget(w))
-				return <AppBuilderAgentWidgetComponent key={i} {...w.props} />;
+				return <AppBuilderAgentWidgetComponent key={i} namespace={namespace} {...w.props} />;
 			else
 				return null;
 		})}
