@@ -3,6 +3,7 @@ import { MantineStyleProp, MantineThemeComponent, Paper, PaperProps, useProps } 
 import { IAppBuilderWidgetPropsAgent } from "../../../../types/shapediver/appbuilder";
 import MarkdownWidgetComponent from "../../ui/MarkdownWidgetComponent";
 import { AppBuilderContainerContext } from "../../../../context/AppBuilderContext";
+import { useAllParameters } from "../../../../hooks/shapediver/parameters/useAllParameters";
 
 /** Style properties that can be controlled via the theme. */
 type StylePros = PaperProps & {
@@ -21,14 +22,21 @@ export function AppBuilderAgentWidgetThemeProps(props: AppBuilderAgentWidgetThem
 	};
 }
 
-export default function AppBuilderAgentWidgetComponent(props: IAppBuilderWidgetPropsAgent & AppBuilderAgentWidgetThemePropsType) {
-	
-	const { context, ...rest } = props;
+type Props = IAppBuilderWidgetPropsAgent & {
+	namespace: string;
+};
 
+export default function AppBuilderAgentWidgetComponent(props: Props & AppBuilderAgentWidgetThemePropsType) {
+	
+	const { namespace, context, ...rest } = props;
 	const themeProps = useProps("AppBuilderAgentWidgetComponent", defaultStyleProps, rest);
 	
-	const containerContext = useContext(AppBuilderContainerContext);
+	// get access to all parameters
+	const { parameters } = useAllParameters(namespace);
+	console.log("AppBuilderAgentWidgetComponent", parameters);
 
+	// check for container alignment
+	const containerContext = useContext(AppBuilderContainerContext);
 	const styleProps: MantineStyleProp = {};
 	if (containerContext.orientation === "horizontal") {
 		styleProps.height = "100%";
