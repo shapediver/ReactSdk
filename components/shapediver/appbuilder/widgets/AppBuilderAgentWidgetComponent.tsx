@@ -33,8 +33,12 @@ export default function AppBuilderAgentWidgetComponent(props: Props & AppBuilder
 	
 	// get access to all parameters
 	const { parameters } = useAllParameters(namespace);
-	console.log("AppBuilderAgentWidgetComponent", parameters);
+	console.log("AppBuilderAgentWidgetComponent: Available parameters", parameters);
 
+	// get access to all dynamic parameters
+	const { parameters: dynamicParameters } = useAllParameters(`${namespace}_appbuilder`);
+	console.log("AppBuilderAgentWidgetComponent: Available dynamic parameters", dynamicParameters);
+	
 	const markdown = `# AI Agent Widget
 ## Context
 Context provided from Grasshopper: 
@@ -43,6 +47,9 @@ _${context}_
 	
 ## Parameters
 ${Object.values(parameters).map(p => `* ${p.definition.name} (${p.definition.type})`).join("\n")}
+
+## Dynamic Parameters
+${Object.values(dynamicParameters).map(p => `* ${p.definition.name} (${p.definition.type})`).join("\n")}
 `;
 
 	// check for container alignment
