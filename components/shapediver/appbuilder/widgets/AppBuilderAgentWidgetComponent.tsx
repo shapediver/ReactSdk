@@ -35,6 +35,16 @@ export default function AppBuilderAgentWidgetComponent(props: Props & AppBuilder
 	const { parameters } = useAllParameters(namespace);
 	console.log("AppBuilderAgentWidgetComponent", parameters);
 
+	const markdown = `# AI Agent Widget
+## Context
+Context provided from Grasshopper: 
+
+_${context}_
+	
+## Parameters
+${Object.values(parameters).map(p => `* ${p.definition.name} (${p.definition.type})`).join("\n")}
+`;
+
 	// check for container alignment
 	const containerContext = useContext(AppBuilderContainerContext);
 	const styleProps: MantineStyleProp = {};
@@ -47,7 +57,7 @@ export default function AppBuilderAgentWidgetComponent(props: Props & AppBuilder
 
 	return <Paper {...themeProps} style={styleProps}>
 		<MarkdownWidgetComponent>
-			{ `Context: ${context}` }
+			{ markdown }
 		</MarkdownWidgetComponent>
 	</Paper>;
 }
