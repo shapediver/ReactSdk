@@ -5,6 +5,7 @@ import { ViewportComponentProps } from "../shapediver/viewport";
 import { OverlayStyleProps } from "shared/components/shapediver/ui/OverlayWrapper";
 import { ViewportOverlayWrapperProps } from "../shapediver/viewportOverlayWrapper";
 import { ViewportIconsProps, ViewportIconsOptionalProps } from "../shapediver/viewportIcons";
+import { IAppBuilderWidget } from "../shapediver/appbuilder";
 
 // #region Interfaces (7)
 
@@ -37,8 +38,8 @@ export interface ExportComponentMapValueType extends ComponentType {
 export interface IComponentContext {
 	// #region Properties (6)
 
-	exports: { [key: string]: ExportComponentMapValueType },
-	parameters: { [key: string]: ParameterComponentMapValueType | { [key: string]: ParameterComponentMapValueType } },
+	exports?: { [key: string]: ExportComponentMapValueType },
+	parameters?: { [key: string]: ParameterComponentMapValueType | { [key: string]: ParameterComponentMapValueType } },
 	viewportCallbacks?: {
 		[key: string]: {
 			/** Function to convert the viewport to glTF */
@@ -50,8 +51,20 @@ export interface IComponentContext {
 	viewportComponent?: ViewportComponentMapValueType,
 	viewportIcons?: ViewportIconsComponentMapValueType,
 	viewportOverlayWrapper?: ViewportOverlayWrapperComponentMapValueType,
+	widgets?: { [key: string]: WidgetComponentMapValueType },
 
 	// #endregion Properties (6)
+}
+
+export interface WidgetComponentMapValueType extends ComponentType {
+	// #region Properties (1)
+
+	/** Widget component */
+	component: (props: any) => ReactElement
+	/** Defines whether the widget is of this type */
+	isComponent: (widget: IAppBuilderWidget) => boolean,
+
+	// #endregion Properties (1)
 }
 
 /**
