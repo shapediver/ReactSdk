@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { 
 	IAppBuilderWidget, 
 	isAccordionWidget, 
@@ -18,6 +18,7 @@ import AppBuilderLineChartWidgetComponent from "./AppBuilderLineChartWidgetCompo
 import AppBuilderAreaChartWidgetComponent from "./AppBuilderAreaChartWidgetComponent";
 import AppBuilderBarChartWidgetComponent from "./AppBuilderBarChartWidgetComponent";
 import AppBuilderActionsWidgetComponent from "./AppBuilderActionsWidgetComponent";
+import { ComponentContext } from "shared/context/ComponentContext";
 
 interface Props {
 	/** 
@@ -35,8 +36,21 @@ export default function AppBuilderWidgetsComponent({ namespace, widgets }: Props
 		return <></>;
 	}
 
+	const componentContext = useContext(ComponentContext);
+
 	return <>
 		{ widgets.map((w, i) => {
+			// first we loop through all registered components to see if we can find a match
+			// here some of the default widget could be overwritten by custom components
+			for (const key in componentContext.widgets) {
+				const componentDefinition = componentContext.widgets[key];
+				if (componentDefinition.isComponent(w)) {
+					const Component = componentDefinition.component;
+
+					return <Component key={i} namespace={namespace} {...w.props} />;
+				}
+			}
+
 			if (isTextWidget(w))
 				return <AppBuilderTextWidgetComponent key={i} {...w.props} />;
 			else if (isImageWidget(w))
