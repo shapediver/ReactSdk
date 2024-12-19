@@ -42,6 +42,7 @@ import { IViewportApi } from "@shapediver/viewer.viewport";
 import { useShapeDiverStoreSession } from "shared/store/useShapeDiverStoreSession";
 import { useShapeDiverStoreViewport } from "shared/store/useShapeDiverStoreViewport";
 import { useViewportId } from "shared/hooks/shapediver/viewer/useViewportId";
+import SelectedAttribute from "./attributes/SelectedAttribute";
 
 export default function AppBuilderAttributeVisualizationWidgetComponent() {
 	const { viewportId } = useViewportId();
@@ -369,22 +370,31 @@ export default function AppBuilderAttributeVisualizationWidgetComponent() {
 		}
 	</>;
 
-	return <Paper>
-		<Group justify="space-between" style={active ? { marginBottom: "10px" } : {}}>
-			<Title order={3}> Attribute Visualization </Title>
-			<Switch
-				checked={active === true}
-				onChange={(e) => handleActivationToggle(e.currentTarget.checked)}
-			/>
-		</Group>
-		{
-			active && 
+	return <>
+		<Paper>
+			<Group justify="space-between" style={active ? { marginBottom: "10px" } : {}}>
+				<Title order={3}> Attribute Visualization </Title>
+				<Switch
+					checked={active === true}
+					onChange={(e) => handleActivationToggle(e.currentTarget.checked)}
+				/>
+			</Group>
+			{
+				active && 
 			<Stack>
 				{layerElement}
 				{attributeElement}
+				<SelectedAttribute 
+					viewportId={viewportId}
+					active={active}
+					selectedValues={selectedValues}
+					setSelectedValues={setSelectedValues}
+					removeAttribute={removeAttribute}
+				/>
 			</Stack>
-		}
-	</Paper>;
+			}
+		</Paper>
+	</>;
 }
 
 /**
