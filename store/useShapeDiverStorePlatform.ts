@@ -6,6 +6,7 @@ import {
 	create as createSdk,
 	isPBInvalidGrantOAuthResponseError,
 	isPBInvalidRequestOAuthResponseError,
+	SdPlatformResponseModelPublic,
 	SdPlatformResponseUserSelf,
 	SdPlatformUserGetEmbeddableFields,
 } from "@shapediver/sdk.platform-api-sdk-v1";
@@ -22,6 +23,7 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatformExtende
 
 	clientRef: undefined,
 	user: undefined,
+	currentModel: undefined,
 	genericCache: {},
 	
 	authenticate: async (redirect: boolean = true, forceReAuthenticate?: boolean) => {
@@ -127,6 +129,10 @@ export const useShapeDiverStorePlatform = create<IShapeDiverStorePlatformExtende
 		}
 		
 		return promise;
+	},
+
+	setCurrentModel: (model: SdPlatformResponseModelPublic | undefined) => {
+		set(() => ({ currentModel: model }), false, "setCurrentModel");
 	},
 
 }), { ...devtoolsSettings, name: "ShapeDiver | Platform" }));
