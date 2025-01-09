@@ -8,16 +8,17 @@ interface Props {
 		typeHint: string;
 	};
 	updateAttribute: (attribute: IColorAttribute) => void;
-	removeAttribute: (name: string) => void;
-	changeOrder: (name: string, direction: "up" | "down") => void;
+	removeAttribute: (name: string, type: string) => void;
+	changeOrder: (name: string, type: string, direction: "up" | "down") => void;
 }
 
 export default function ColorAttribute(props: Props) {
-	const { name, removeAttribute, changeOrder } = props;
+	const { name, attribute: attributeDefinition, removeAttribute, changeOrder } = props;
 
 	return (
 		<BaseAttribute 
 			name={name} 
+			type={attributeDefinition.typeHint}
 			removeAttribute={removeAttribute} 
 			changeOrder={changeOrder} 
 		/>

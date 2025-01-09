@@ -12,8 +12,8 @@ interface Props {
         values?: string[];
 	};
 	updateAttribute: (attribute: IStringAttribute) => void;
-	removeAttribute: (name: string) => void;
-	changeOrder: (name: string, direction: "up" | "down") => void;
+	removeAttribute: (name: string, type: string) => void;
+	changeOrder: (name: string, type: string, direction: "up" | "down") => void;
 }
 
 export default function StringAttribute(props: Props) {
@@ -71,6 +71,7 @@ export default function StringAttribute(props: Props) {
 	return (
 		<BaseAttribute
 			name={name}
+			type={attributeDefinition.typeHint}
 			removeAttribute={removeAttribute}
 			changeOrder={changeOrder}
 			options={legend}>

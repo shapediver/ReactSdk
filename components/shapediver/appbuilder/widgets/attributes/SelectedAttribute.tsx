@@ -1,6 +1,7 @@
-import { Stack, Title, Table, ActionIcon } from "@mantine/core";
+import { Stack, Title, Table, ActionIcon, Group } from "@mantine/core";
 import { getNodesByName } from "@shapediver/viewer.features.interaction";
 import { ISDTFAttributeData, ITreeNode, SessionApiData, SDTFItemData } from "@shapediver/viewer.session";
+import { IconChevronUp, IconChevronDown } from "@tabler/icons-react";
 import React, { useState, useCallback, useEffect, useMemo } from "react";
 import Icon from "shared/components/ui/Icon";
 import { useSelection } from "shared/hooks/shapediver/viewer/interaction/selection/useSelection";
@@ -11,9 +12,9 @@ import { IconTypeEnum } from "shared/types/shapediver/icons";
 interface SelectedAttributeProps {
 	viewportId: string;
 	active: boolean;
-	selectedValues: string[];
-	setSelectedValues: React.Dispatch<React.SetStateAction<string[]>>;
-	removeAttribute: (key: string) => void;
+	selectedValues: { name: string, type: string }[];
+	setSelectedValues: React.Dispatch<React.SetStateAction<{ name: string, type: string }[]>>;
+	removeAttribute: (key: string, type: string) => void;
 }
 
 /**
@@ -30,6 +31,7 @@ export default function SelectedAttribute(props: SelectedAttributeProps) {
 	const [selectedItemData, setSelectedItemData] = useState<{
 		[key: string]: ISDTFAttributeData;
 	}>();
+	const [opened, setOpened] = useState(true);
 
 	/**
 	 * Whenever the session is updated, the name filter is updated as well.
@@ -123,43 +125,48 @@ export default function SelectedAttribute(props: SelectedAttributeProps) {
 		{sessionUpdateCallbackHandlers}
 		{handlers}
 		{
-			selectedItemData && 
+			selectedItemData &&
 			<Stack>
-				<Title order={5}> Selected Item </Title>
-				<Table highlightOnHover withTableBorder>
-					<Table.Thead>
-						<Table.Tr>
-							<Table.Th style={{ width: "20%", whiteSpace: "nowrap" }}>Name</Table.Th>
-							<Table.Th style={{ width: "100%" }}>Value</Table.Th>
-							<Table.Th style={{ width: "auto", whiteSpace: "nowrap" }}>Show</Table.Th>
-						</Table.Tr>
-					</Table.Thead>
-					<Table.Tbody>
-						{Object.keys(selectedItemData).map((key) => 
-							<Table.Tr key={key}>
-								<Table.Td>{key}</Table.Td>
-								<Table.Td>{JSON.stringify(selectedItemData[key].value)}</Table.Td>
-								<Table.Td align="center">
-									<ActionIcon
-										title="Toggle Layer"
-										size={"sm"}
-										onClick={() => {
-											if(selectedValues.includes(key)) {
-												removeAttribute(key);
-											} else {
-												setSelectedValues((prev) => [...prev, key]);
-											}
-										}}
-										variant={selectedValues.includes(key) ? "filled" : "light"}
-									>
-										{selectedValues.includes(key) ? <Icon type={IconTypeEnum.Eye} /> : <Icon type={IconTypeEnum.EyeOff} />}
-									</ActionIcon>
-								</Table.Td>
+				<Group justify="space-between" onClick={() => setOpened((t) => !t)}>
+					<Title order={5}> Selected Item </Title>
+					{opened ? <IconChevronUp /> : <IconChevronDown />}
+				</Group>
+				{opened &&
+					<Table highlightOnHover withTableBorder>
+						<Table.Thead>
+							<Table.Tr bg={"var(--table-hover-color)"}>
+								<Table.Th style={{ width: "20%", whiteSpace: "nowrap" }}>Name</Table.Th>
+								<Table.Th style={{ width: "100%" }}>Value</Table.Th>
+								<Table.Th style={{ width: "auto", whiteSpace: "nowrap" }}>Show</Table.Th>
 							</Table.Tr>
-						)}
-					</Table.Tbody>
+						</Table.Thead>
+						<Table.Tbody>
+							{Object.entries(selectedItemData).map(([key, value]) =>
+								<Table.Tr key={key} bg={selectedValues.find(s => s.name === key && s.type === value.typeHint) ? "var(--mantine-primary-color-light)" : undefined}>
+									<Table.Td>{key}</Table.Td>
+									<Table.Td>{JSON.stringify(selectedItemData[key].value)}</Table.Td>
+									<Table.Td align="center">
+										<ActionIcon
+											title="Toggle Layer"
+											size={"sm"}
+											onClick={() => {
+												if (selectedValues.find(s => s.name === key && s.type === value.typeHint)) {
+													removeAttribute(key, value.typeHint);
+												} else {
+													setSelectedValues((prev) => [...prev, { name: key, type: value.typeHint }]);
+												}
+											}}
+											variant={selectedValues.find(s => s.name === key && s.type === value.typeHint) ? "filled" : "light"}
+										>
+											{selectedValues.find(s => s.name === key && s.type === value.typeHint) ? <Icon type={IconTypeEnum.EyeOff} /> : <Icon type={IconTypeEnum.Eye} />}
+										</ActionIcon>
+									</Table.Td>
+								</Table.Tr>
+							)}
+						</Table.Tbody>
 
-				</Table>
+					</Table>
+				}
 			</Stack>
 		}
 	</>;

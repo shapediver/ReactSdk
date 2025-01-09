@@ -60,7 +60,7 @@ export default function AppBuilderAttributeVisualizationWidgetComponent() {
 	const [attributeLayers, setAttributeLayers] = useState<{ [key: string]: ILayer; }>({});
 
 	const [renderedAttributes, setRenderedAttributes] = useState<IAttribute[]>([]);
-	const [selectedValues, setSelectedValues] = useState<string[]>([]);
+	const [selectedValues, setSelectedValues] = useState<{ name: string, type: string }[]>([]);
 	const [defaultLayer, setDefaultLayer] = useState<ILayer>({
 		color: "#666",
 		opacity: 1,
@@ -135,10 +135,9 @@ export default function AppBuilderAttributeVisualizationWidgetComponent() {
 	const removeAttribute = useCallback((name: string, type: string) => {
 		setSelectedValues((prev) => {
 			const newSelectedValues = [...prev];
-			const index = newSelectedValues.findIndex((value) => value === name && value === type);
-			if (index !== -1) {
+			const index = newSelectedValues.findIndex((value) => value.name === name && value.type === type);
+			if (index !== -1) 
 				newSelectedValues.splice(index, 1);
-			}
 
 			return newSelectedValues;
 		});
@@ -146,9 +145,8 @@ export default function AppBuilderAttributeVisualizationWidgetComponent() {
 		setRenderedAttributes((prev) => {
 			const newRenderedAttributes = [...prev];
 			const index = newRenderedAttributes.findIndex((attr) => attr.key === name && attr.type === type);
-			if (index !== -1) {
+			if (index !== -1) 
 				newRenderedAttributes.splice(index, 1);
-			}
 
 			return newRenderedAttributes;
 		});
@@ -160,7 +158,7 @@ export default function AppBuilderAttributeVisualizationWidgetComponent() {
 	const changeOrder = useCallback((name: string, type: string, direction: "up" | "down") => {
 		setSelectedValues((prev) => {
 			const newSelectedValues = [...prev];
-			const index = newSelectedValues.findIndex((value) => value === name && value === type);
+			const index = newSelectedValues.findIndex((value) => value.name === name && value.type === type);
 			if (index !== -1) {
 				if (direction === "up" && index > 0) {
 					const temp = newSelectedValues[index - 1];
@@ -306,56 +304,70 @@ export default function AppBuilderAttributeVisualizationWidgetComponent() {
 				<div style={{ display: attributeOptionsOpened ? "block" : "none" }}>
 					<MultiSelect
 						placeholder="Select an attribute"
-						data={Object.keys(attributeOverview).map((key) => ({ value: key, label: key }))}
-						value={selectedValues}
-						onChange={setSelectedValues}
+						data={Object.entries(attributeOverview).map(([key, value]) => {
+							return value.map((v) => ({ value: `${key}_${v.typeHint}`, label: value.length > 1 ? `${key} - ${v.typeHint}` : key }));
+						}).flat()}
+						value={selectedValues.map((value) => {
+							return value.name + "_" + value.type;
+						})}
+						onChange={(v) => {
+							const newSelectedValues = v.map((value) => {
+								const [name, type] = value.split("_");
+
+								return { name, type };
+							});
+
+							console.log(newSelectedValues);
+							setSelectedValues(newSelectedValues);
+						}}
 					/>
 					<Space />
 					{
-						selectedValues && selectedValues.map((key) => {
+						selectedValues && selectedValues.map((value) => {
+							const key = value.name;
 							if (!attributeOverview[key]) return null;
+							const attribute = attributeOverview[key].find((v) => v.typeHint === value.type);
+							if (!attribute) return null;
 
-							attributeOverview[key].forEach((attribute) => {
-								const attributeKey = `${key}_${attribute.typeHint}`;
+							const attributeKey = `${key}_${attribute.typeHint}`;
 
-								if (SdtfPrimitiveTypeGuard.isNumberType(attribute.typeHint)) {
-									return <NumberAttribute
-										key={attributeKey}
-										name={key}
-										attribute={attribute}
-										updateAttribute={updateAttribute}
-										removeAttribute={removeAttribute}
-										changeOrder={changeOrder}
-									/>;
-								} else if (SdtfPrimitiveTypeGuard.isStringType(attribute.typeHint)) {
-									return <StringAttribute
-										key={attributeKey}
-										name={key}
-										attribute={attribute}
-										updateAttribute={updateAttribute}
-										removeAttribute={removeAttribute}
-										changeOrder={changeOrder}
-									/>;
-								} else if (SdtfPrimitiveTypeGuard.isColorType(attribute.typeHint)) {
-									return <ColorAttribute
-										key={attributeKey}
-										name={key}
-										attribute={attribute}
-										updateAttribute={updateAttribute}
-										removeAttribute={removeAttribute}
-										changeOrder={changeOrder}
-									/>;
-								} else {
-									return <DefaultAttribute
-										key={attributeKey}
-										name={key}
-										attribute={attribute}
-										updateAttribute={updateAttribute}
-										removeAttribute={removeAttribute}
-										changeOrder={changeOrder}
-									/>;
-								}
-							});
+							if (SdtfPrimitiveTypeGuard.isNumberType(attribute.typeHint)) {
+								return <NumberAttribute
+									key={attributeKey}
+									name={key}
+									attribute={attribute}
+									updateAttribute={updateAttribute}
+									removeAttribute={removeAttribute}
+									changeOrder={changeOrder}
+								/>;
+							} else if (SdtfPrimitiveTypeGuard.isStringType(attribute.typeHint)) {
+								return <StringAttribute
+									key={attributeKey}
+									name={key}
+									attribute={attribute}
+									updateAttribute={updateAttribute}
+									removeAttribute={removeAttribute}
+									changeOrder={changeOrder}
+								/>;
+							} else if (SdtfPrimitiveTypeGuard.isColorType(attribute.typeHint)) {
+								return <ColorAttribute
+									key={attributeKey}
+									name={key}
+									attribute={attribute}
+									updateAttribute={updateAttribute}
+									removeAttribute={removeAttribute}
+									changeOrder={changeOrder}
+								/>;
+							} else {
+								return <DefaultAttribute
+									key={attributeKey}
+									name={key}
+									attribute={attribute}
+									updateAttribute={updateAttribute}
+									removeAttribute={removeAttribute}
+									changeOrder={changeOrder}
+								/>;
+							}
 						})
 					}
 				</div>

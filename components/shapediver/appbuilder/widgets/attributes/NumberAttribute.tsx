@@ -14,8 +14,8 @@ interface Props {
         max?: number;
     };
 	updateAttribute: (attribute: INumberAttribute) => void;
-	removeAttribute: (name: string) => void;
-	changeOrder: (name: string, direction: "up" | "down") => void;
+	removeAttribute: (name: string, type: string) => void;
+	changeOrder: (name: string, type: string, direction: "up" | "down") => void;
 }
 
 export default function NumberAttribute(props: Props) {
@@ -77,6 +77,7 @@ export default function NumberAttribute(props: Props) {
 	return (
 		<BaseAttribute 
 			name={name} 
+			type={attributeDefinition.typeHint}
 			removeAttribute={removeAttribute} 
 			changeOrder={changeOrder}
 			options={legend}

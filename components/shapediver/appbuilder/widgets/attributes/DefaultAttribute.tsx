@@ -10,8 +10,8 @@ interface Props {
         typeHint: string;
     };
 	updateAttribute: (attribute: IDefaultAttribute) => void;
-	removeAttribute: (name: string) => void;
-	changeOrder: (name: string, direction: "up" | "down") => void;
+	removeAttribute: (name: string, type: string) => void;
+	changeOrder: (name: string, type: string, direction: "up" | "down") => void;
 }
 
 export default function DefaultAttribute(props: Props) {
@@ -30,6 +30,7 @@ export default function DefaultAttribute(props: Props) {
 	return (
 		<BaseAttribute 
 			name={name} 
+			type={attributeDefinition.typeHint}
 			removeAttribute={removeAttribute} 
 			changeOrder={changeOrder}>
 			<ColorInput

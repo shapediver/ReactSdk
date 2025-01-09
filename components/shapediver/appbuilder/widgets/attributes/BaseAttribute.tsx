@@ -6,14 +6,15 @@ import { IconTypeEnum } from "shared/types/shapediver/icons";
 
 interface BaseAttributeProps {
 	name: string;
-	removeAttribute: (name: string) => void;
-	changeOrder: (name: string, direction: "up" | "down") => void;
+	type: string;
+	removeAttribute: (name: string, type: string) => void;
+	changeOrder: (name: string, type: string, direction: "up" | "down") => void;
 	children?: React.ReactNode;
     options?: React.ReactNode;
 }
 
 export default function BaseAttribute(props: BaseAttributeProps) {
-	const { name, children, options, removeAttribute, changeOrder } = props;
+	const { name, type, children, options, removeAttribute, changeOrder } = props;
 
 	return (
 		<Paper>
@@ -23,14 +24,14 @@ export default function BaseAttribute(props: BaseAttributeProps) {
 						<ActionIcon
 							variant="default"
 							size="xs"
-							onClick={() => changeOrder(name, "up")}
+							onClick={() => changeOrder(name, type, "up")}
 						>
 							<Icon type={IconTypeEnum.ArrowUp}/>
 						</ActionIcon>
 						<ActionIcon
 							variant="default"
 							size="xs"
-							onClick={() => changeOrder(name, "down")}
+							onClick={() => changeOrder(name, type, "down")}
 						>
 							<Icon type={IconTypeEnum.ArrowDown}/>
 						</ActionIcon>
@@ -41,7 +42,7 @@ export default function BaseAttribute(props: BaseAttributeProps) {
 						<Text>{name}</Text>
 						<Icon
 							type={IconTypeEnum.X}
-							onClick={() => removeAttribute(name)}
+							onClick={() => removeAttribute(name, type)}
 						/>
 					</Group>
 					
