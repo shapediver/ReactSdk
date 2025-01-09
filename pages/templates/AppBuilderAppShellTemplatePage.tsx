@@ -26,6 +26,12 @@ interface StyleProps {
 	bottomRows: ResponsiveValueType<number>;
 	/** Main area (viewport, bottom, and right container): Shall the bottom container use the full width? */
 	bottomFullWidth: ResponsiveValueType<boolean>;
+	/** Should the navbar have a border */
+	navbarBorder: boolean;
+	/** Should the header have a border */
+	headerBorder: boolean;
+	/** Should the right container area have a border */
+	rightBorder: boolean;
 }
 
 const defaultStyleProps: StyleProps = {
@@ -37,6 +43,9 @@ const defaultStyleProps: StyleProps = {
 	rightColumns: 1,
 	bottomRows: 1,
 	bottomFullWidth: false,
+	navbarBorder: true,
+	headerBorder: true,
+	rightBorder: true,
 };
 
 type AppBuilderAppShellTemplatePageThemePropsType = Partial<StyleProps>;
@@ -83,6 +92,9 @@ export default function AppBuilderAppShellTemplatePage(props: IAppBuilderTemplat
 		rightColumns: _rightColumns,
 		bottomRows: _bottomRows,
 		bottomFullWidth: _bottomFullWidth,
+		navbarBorder,
+		headerBorder, 
+		rightBorder,
 	} = useProps("AppBuilderAppShellTemplatePage", defaultStyleProps, props);
 
 	const [opened, { toggle }] = useDisclosure();
@@ -142,7 +154,7 @@ export default function AppBuilderAppShellTemplatePage(props: IAppBuilderTemplat
 				// is used for fullscreen mode and would otherwise be transparent (show as black).
 				style={{backgroundColor: "var(--mantine-color-body)"}}
 			>
-				<AppShell.Header>
+				<AppShell.Header withBorder={headerBorder}>
 					<Group h="100%" justify="space-between" wrap="nowrap" px="xs" >
 						{ hasNavbarContent ? <Burger opened={opened} onClick={toggle} hiddenFrom={navbarBreakpoint} size="sm" /> : undefined }
 						<AppBuilderContainerWrapper name="top">
@@ -150,7 +162,7 @@ export default function AppBuilderAppShellTemplatePage(props: IAppBuilderTemplat
 						</AppBuilderContainerWrapper>
 					</Group>
 				</AppShell.Header>
-				<AppShell.Navbar hidden={!opened} className={classes.appShellMainNavbar}>
+				<AppShell.Navbar hidden={!opened} className={classes.appShellMainNavbar} withBorder={navbarBorder}>
 					<AppBuilderContainerWrapper name="left">
 						{ left?.node }
 					</AppBuilderContainerWrapper>
@@ -171,6 +183,7 @@ export default function AppBuilderAppShellTemplatePage(props: IAppBuilderTemplat
 					{ !right ? undefined : 
 						<section
 							className={`${!showRightAtBottom ? classes.appShellGridAreaRight : classes.appShellGridAreaBottomPortrait}`}
+							data-with-border={rightBorder ? true : undefined}
 						>
 							<AppBuilderContainerWrapper name="right">
 								{ right.node }
