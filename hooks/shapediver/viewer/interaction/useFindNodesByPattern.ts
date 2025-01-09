@@ -56,6 +56,7 @@ export function useFindNodesByPattern(
 			setNodes([]);
 		} else if (newNode) {
 			let outputApi = newNode.data.find((data) => data instanceof OutputApiData)?.api;
+			// it's possible that the OutputApiData is not available yet, so we need to find it in the session api
 			if (!outputApi) {
 				// try to find it in the session api
 				const sessionApi = newNode.parent?.data.find((data) => data instanceof SessionApiData)?.api;
