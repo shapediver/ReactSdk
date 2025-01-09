@@ -24,7 +24,7 @@ const dragManagers: {
  */
 const cleanUpDragManager = (viewportId: string, componentId: string, interactionEngine?: InteractionEngine) => {
 	if (dragManagers[viewportId][componentId]) {
-		if (interactionEngine)
+		if (interactionEngine && interactionEngine.closed === false)
 			interactionEngine.removeInteractionManager(dragManagers[viewportId][componentId].token);
 		delete dragManagers[viewportId][componentId];
 	}
@@ -58,7 +58,7 @@ export function useDragManager(viewportId: string, componentId: string, settings
 
 	// use an effect to create the drag manager
 	useEffect(() => {
-		if (settings && interactionEngine && !dragManagers[viewportId][componentId]) {
+		if (settings && interactionEngine && interactionEngine.closed === false && !dragManagers[viewportId][componentId]) {
 			// create the drag manager with the given settings
 			const dragManager = new DragManager(
 				componentId,

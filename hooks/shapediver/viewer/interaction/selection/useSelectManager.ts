@@ -31,7 +31,7 @@ const cleanUpSelectManager = (viewportId: string, componentId: string, interacti
 		} else if (selectManagers[viewportId][componentId].selectManager instanceof MultiSelectManager) {
 			(selectManagers[viewportId][componentId].selectManager as MultiSelectManager).deselectAll();
 		}
-		if (interactionEngine)
+		if (interactionEngine && interactionEngine.closed === false)
 			interactionEngine.removeInteractionManager(selectManagers[viewportId][componentId].token);
 		delete selectManagers[viewportId][componentId];
 	}
@@ -80,7 +80,7 @@ export function useSelectManager(viewportId: string, componentId: string, settin
 				changed = true;
 			}
 
-			if (interactionEngine) {
+			if (interactionEngine && interactionEngine.closed === false) {
 				changed = true;
 				// depending on the settings, create a select manager or a multi select manager
 				if (selectMultiple) {
