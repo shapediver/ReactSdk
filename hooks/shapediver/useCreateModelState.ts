@@ -33,15 +33,20 @@ export function useCreateModelState(props: Props) {
 		includeImage?: boolean,
 		data?: Record<string, any>,
 		includeGltf?: boolean,
-	) => 
-		sessionApi ? sessionApi.createModelState(
+	) => {
+		// we need to create a screenshot before the model state
+		// as the function signature of createModelState does not allow to pass a promise for the screenshot
+		// Jira-task: https://shapediver.atlassian.net/browse/SS-8363
+		const screenshot = includeImage && getScreenshot ? await getScreenshot() : undefined;
+
+		return sessionApi ? sessionApi.createModelState(
 			parameterValues,
 			omitSessionParameterValues,
-			includeImage && getScreenshot ? () => getScreenshot() : undefined,
+			screenshot,
 			data, // <-- custom data
 			includeGltf && convertToGlTF ? async () => convertToGlTF() : undefined
-		) : undefined, 
-	[sessionApi, getScreenshot, convertToGlTF]);
+		) : undefined;
+	}, [sessionApi, getScreenshot, convertToGlTF]);
 
 	return {
 		createModelState

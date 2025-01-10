@@ -38,7 +38,13 @@ export function useViewport(props: ViewportCreateDto) {
 					_props.id, 
 					{
 						convertToGlTF: viewportApi.convertToGlTF.bind(viewportApi),
-						getScreenshot: viewportApi.getScreenshot.bind(viewportApi)
+						getScreenshot: async () => {
+							const screenshot = viewportApi.getScreenshot();
+							// sometimes the screenshot is not ready immediately (even though it should be)
+							await new Promise(resolve => setTimeout(resolve, 0));
+
+							return screenshot;
+						}
 					}
 				);
 		});

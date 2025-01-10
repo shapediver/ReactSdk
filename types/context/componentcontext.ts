@@ -40,14 +40,6 @@ export interface IComponentContext {
 
 	exports?: { [key: string]: ExportComponentMapValueType },
 	parameters?: { [key: string]: ParameterComponentMapValueType | { [key: string]: ParameterComponentMapValueType } },
-	viewportCallbacks?: {
-		[key: string]: {
-			/** Function to convert the viewport to glTF */
-			convertToGlTF?: () => Promise<Blob | undefined>,
-			/** Function to create a screenshot */
-			getScreenshot?: () => Promise<string | undefined>,
-		}
-	}
 	viewportComponent?: ViewportComponentMapValueType,
 	viewportIcons?: ViewportIconsComponentMapValueType,
 	viewportOverlayWrapper?: ViewportOverlayWrapperComponentMapValueType,

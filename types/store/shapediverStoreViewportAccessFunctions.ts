@@ -41,7 +41,7 @@ export interface IViewportAccessFunctions {
     /** Function to convert the viewport to glTF */
     convertToGlTF?: () => Promise<Blob>,
     /** Function to create a screenshot */
-    getScreenshot?: () => string,
+    getScreenshot?: () => Promise<string>,
 
     // #endregion Properties (2)
 }
