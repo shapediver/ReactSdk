@@ -3,6 +3,7 @@ import { IAppBuilderSettings, IAppBuilderSettingsResolved, IAppBuilderSettingsSe
 import { SdPlatformModelGetEmbeddableFields, create } from "@shapediver/sdk.platform-api-sdk-v1";
 import { getDefaultPlatformUrl, getPlatformClientId, shouldUsePlatform } from "../../../utils/platform/environment";
 import { useShapeDiverStorePlatform } from "../../../store/useShapeDiverStorePlatform";
+import { useShallow } from "zustand/react/shallow";
 
 /**
  * In case the session settings contain a slug and a platformUrl, 
@@ -10,8 +11,11 @@ import { useShapeDiverStorePlatform } from "../../../store/useShapeDiverStorePla
  */
 export default function useResolveAppBuilderSettings(settings : IAppBuilderSettings|undefined) {
 
-	const authenticate = useShapeDiverStorePlatform(state => state.authenticate);
-
+	const { authenticate, setCurrentModel } = useShapeDiverStorePlatform(useShallow(state => ({
+		authenticate: state.authenticate,
+		setCurrentModel: state.setCurrentModel,
+	})));
+	
 	// when running on the platform, try to get a token (refresh token grant)
 	const { value: sdkRef, error: platformError } = useAsync(async () => {
 		// in case query parameter "redirect" is set to "0", do not redirect
@@ -45,11 +49,13 @@ export default function useResolveAppBuilderSettings(settings : IAppBuilderSetti
 						SdPlatformModelGetEmbeddableFields.BackendSystem,
 						SdPlatformModelGetEmbeddableFields.Ticket,
 						SdPlatformModelGetEmbeddableFields.TokenExportFallback,
+						SdPlatformModelGetEmbeddableFields.User,
 					]);
 					
 					return result?.data;
 				};
 				const model = await getModel();
+				setCurrentModel(model);
 				document.title = `${model?.title ?? model?.slug} | ShapeDiver App Builder`;
 			
 				return {

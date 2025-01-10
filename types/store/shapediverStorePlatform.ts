@@ -1,4 +1,5 @@
 import { 
+	SdPlatformResponseModelPublic,
 	SdPlatformResponseUserSelf, 
 	SdPlatformSdk 
 } from "@shapediver/sdk.platform-api-sdk-v1";
@@ -51,6 +52,17 @@ export interface IShapeDiverStorePlatform {
      * @param forceRefresh Force refreshing the user information, do not use cached data. Defaults to false. 
      */
     getUser: (forceRefresh?: boolean) => Promise<SdPlatformResponseUserSelf | undefined>
+
+    /**
+     * If a "slug" query string parameter is present, the model corresponding to it (if any).
+     */
+    currentModel: SdPlatformResponseModelPublic | undefined
+
+    /**
+     * Set the current model.
+     * @param model 
+     */
+    setCurrentModel: (model: SdPlatformResponseModelPublic | undefined) => void
 }
 
 /** Type of cache. */
