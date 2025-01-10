@@ -24,7 +24,7 @@ const hoverManagers: {
  */
 const cleanUpHoverManager = (viewportId: string, componentId: string, interactionEngine?: InteractionEngine) => {
 	if (hoverManagers[viewportId][componentId]) {
-		if (interactionEngine)
+		if (interactionEngine && interactionEngine.closed === false)
 			interactionEngine.removeInteractionManager(hoverManagers[viewportId][componentId].token);
 		delete hoverManagers[viewportId][componentId];
 	}
@@ -58,7 +58,7 @@ export function useHoverManager(viewportId: string, componentId: string, setting
 
 	// use an effect to create the hover manager
 	useEffect(() => {
-		if (settings && interactionEngine && !hoverManagers[viewportId][componentId]) {
+		if (settings && interactionEngine && interactionEngine.closed === false && !hoverManagers[viewportId][componentId]) {
 			// create the hover manager with the given settings
 			const hoverManager = new HoverManager(
 				componentId,
