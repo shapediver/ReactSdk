@@ -303,6 +303,7 @@ export default function AppBuilderAttributeVisualizationWidgetComponent() {
 				// even if the attribute options are not opened
 				<div style={{ display: attributeOptionsOpened ? "block" : "none" }}>
 					<MultiSelect
+						clearable
 						placeholder="Select an attribute"
 						data={Object.entries(attributeOverview).map(([key, value]) => {
 							return value.map((v) => ({ value: `${key}_${v.typeHint}`, label: value.length > 1 ? `${key} - ${v.typeHint}` : key }));
@@ -316,9 +317,13 @@ export default function AppBuilderAttributeVisualizationWidgetComponent() {
 
 								return { name, type };
 							});
-
-							console.log(newSelectedValues);
 							setSelectedValues(newSelectedValues);
+
+							// remove from the rendered attributes if it is not selected anymore
+							const newRenderedAttributes = renderedAttributes.filter((attr) => {
+								return newSelectedValues.find((value) => value.name === attr.key && value.type === attr.type);
+							});
+							setRenderedAttributes(newRenderedAttributes);
 						}}
 					/>
 					<Space />
