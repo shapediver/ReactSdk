@@ -399,6 +399,7 @@ export const useCustomTheme = (props: Props = {}) => {
 				// navbarBorder: true,
 				// headerBorder: true,
 				// rightBorder: true,
+				// keepBottomInGrid: false,
 			}),
 			/**
 			 * AppBuilderGridTemplatePage

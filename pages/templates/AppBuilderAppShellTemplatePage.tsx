@@ -32,6 +32,12 @@ interface StyleProps {
 	headerBorder: boolean;
 	/** Should the right container area have a border */
 	rightBorder: boolean;
+	/** 
+	 * Should the bottom container be shown at the bottom of the grid even below the navbarBreakpoint?
+	 * If false, the bottom container is shown as part of the navigation bar area below the navbarBreakpoint.
+	 * In that case, the right container moves to the bottom of the grid layout in portrait mode.
+	 */
+	keepBottomInGrid: boolean;
 }
 
 const defaultStyleProps: StyleProps = {
@@ -46,6 +52,7 @@ const defaultStyleProps: StyleProps = {
 	navbarBorder: true,
 	headerBorder: true,
 	rightBorder: true,
+	keepBottomInGrid: false,
 };
 
 type AppBuilderAppShellTemplatePageThemePropsType = Partial<StyleProps>;
@@ -95,17 +102,19 @@ export default function AppBuilderAppShellTemplatePage(props: IAppBuilderTemplat
 		navbarBorder,
 		headerBorder, 
 		rightBorder,
+		keepBottomInGrid,
 	} = useProps("AppBuilderAppShellTemplatePage", defaultStyleProps, props);
 
 	const [opened, { toggle }] = useDisclosure();
 	const isLandscape = useIsLandscape();
 	const theme = useMantineTheme();
 	const aboveNavbarBreakpoint = useMediaQuery(`(min-width: ${theme.breakpoints[navbarBreakpoint]})`);
-	const showBottomInGrid = !!bottom && aboveNavbarBreakpoint;
-	const showRightAtBottom = !showBottomInGrid && !isLandscape;
-	const hasNavbarContent = !!left || (!!bottom && !showBottomInGrid);
-	const showHeader = !!top || (!!left && !aboveNavbarBreakpoint) || (!!bottom && !showBottomInGrid && !aboveNavbarBreakpoint);
-	const hasRight = !!right && !showRightAtBottom;
+	const showBottomInGrid = !!bottom && (aboveNavbarBreakpoint || keepBottomInGrid);
+	const showRightAtBottom = !!right && !showBottomInGrid && !isLandscape;
+	const showRightInNavbar = !!right && showBottomInGrid && !isLandscape;
+	const hasNavbarContent = !!left || (!!bottom && !showBottomInGrid) || showRightInNavbar;
+	const showHeader = !!top || (hasNavbarContent && !aboveNavbarBreakpoint);
+	const hasRight = !!right && !showRightAtBottom && !showRightInNavbar;
 	const hasBottom = (!!right && showRightAtBottom) || (!!bottom && showBottomInGrid);
 	
 	const columns = useResponsiveValueSelector(_columns);
@@ -171,6 +180,11 @@ export default function AppBuilderAppShellTemplatePage(props: IAppBuilderTemplat
 							{ bottom.node }
 						</AppBuilderContainerWrapper>
 					}
+					{
+						!right ? undefined : !showRightInNavbar ? undefined : <AppBuilderContainerWrapper name="right">
+							{ right.node }
+						</AppBuilderContainerWrapper>
+					}
 				</AppShell.Navbar>
 				<AppShell.Main
 					className={`${classes.appShellMain} ${showHeader ? classes.appShellMaxHeightBelowHeader : classes.appShellMaxHeight}`} style={rootStyle}
@@ -180,7 +194,7 @@ export default function AppBuilderAppShellTemplatePage(props: IAppBuilderTemplat
 					>
 						{ children }
 					</section>
-					{ !right ? undefined : 
+					{ !right || showRightInNavbar ? undefined : 
 						<section
 							className={`${!showRightAtBottom ? classes.appShellGridAreaRight : classes.appShellGridAreaBottomPortrait}`}
 							data-with-border={rightBorder ? true : undefined}
