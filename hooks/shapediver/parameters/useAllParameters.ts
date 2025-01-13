@@ -13,9 +13,8 @@ import { IShapeDiverParameter } from "../../../types/shapediver/parameter";
  */
 export function useAllParameters(namespace: string) {
 	
-	const {getParameters, getParameter} = useShapeDiverStoreParameters(useShallow(state => ({
+	const { getParameters } = useShapeDiverStoreParameters(useShallow(state => ({
 		getParameters: state.getParameters, 
-		getParameter: state.getParameter
 	})));
 
 	const paramStores = getParameters(namespace);
@@ -23,10 +22,11 @@ export function useAllParameters(namespace: string) {
 	const paramStoresStateless = Object.values(paramStores).reduce((acc, store) => {
 		const pstate = store.getState();
 		acc[pstate.definition.id] = pstate;
+		
 		return acc;
 	}, {} as { [key: string]: IShapeDiverParameter<any> });
 
 	return {
 		parameters: paramStoresStateless,
-	}
+	};
 }

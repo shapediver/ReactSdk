@@ -233,6 +233,8 @@ export interface IAppBuilderWidgetPropsAttributeVisualization {}
 export interface IAppBuilderWidgetPropsAgent {
 	/** Additional context. */
 	context?: string
+	/** Names of parameters to include in agent workflow. */
+	parameterNames?: string[]
 }
 
 /** 
