@@ -178,6 +178,7 @@ export type AppBuilderWidgetType = "accordion"
 	| "barChart"
 	| "actions"
 	| "attributeVisualization"
+	| "agent"
 ;
 
 /** 
@@ -228,6 +229,12 @@ export interface IAppBuilderWidgetPropsActions {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface IAppBuilderWidgetPropsAttributeVisualization {}
 
+/** Properties of an AI agent widget. */
+export interface IAppBuilderWidgetPropsAgent {
+	/** Additional context. */
+	context?: string
+}
+
 /** 
  * A widget.
  * 
@@ -250,6 +257,7 @@ export interface IAppBuilderWidget {
 		| IAppBuilderWidgetPropsBarChart
 		| IAppBuilderWidgetPropsActions
 		| IAppBuilderWidgetPropsAttributeVisualization
+		| IAppBuilderWidgetPropsAgent
 }
 
 /** 
@@ -348,6 +356,11 @@ export function isActionsWidget(widget: IAppBuilderWidget): widget is { type: "a
 /** assert widget type "attributeVisualization" */
 export function isAttributeVisualizationWidget(widget: IAppBuilderWidget): widget is { type: "attributeVisualization", props: IAppBuilderWidgetPropsAttributeVisualization } {
 	return widget.type === "attributeVisualization";
+}
+
+/** assert widget type "agent" */
+export function isAgentWidget(widget: IAppBuilderWidget): widget is { type: "agent", props: IAppBuilderWidgetPropsAgent } {
+	return widget.type === "agent";
 }
 
 /** assert action type "createModelState" */
